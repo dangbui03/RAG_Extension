@@ -3,6 +3,10 @@
 import * as vscode from "vscode";
 const fetch = require("node-fetch"); // You may need to install this package for making HTTP requests.
 
+import { buildPrompt } from "./promptBuilder";
+import { generateComment } from './ollama';
+import { getCurrentLine, addCommentToFile } from './manageEditor';
+
 const BASE_PROMPT = 'You are a helpful code tutor. Your job is to teach the user with simple descriptions and sample code of the concept. Respond with a guided overview of the concept in a series of messages. Do not give the user the answer directly, but guide them to find the answer themselves. If the user asks a non-programming question, politely decline to respond.';
 
 const EXERCISES_PROMPT = 'You are a helpful tutor. Your job is to teach the user with fun, simple exercises that they can complete in the editor. Your exercises should start simple and get more complex as the user progresses. Move one concept at a time, and do not move on to the next concept until the user provides the correct answer. Give hints in your exercises to help the user learn. If the user is stuck, you can provide the answer and explain why it is the answer. If the user asks a non-programming question, politely decline to respond.';
@@ -15,6 +19,41 @@ const MODEL_SELECTOR: vscode.LanguageModelChatSelector = {
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+
+	const generateCommentCommand = vscode.commands.registerCommand('ragify.generateComment', async () => {
+
+        vscode.window.showInformationMessage('Generating comment, please wait');
+
+        const editor = vscode.window.activeTextEditor;
+        if (editor === undefined) {
+            vscode.window.showErrorMessage('Failed to retrieve editor');
+            return;
+        }
+
+        const prompt = await buildPrompt(editor);
+        console.log('prompt', prompt);
+
+        if (prompt === undefined) {
+            vscode.window.showErrorMessage('Failed to generate prompt');
+            return;
+        }
+
+		const comment = await generateComment(prompt);
+        console.log('generated comment: ', comment);
+
+        if (comment === undefined) {
+            vscode.window.showErrorMessage('Failed to generate comment');
+            return;
+        }
+
+		const fileURI = editor.document.uri;
+        const fileName = editor.document.fileName;
+        const currentLine = getCurrentLine(editor);
+
+        addCommentToFile(fileURI, fileName, currentLine, comment);
+    });
+
+	context.subscriptions.push(generateCommentCommand);
 
 	// define a chat handler
 	const handler: vscode.ChatRequestHandler = async (
@@ -72,6 +111,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// add icon to participant
 	tutor.iconPath = vscode.Uri.joinPath(context.extensionUri, 'tutor.jpeg');
+
+	
 }
 
 // This method is called when your extension is deactivated
