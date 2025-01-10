@@ -31,6 +31,10 @@
       {
         "command": "ragify.generateComment",
         "title": "Generate Comment"
+      },
+      {
+        "command": "ragify.gfunctionComment",
+        "title": "Ragify: Gfunction Comment"
       }
     ]
   },
