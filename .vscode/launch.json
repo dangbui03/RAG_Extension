@@ -12,6 +12,7 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
+			"timeout": 20000,
 			"outFiles": [
 				"${workspaceFolder}/dist/**/*.js"
 			],

@@ -98,8 +98,6 @@ export class ActiveEditor implements Editor {
         return allFunctions;
     }
 
-
-
     public async getFunction(func: string): Promise<vscode.DocumentSymbol> {
         let allSymbols: vscode.DocumentSymbol[] = await this.getAllSymbols();
         for (let symbol of allSymbols) {
@@ -109,7 +107,6 @@ export class ActiveEditor implements Editor {
         }
         throw new MyError("Function not found ", ErrorType.ERROR);
     }
-
 
     public async getSelectedFunction(func: string): Promise<string> {
         let symbol: vscode.DocumentSymbol = await this.getFunction(func);
@@ -121,9 +118,13 @@ export class ActiveEditor implements Editor {
         const fileURI = this.document.uri;
         const fileName = this.document.fileName;
         const edit = new vscode.WorkspaceEdit();
-        const lineNumber = await this.getLineNumber(selection);
-        edit.insert(fileURI, new vscode.Position(lineNumber, 0), generatedComment.trim());
+        // const lineNumber = await this.getLineNumber(selection);
+        // edit.insert(fileURI, new vscode.Position(lineNumber, 0), generatedComment.trim());
+        // await vscode.workspace.applyEdit(edit);
+        // vscode.window.showInformationMessage(`Commented added to ${fileName} at line ${lineNumber + 1}`);
+        const lineNumber = selection.end.line + 1; // Add comment to the line below the code line
+        edit.insert(fileURI, new vscode.Position(lineNumber, 0), generatedComment.trim() + '\n');
         await vscode.workspace.applyEdit(edit);
-        vscode.window.showInformationMessage(`Commented added to ${fileName} at line ${lineNumber + 1}`);
+        vscode.window.showInformationMessage(`Comment added to ${fileName} at line ${lineNumber + 1}`);
     }
 }

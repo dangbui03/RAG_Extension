@@ -2,9 +2,8 @@ import { Prompt, PromptBuilder } from '../promptBuilder';
 import { getConfiguration, GetOllamaModelFromUser, handleError } from '../utils/utils';
 import { OllamaServer } from '../ollama';
 import { ActiveEditor } from '../manageEditor';
+import { Editor } from '../manageEditor';
 import * as vscode from 'vscode';
-
-
 
 export async function GenerateCommentCommand() {
     vscode.window.showInformationMessage('Generate Comment Command Executed!');
@@ -14,18 +13,30 @@ export async function GenerateCommentCommand() {
         // connect to ollama server
         const serverUrl: string = getConfiguration<string>('serverURL', 'http://127.0.0.1:11434');
         const ollamaServer: OllamaServer = OllamaServer.getInstance(serverUrl);
+
+        // get list of models
         const models: string[] = await ollamaServer.listModels();
         const model: string = await GetOllamaModelFromUser(models);
 
         // build the prompt
         const promptbuilder: PromptBuilder = new PromptBuilder(editor);
+        // const selectedCode = editor.getSelection();
+
+        // if (!selectedCode) {
+        //     vscode.window.showWarningMessage('No code selected. Generating comments for the entire file.');
+        //     promptbuilder.buildCodeBlock(editor.getEditorContent());
+        // } else {
+        //     promptbuilder.buildCodeBlock(selectedCode);
+        // }
+
         let prompt: Prompt = promptbuilder.buildContext().buildPromptText().buildCodeBlock(editor.getSelection()).build();
         const fullPrompt: string = prompt.getFullPrompt();
-        console.log(fullPrompt);
+        console.log("Generated Prompt:", fullPrompt);
 
         // generate comment
         const comment: string = await ollamaServer.generateComment(model, fullPrompt);
-        console.log(comment);
+        console.log("Generated Comment:", comment);
+        console.log("Language:", editor.getLanguage());
 
         // write comment to textEditor
         // comment will be added to the line above selection
@@ -34,6 +45,6 @@ export async function GenerateCommentCommand() {
         ollamaServer.abort();
     } catch (error: any) {
         handleError(error);
-        console.log(error);
+        vscode.window.showErrorMessage('Failed to generate comments. Please check the logs for more details.');
     }
 }

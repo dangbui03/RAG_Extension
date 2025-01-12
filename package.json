@@ -12,21 +12,30 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
-    "chatParticipants": [
-      {
-        "id": "chat-tutorial.code-tutor",
-        "fullName": "Code Tutor",
-        "name": "tutor",
-        "description": "What can I teach you?",
-        "isSticky": true,
-        "commands": [
-          {
-            "name": "exercise",
-            "description": "Provide exercises to practice a concept."
-          }
-        ]
+    "configuration": {
+      "title": "Ollama Settings",
+      "properties": {
+        "ollama.serverURL": {
+          "type": "string",
+          "default": "http://127.0.0.1:11434",
+          "description": "The URL of the Ollama server."
+        },
+        "ollama.giveContext": {
+          "type": "boolean",
+          "description": "Add the context to the Prompt",
+          "default": true
+        },
+        "ollama.modelName": {
+          "type": "string",
+          "description": "The name of the model to use."
+        },
+        "ollama.prompt": {
+          "type": "string",
+          "description": "Prompt to model",
+          "default": "Given the {codeblock} below, write a brief, insightful comment that explains its purpose and functionality within the script. If applicable, mention any inputs expected in the code block.Keep the comment concise (maximum 2 lines). Wrap the comment with the appropriate comment syntax of {language} language. Avoid assumptions about the complete code and focus on the provided block.Don't rewrite the code block. Just give the comment, and no need to specify the language again. "
+        }
       }
-    ],
+    },
     "commands": [
       {
         "command": "ragify.generateComment",

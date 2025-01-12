@@ -37,6 +37,7 @@ export class PromptBuilder implements PromptBuilderInterface {
       this.editor = editor;
       this.prompt = new Prompt();
   }
+  
   buildFunctionPrompt(): PromptBuilderInterface {
       let language: string = this.editor.getLanguage();
       let prompt: string = getConfiguration<string>("prompt").replace("{language}", language).replace("{codeblock}", "function");
