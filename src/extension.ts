@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { GenerateCommentCommand } from './commands/generateComment';
 import { GfunctionCommentCommand } from './commands/functionComment';
+import { readEntireCodeBase } from "./commands/readEntireCodeBase";
 
 // import { buildPrompt } from "./promptBuilder";
 // import { generateComment } from './ollama';
@@ -10,11 +11,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	console.log('Congratulations, your extension "ragify" is now active!');
 
-	const gcdisposable = vscode.commands.registerCommand('ragify.generateComment', GenerateCommentCommand);
-	const gcFunctionDisposable = vscode.commands.registerCommand('ragify.gfunctionComment', GfunctionCommentCommand);
+	const ragdisposable = vscode.commands.registerCommand('ragify.generateComment', GenerateCommentCommand);
+	const ragFunctionDisposable = vscode.commands.registerCommand('ragify.gfunctionComment', GfunctionCommentCommand);
+    const ragEntireCodeBaseDisposable = vscode.commands.registerCommand('ragify.readEntireCodeBase', readEntireCodeBase);
 
-	context.subscriptions.push(gcdisposable);
-	context.subscriptions.push(gcFunctionDisposable);
+	context.subscriptions.push(ragdisposable);
+	context.subscriptions.push(ragFunctionDisposable);
+    context.subscriptions.push(ragEntireCodeBaseDisposable);
 	// const model = 'qwen-2.5-coder:1.5B';
 
 	// const generateCommentCommand = vscode.commands.registerCommand('ragify.generateComment', async () => {

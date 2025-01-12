@@ -123,7 +123,7 @@ export class ActiveEditor implements Editor {
         // await vscode.workspace.applyEdit(edit);
         // vscode.window.showInformationMessage(`Commented added to ${fileName} at line ${lineNumber + 1}`);
         const lineNumber = selection.end.line + 1; // Add comment to the line below the code line
-        edit.insert(fileURI, new vscode.Position(lineNumber, 0), generatedComment.trim() + '\n');
+        edit.insert(fileURI, new vscode.Position(lineNumber, 1), generatedComment.trim() + '\n');
         await vscode.workspace.applyEdit(edit);
         vscode.window.showInformationMessage(`Comment added to ${fileName} at line ${lineNumber + 1}`);
     }
