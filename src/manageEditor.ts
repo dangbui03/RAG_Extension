@@ -21,6 +21,7 @@ import { ErrorType, MyError } from "./utils/type";
 export interface Editor {
     editor: vscode.TextEditor,
     document: vscode.TextDocument
+    version: string,
     getLanguage(): string,
     getEditorContent(): string,
     getSelection(): string,
@@ -29,9 +30,11 @@ export interface Editor {
 export class ActiveEditor implements Editor {
     editor: vscode.TextEditor;
     document: vscode.TextDocument;
+    version: string;
     constructor() {
         this.editor = this.getActiveEditor();
         this.document = this.editor.document;
+        this.version = "";
     }
 
 
