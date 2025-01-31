@@ -39,8 +39,8 @@ function catchNextJsVersion() {
     });
 
     // Optionally, use the `nextJsVersion` variable later in your logic
-    // console.log('Detected Next.js version:', nextJsVersion);
-    vscode.window.showInformationMessage(`Detected Next.js version: ${nextJsVersion}`);
+    console.log('Detected Next.js version:', nextJsVersion);
+    // vscode.window.showInformationMessage(`Detected Next.js version: ${nextJsVersion}`);
     return nextJsVersion;
 }
 

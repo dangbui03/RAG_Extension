@@ -36,6 +36,31 @@
         }
       }
     },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mySidebarContainer",
+          "title": "My Sidebar",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views":
+      {
+        "explorer": [
+          {
+            "id": "explorer",
+            "name": "Explorer View"
+          }
+        ],
+        "mySidebarContainer": [
+        {
+          "id": "mySidebarView",
+          "name": "Ask AI"
+        }
+      ]
+      }
+    ,
     "commands": [
       {
         "command": "ragify.generateComment",
