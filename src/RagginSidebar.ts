@@ -1,7 +1,7 @@
 
 import * as vscode from "vscode";
 
-export class SidebarProvider implements vscode.WebviewViewProvider {
+export class RagginSidebar implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
 
