@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 // If you're making HTTP calls, you might need node-fetch or Axios:
 // import fetch from 'node-fetch';
 
+import { generateAnswer } from './utils/generator';
+
 export class RagginSidebar implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
 
@@ -23,9 +25,10 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     const question = message.text || '';
                     const model = message.model;
                     // Example: call a server to get an answer
-                    const answer = await this.askServer(question, model);
+                    // const answer = await this.askServer(question, model);
+                    const answer = await generateAnswer(question, model, this._view.webview);
                     // Update the webview with the answer
-                    this.updateContent(answer);
+                    // this.updateContent(answer);
                     break;
                 }
                 default:
