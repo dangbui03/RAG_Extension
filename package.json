@@ -9,7 +9,10 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onWebviewPanel:mySidebarView",
+    "onUri"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
@@ -60,7 +63,7 @@
         }
       ]
       }
-    ,
+    ,    
     "commands": [
       {
         "command": "ragify.generateComment",

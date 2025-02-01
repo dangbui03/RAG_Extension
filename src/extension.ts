@@ -3,6 +3,7 @@ import { GenerateCommentCommand } from './commands/generateComment';
 import { GfunctionCommentCommand } from './commands/functionComment';
 import { readEntireCodeBase } from "./commands/readEntireCodeBase";
 import { SidebarProvider } from "./RagginSidebar";
+// import { SidebarProvider } from "./SidebarProvider";
 
 // import { SidebarProvider } from './SidebarProvider';
 
