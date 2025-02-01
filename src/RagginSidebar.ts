@@ -73,75 +73,147 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
      */
     private _getHtmlForWebview(webview: vscode.Webview): string {
         return /* html */ `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Ask AI</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        padding: 10px;
-                        margin: 0;
-                    }
-                    .box {
-                        border: 1px solid #ccc;
-                        border-radius: 4px;
-                        padding: 10px;
-                        background-color: #242424;
-                        color: #ebe6e6;
-                        margin-top: 10px;
-                    }
-                    #question {
-                        width: 100%;
-                        background-color: #242424;
-                        color: #ebe6e6;
-                        box-sizing: border-box;
-                    }
-                    #model {
-                        width: 100%;
-                        background-color: #242424;
-                        color: #ebe6e6;
-                        box-sizing: border-box;
-                    }
-                    #askBtn {
-                        margin-top: 5px;
-                    }
-                    #response {
-                        margin-top: 10px;
-                        white-space: pre-wrap;
-                    }
-                </style>
-            </head>
-            <body>
-                <h3>Ask Something</h3>
-                <textarea id="question" rows="3" placeholder="Type your question..."></textarea><br/>
-                <textarea id="model" rows="3" placeholder="Type your model..."></textarea><br/>
-                <button id="askBtn">Ask</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-                <div id="response" class="box">Response will appear here.</div>
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: #252526;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
 
-                <script>
-                    const vscode = acquireVsCodeApi();
+        h3 {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 20px;
+            color: #dcdcaa;
+        }
 
-                    // When the user clicks "Ask", send the question to the extension
-                    document.getElementById('askBtn').addEventListener('click', () => {
-                        const question = document.getElementById('question').value;
-                        const mod = document.getElementById('model').value;
-                        vscode.postMessage({ command: 'askQuestion', text: question, model: mod });
-                    });
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #bbbbbb;
+            display: block;
+            margin-top: 15px;
+        }
 
-                    // Listen to messages from the extension
-                    window.addEventListener('message', (event) => {
-                        const message = event.data;
-                        if (message.type === 'update') {
-                            document.getElementById('response').textContent = message.content;
-                        }
-                    });
-                </script>
-            </body>
-            </html>
+        textarea, select {
+            width: 100%;
+            background-color: #2d2d30;
+            color: #ffffff;
+            border: 1px solid #3c3c3c;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s ease-in-out;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        textarea:focus, select:focus {
+            border: 1px solid #007acc;
+        }
+
+        select {
+            cursor: pointer;
+            height: 40px;
+        }
+
+        .btn {
+            width: 100%;
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s ease-in-out;
+        }
+
+        .btn:hover {
+            background: #005f99;
+        }
+
+        .response-box {
+            background-color: #2d2d30;
+            border: 1px solid #3c3c3c;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            min-height: 50px;
+            font-size: 14px;
+            color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>Ask Something</h3>
+
+        <label for="question">Your Question:</label>
+        <textarea id="question" rows="3" placeholder="Type your question..."></textarea>
+
+        <label for="model">Select a Model:</label>
+        <select id="model">
+            <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
+            
+        </select>
+
+        <button class="btn" id="askBtn">Ask</button>
+
+        <div id="response" class="response-box">Response will appear here.</div>
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        document.getElementById('askBtn').addEventListener('click', () => {
+            const question = document.getElementById('question').value.trim();
+            const model = document.getElementById('model').value;
+
+            if (question === "") {
+                document.getElementById('response').textContent = "⚠️ Please enter a question.";
+                return;
+            }
+
+            vscode.postMessage({ command: 'askQuestion', text: question, model: model });
+        });
+
+        window.addEventListener('message', (event) => {
+            const message = event.data;
+            if (message.type === 'update') {
+                document.getElementById('response').textContent = message.content || "No response received.";
+            }
+        });
+    </script>
+
+</body>
+</html>
         `;
     }
 }
