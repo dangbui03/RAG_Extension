@@ -21,8 +21,9 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
             switch (message.command) {
                 case 'askQuestion': {
                     const question = message.text || '';
+                    const model = message.model;
                     // Example: call a server to get an answer
-                    const answer = await this.askServer(question);
+                    const answer = await this.askServer(question, model);
                     // Update the webview with the answer
                     this.updateContent(answer);
                     break;
@@ -47,7 +48,7 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
     /**
      * Example function that calls your server (replace with real logic).
      */
-    private async askServer(question: string): Promise<string> {
+    private async askServer(question: string, model: string): Promise<string> {
         const ollama_endpoint = 'http://localhost:11434/api/generate';
         // Replace the below with your actual request to Ollama or another API
         try {
@@ -55,10 +56,8 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
             const response = await fetch(ollama_endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: question, model: 'qwen:1.8b', stream: false }),
+                body: JSON.stringify({ prompt: question, model: model, stream: false }),
             });
-            /*
-            */
            const data = await response.json();
            return data.response || 'No response';
             // For now, just return a mock response
@@ -90,11 +89,20 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                         border: 1px solid #ccc;
                         border-radius: 4px;
                         padding: 10px;
-                        background-color: #f9f9f9;
+                        background-color: #242424;
+                        color: #ebe6e6;
                         margin-top: 10px;
                     }
                     #question {
                         width: 100%;
+                        background-color: #242424;
+                        color: #ebe6e6;
+                        box-sizing: border-box;
+                    }
+                    #model {
+                        width: 100%;
+                        background-color: #242424;
+                        color: #ebe6e6;
                         box-sizing: border-box;
                     }
                     #askBtn {
@@ -109,6 +117,7 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
             <body>
                 <h3>Ask Something</h3>
                 <textarea id="question" rows="3" placeholder="Type your question..."></textarea><br/>
+                <textarea id="model" rows="3" placeholder="Type your model..."></textarea><br/>
                 <button id="askBtn">Ask</button>
 
                 <div id="response" class="box">Response will appear here.</div>
@@ -119,7 +128,8 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     // When the user clicks "Ask", send the question to the extension
                     document.getElementById('askBtn').addEventListener('click', () => {
                         const question = document.getElementById('question').value;
-                        vscode.postMessage({ command: 'askQuestion', text: question });
+                        const mod = document.getElementById('model').value;
+                        vscode.postMessage({ command: 'askQuestion', text: question, model: mod });
                     });
 
                     // Listen to messages from the extension
