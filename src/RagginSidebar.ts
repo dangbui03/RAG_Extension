@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 // If you're making HTTP calls, you might need node-fetch or Axios:
 // import fetch from 'node-fetch';
-
+import { OllamaServer } from './ollama';
+import { getConfiguration } from './utils/utils';
 import { generateAnswer } from './utils/generator';
 
 export class RagginSidebar implements vscode.WebviewViewProvider {
@@ -9,7 +10,7 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
 
     constructor(private readonly _extensionUri: vscode.Uri) {}
 
-    public resolveWebviewView(webviewView: vscode.WebviewView): void {
+    public async resolveWebviewView(webviewView: vscode.WebviewView): Promise<void> {
         this._view = webviewView;
 
         // Allow scripts in the webview
@@ -31,6 +32,29 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     // this.updateContent(answer);
                     break;
                 }
+                case 'populateModels': {
+                    // The Webview is requesting models
+                    const serverUrl: string = getConfiguration('serverURL', 'http://127.0.0.1:11434');
+                    const ollamaServer = OllamaServer.getInstance(serverUrl);
+
+                    try {
+                        const models = await ollamaServer.listModels();
+                        // Send the list of models back to the Webview
+                        webviewView.webview.postMessage({
+                            command: 'populateModels',
+                            models: models || [],
+                        });
+                    } catch (error) {
+                        console.error('Error fetching models:', error);
+                        // You could also send an error message back
+                        webviewView.webview.postMessage({
+                            command: 'populateModels',
+                            models: [],
+                            error: String(error),
+                        });
+                    }
+                    break;
+                }
                 default:
                     break;
             }
@@ -39,184 +63,185 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
     }
 
-    /**
-     * Send a message to the webview to update the content area
-     */
-    public updateContent(content: string): void {
-        if (this._view) {
-            this._view.webview.postMessage({ type: 'update', content });
-        }
-    }
-
-    /**
-     * Example function that calls your server (replace with real logic).
-     */
-    private async askServer(question: string, model: string): Promise<string> {
-        const ollama_endpoint = 'http://localhost:11434/api/generate';
-        // Replace the below with your actual request to Ollama or another API
-        try {
-            // Example using fetch (if you have node-fetch or axios installed)
-            const response = await fetch(ollama_endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: question, model: model, stream: false }),
-            });
-           const data = await response.json();
-           return data.response || 'No response';
-            // For now, just return a mock response
-            // return `You asked: "${question}". (Replace this with real server response.)`;
-        } catch (error) {
-            console.error(error);
-            return 'Error contacting the server.';
-        }
-    }
-
-    /**
-     * Generate the HTML for the sidebar webview
-     */
     private _getHtmlForWebview(webview: vscode.Webview): string {
         return /* html */ `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ask AI</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Ask AI</title>
 
-        .container {
-            max-width: 600px;
-            width: 100%;
-            background: #252526;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        }
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-        h3 {
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 20px;
-            color: #dcdcaa;
-        }
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #1e1e1e;
+                    color: #ffffff;
+                    margin: 0;
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
 
-        label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #bbbbbb;
-            display: block;
-            margin-top: 15px;
-        }
+                .container {
+                    max-width: 600px;
+                    margin: auto;
+                    width: 100%;
+                    background: #252526;
+                    padding: 10px;
+                    border-radius: 8px;
+                    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+                }
 
-        textarea, select {
-            width: 100%;
-            background-color: #2d2d30;
-            color: #ffffff;
-            border: 1px solid #3c3c3c;
-            border-radius: 5px;
-            padding: 10px;
-            font-size: 14px;
-            outline: none;
-            transition: border 0.2s ease-in-out;
-        }
+                h3 {
+                    margin-bottom: 15px;
+                    text-align: center;
+                    font-size: 20px;
+                    color: #dcdcaa;
+                }
 
-        textarea {
-            resize: vertical;
-        }
+                label {
+                    font-size: 14px;
+                    font-weight: bold;
+                    color: #bbbbbb;
+                    display: block;
+                    margin-top: 15px;
+                }
 
-        textarea:focus, select:focus {
-            border: 1px solid #007acc;
-        }
+                textarea, select {
+                    width: 100%;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    border: 1px solid #3c3c3c;
+                    border-radius: 5px;
+                    padding: 10px;
+                    font-size: 14px;
+                    outline: none;
+                    transition: border 0.2s ease-in-out;
+                }
 
-        select {
-            cursor: pointer;
-            height: 40px;
-        }
+                textarea {
+                    resize: vertical;
+                }
 
-        .btn {
-            width: 100%;
-            background: #007acc;
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.2s ease-in-out;
-        }
+                textarea:focus, select:focus {
+                    border: 1px solid #007acc;
+                }
 
-        .btn:hover {
-            background: #005f99;
-        }
+                select {
+                    cursor: pointer;
+                    height: 40px;
+                }
 
-        .response-box {
-            background-color: #2d2d30;
-            border: 1px solid #3c3c3c;
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 20px;
-            white-space: pre-wrap;
-            min-height: 50px;
-            font-size: 14px;
-            color: #cccccc;
-        }
-    </style>
-</head>
-<body>
+                .btn {
+                    width: 100%;
+                    background: #007acc;
+                    color: white;
+                    border: none;
+                    padding: 12px;
+                    font-size: 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-top: 15px;
+                    transition: background 0.2s ease-in-out;
+                }
 
-    <div class="container">
-        <h3>Ask Something</h3>
+                .btn:hover {
+                    background: #005f99;
+                }
 
-        <label for="question">Your Question:</label>
-        <textarea id="question" rows="3" placeholder="Type your question..."></textarea>
+                .response-box {
+                    background-color: #2d2d30;
+                    border: 1px solid #3c3c3c;
+                    border-radius: 6px;
+                    padding: 15px;
+                    margin-top: 20px;
+                    white-space: pre-wrap;
+                    min-height: 50px;
+                    font-size: 14px;
+                    color: #cccccc;
+                }
+            </style>
+        </head>
+        <body>
 
-        <label for="model">Select a Model:</label>
-        <select id="model">
-            <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
-            
-        </select>
+            <div class="container">
+                <h3>Ask Something</h3>
 
-        <button class="btn" id="askBtn">Ask</button>
+                <label for="question">Your Question:</label>
+                <textarea id="question" rows="3" placeholder="Type your question..."></textarea>
 
-        <div id="response" class="response-box">Response will appear here.</div>
-    </div>
+                <label for="model">Select a Model:</label>
+                
+                <select id="model">
+                    <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
+                </select>
 
-    <script>
-        const vscode = acquireVsCodeApi();
+                <button class="btn" id="askBtn">Ask</button>
 
-        document.getElementById('askBtn').addEventListener('click', () => {
-            const question = document.getElementById('question').value.trim();
-            const model = document.getElementById('model').value;
+                <div id="response" class="response-box markdown-content">
+                    Response will appear here.
+                </div>
+            </div>
 
-            if (question === "") {
-                document.getElementById('response').textContent = "⚠️ Please enter a question.";
-                return;
-            }
+            <script>
+                const vscode = acquireVsCodeApi();
 
-            vscode.postMessage({ command: 'askQuestion', text: question, model: model });
-        });
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Populate the model dropdown dynamically
+                    vscode.postMessage({ command: 'populateModels' });
 
-        window.addEventListener('message', (event) => {
-            const message = event.data;
-            if (message.type === 'update') {
-                document.getElementById('response').textContent = message.content || "No response received.";
-            }
-        });
-    </script>
+                    // Set up the click event for the Ask button
+                    document.getElementById('askBtn').addEventListener('click', () => {
+                        const question = document.getElementById('question').value.trim();
+                        const model = document.getElementById('model').value;
 
-</body>
-</html>
+                        if (question === "") {
+                        document.getElementById('response').textContent = "⚠️ Please enter a question.";
+                        return;
+                        }
+
+                        // Post a message to the VS Code extension with the question and selected model
+                        vscode.postMessage({ command: 'askQuestion', text: question, model: model });
+                    });
+                });
+
+                window.addEventListener('message', (event) => {
+                    const message = event.data;
+                    if (message.command === 'populateModels') {
+                        const modelSelect = document.getElementById('model');
+                        modelSelect.innerHTML = ''; // Clear old options, if any
+
+                        if (message.models && Array.isArray(message.models)) {
+                            message.models.forEach((m) => {
+                                const option = document.createElement('option');
+                                option.value = m;
+                                option.textContent = m;
+                                modelSelect.appendChild(option);
+                            });
+                        } else {
+                            // If there was an error or no models, you can handle that
+                            const option = document.createElement('option');
+                            option.value = '';
+                            option.textContent = 'No models found';
+                            modelSelect.appendChild(option);
+                        }
+                    }
+                    else if (message.type === 'update') {
+                        const rawMarkdown = message.content || "No response received.";
+                        // Convert chuỗi Markdown sang HTML
+                        const renderedHtml = marked.parse(rawMarkdown);
+                        // Render vào "response" bằng innerHTML
+                        document.getElementById('response').innerHTML = renderedHtml;
+                    }
+                });
+            </script>
+
+        </body>
+        </html>
         `;
     }
 }

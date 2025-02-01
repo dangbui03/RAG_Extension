@@ -34,7 +34,7 @@
         "ollama.prompt": {
           "type": "string",
           "description": "Prompt to model",
-          "default": "Given the {codeblock} below, generate a concise, insightful comment that explains its purpose and functionality within the script. Ensure the comment uses the appropriate comment syntax for the {language} language. If applicable, mention any inputs or outputs expected in the code block. The comment should:\n- Be concise (maximum 2 lines).\n- Provide clarity about the code's purpose and functionality.\n- Focus solely on the provided block, without assumptions about the rest of the code.\n- Return only the comment, formatted correctly for the {language} language, and nothing else."
+          "default": "Given the {codeblock} below, write a brief, insightful comment that explains its purpose and functionality within the script. If applicable, mention any inputs expected in the code block.Keep the comment concise (maximum 2 lines). Wrap the comment with the appropriate comment syntax of {language} language. Avoid assumptions about the complete code and focus on the provided block.Don't rewrite the code block. Just give the comment, and no need to specify the language again. "
         }
       }
     },
