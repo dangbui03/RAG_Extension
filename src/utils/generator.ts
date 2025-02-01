@@ -9,7 +9,7 @@ export async function generateAnswer(
   webview: vscode.Webview
 ): Promise<string> {
   try {
-    let chunks = [];
+    var answer = "";
     const output = await ollama.generate({
       model: model,
       prompt: question,
@@ -17,10 +17,11 @@ export async function generateAnswer(
     });
     for await (const chunk of output) {
         // console.log(chunk.response);
-        chunks.push(chunk.response);
-        webview.postMessage({ type: "update", content: chunks.join("") });
+        // console.log(answer);
+        answer = answer.concat(chunk.response.toString());
+        webview.postMessage({ type: "update", content: answer });
     }
-    return chunks.join("");
+    return answer;
   } catch (error) {
     console.error(error);
     return "Error contacting the server.";
