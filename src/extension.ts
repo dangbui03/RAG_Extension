@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { GenerateCommentCommand } from './commands/generateComment';
 import { GfunctionCommentCommand } from './commands/functionComment';
 import { readEntireCodeBase } from "./commands/readEntireCodeBase";
+import { SidebarProvider } from "./RagginSidebar";
 
 // import { SidebarProvider } from './SidebarProvider';
 
@@ -12,7 +13,15 @@ import { readEntireCodeBase } from "./commands/readEntireCodeBase";
 export function activate(context: vscode.ExtensionContext) {
     // const sidebarProvider = new SidebarProvider(context.extensionUri);
 
-	console.log('Congratulations, your extension "ragify" is now active!');
+	console.log('Congratulations, your extension "RAGGIN" is now active!');
+
+	const sidebarProvider = new SidebarProvider(context.extensionUri);
+	context.subscriptions.push(
+	  vscode.window.registerWebviewViewProvider(
+		"raggin-sidebar",
+		sidebarProvider
+	  )
+	);
 
 	const ragdisposable = vscode.commands.registerCommand('ragify.generateComment', GenerateCommentCommand);
 	const ragFunctionDisposable = vscode.commands.registerCommand('ragify.gfunctionComment', GfunctionCommentCommand);

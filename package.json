@@ -39,8 +39,8 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "mySidebarContainer",
-          "title": "My Sidebar",
+          "id": "ragginSidebarContainer",
+          "title": "RAGGIN",
           "icon": "media/icon.svg"
         }
       ]
@@ -53,10 +53,10 @@
             "name": "Explorer View"
           }
         ],
-        "mySidebarContainer": [
+        "ragginSidebarContainer": [
         {
-          "id": "mySidebarView",
-          "name": "Ask AI"
+          "id": "raggin-sidebar",
+          "name": "Ask RAG AI"
         }
       ]
       }
