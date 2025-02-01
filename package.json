@@ -10,12 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-<<<<<<< HEAD
     "onView:raggin-sidebar"
-=======
-    "onWebviewPanel:mySidebarView",
-    "onUri"
->>>>>>> 7dd824ebaa3986082c821617bcf4ec2e32cb0e46
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -66,12 +61,7 @@
           "name": "Ask RAG AI"
         }
       ]
-<<<<<<< HEAD
     },
-=======
-      }
-    ,    
->>>>>>> 7dd824ebaa3986082c821617bcf4ec2e32cb0e46
     "commands": [
       {
         "command": "raggin.generateComment",
