@@ -65,17 +65,35 @@
     "commands": [
       {
         "command": "raggin.generateComment",
-        "title": "Raggin: Generate Comment"
+        "title": "RAGGIN: Generate Comment"
       },
       {
         "command": "raggin.gfunctionComment",
-        "title": "Raggin: Gfunction Comment"
+        "title": "RAGGIN: Gfunction Comment"
       },
       {
         "command": "raggin.readEntireCodeBase",
-        "title": "Raggin: Read Code Base"
+        "title": "RAGGIN: Read Code Base"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "raggin.generateComment",
+          "group": "RAGGIN"
+        },
+        {
+          "command": "raggin.gfunctionComment",
+          "group": "RAGGIN"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "raggin.readEntireCodeBase",
+          "group": "RAGGIN"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
