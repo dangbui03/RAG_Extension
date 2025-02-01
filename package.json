@@ -10,8 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onWebviewPanel:mySidebarView",
-    "onUri"
+    "onUri",
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
