@@ -1,70 +1,79 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 // If you're making HTTP calls, you might need node-fetch or Axios:
 // import fetch from 'node-fetch';
-import { OllamaServer } from './ollama';
-import { getConfiguration } from './utils/utils';
-import { generateAnswer } from './utils/generator';
+import { OllamaServer } from "./ollama";
+import { getConfiguration } from "./utils/utils";
+import { generateAnswer } from "./utils/generator";
 
 export class RagginSidebar implements vscode.WebviewViewProvider {
-    private _view?: vscode.WebviewView;
+  private _view?: vscode.WebviewView;
 
-    constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(private readonly _extensionUri: vscode.Uri) {}
 
-    public async resolveWebviewView(webviewView: vscode.WebviewView): Promise<void> {
-        this._view = webviewView;
+  public async resolveWebviewView(
+    webviewView: vscode.WebviewView
+  ): Promise<void> {
+    this._view = webviewView;
 
-        // Allow scripts in the webview
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this._extensionUri],
-        };
+    // Allow scripts in the webview
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this._extensionUri],
+    };
 
-        // Listen for messages from the webview
-        webviewView.webview.onDidReceiveMessage(async (message) => {
-            switch (message.command) {
-                case 'askQuestion': {
-                    const question = message.text || '';
-                    const model = message.model;
-                    // Example: call a server to get an answer
-                    // const answer = await this.askServer(question, model);
-                    const answer = await generateAnswer(question, model, this._view.webview);
-                    // Update the webview with the answer
-                    // this.updateContent(answer);
-                    break;
-                }
-                case 'populateModels': {
-                    // The Webview is requesting models
-                    const serverUrl: string = getConfiguration('serverURL', 'http://127.0.0.1:11434');
-                    const ollamaServer = OllamaServer.getInstance(serverUrl);
+    // Listen for messages from the webview
+    webviewView.webview.onDidReceiveMessage(async (message) => {
+      switch (message.command) {
+        case "askQuestion": {
+          const question = message.text || "";
+          const model = message.model;
+          // Example: call a server to get an answer
+          // const answer = await this.askServer(question, model);
+          const answer = await generateAnswer(
+            question,
+            model,
+            this._view.webview
+          );
+          // Update the webview with the answer
+          // this.updateContent(answer);
+          break;
+        }
+        case "populateModels": {
+          // The Webview is requesting models
+          const serverUrl: string = getConfiguration(
+            "serverURL",
+            "http://127.0.0.1:11434"
+          );
+          const ollamaServer = OllamaServer.getInstance(serverUrl);
 
-                    try {
-                        const models = await ollamaServer.listModels();
-                        // Send the list of models back to the Webview
-                        webviewView.webview.postMessage({
-                            command: 'populateModels',
-                            models: models || [],
-                        });
-                    } catch (error) {
-                        console.error('Error fetching models:', error);
-                        // You could also send an error message back
-                        webviewView.webview.postMessage({
-                            command: 'populateModels',
-                            models: [],
-                            error: String(error),
-                        });
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        });
+          try {
+            const models = await ollamaServer.listModels();
+            // Send the list of models back to the Webview
+            webviewView.webview.postMessage({
+              command: "populateModels",
+              models: models || [],
+            });
+          } catch (error) {
+            console.error("Error fetching models:", error);
+            // You could also send an error message back
+            webviewView.webview.postMessage({
+              command: "populateModels",
+              models: [],
+              error: String(error),
+            });
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    });
 
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-    }
+    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+  }
 
-    private _getHtmlForWebview(webview: vscode.Webview): string {
-        return /* html */ `
+  private _getHtmlForWebview(webview: vscode.Webview): string {
+    return /* html */ `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -96,6 +105,23 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
                 }
 
+                .chat-content {
+                    flex-grow: 1;
+                    overflow-y: auto;
+                    padding: 15px;
+                }
+
+                .response-box {
+                    background-color: #2d2d30;
+                    border: 1px solid #3c3c3c;
+                    border-radius: 6px;
+                    padding: 15px;
+                    margin-bottom: 10px;
+                    white-space: pre-wrap;
+                    font-size: 14px;
+                    color: #cccccc;
+                }
+
                 h3 {
                     margin-bottom: 15px;
                     text-align: center;
@@ -121,6 +147,10 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     font-size: 14px;
                     outline: none;
                     transition: border 0.2s ease-in-out;
+                }
+                
+                #question {
+                    width: 100%;
                 }
 
                 textarea {
@@ -163,27 +193,44 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     min-height: 50px;
                     font-size: 14px;
                     color: #cccccc;
+                    width: auto;
+                }
+
+                .question-sent-box {
+                    background-color: #2d2d30;
+                    align-self: flex-end;
+                    margin-right: 0;
+                    text-align: right;
+                    width: auto;
                 }
             </style>
         </head>
         <body>
 
             <div class="container">
-                <h3>Ask Something</h3>
+                <!-- Chat Content -->
+                <h3 style="text-align: center; color: #dcdcaa;">Chat with AI</h3>
+                <div class="chat-content" id="chatContent">
+                    <!-- <div id="mock-response" class="response-box">
+                        Response will appear here.
+                    </div> 
+                    <div class="question-sent-box">
+                        Sent question be like this.
+                    </div>
+                    -->
+                </div>
 
-                <label for="question">Your Question:</label>
-                <textarea id="question" rows="3" placeholder="Type your question..."></textarea>
+                <!-- Input Section (Fixed at Bottom) -->
+                <div class="input-section">
+                    <label for="question">Your Question:</label>
+                    <textarea id="question" rows="2" placeholder="Type your question..."></textarea>
 
-                <label for="model">Select a Model:</label>
-                
-                <select id="model">
-                    <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
-                </select>
+                    <label for="model">Select a Model:</label>
+                    <select id="model">
+                        <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
+                    </select>
 
-                <button class="btn" id="askBtn">Ask</button>
-
-                <div id="response" class="response-box markdown-content">
-                    Response will appear here.
+                    <button class="btn" id="askBtn">Ask</button>
                 </div>
             </div>
 
@@ -205,6 +252,9 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                         }
 
                         // Post a message to the VS Code extension with the question and selected model
+                        const chatContent = document.getElementById('chatContent').innerHTML;
+                        document.getElementById('chatContent').innerHTML = chatContent + '<div class="question-sent-box">'+question+'</div> <div id="response" class="response-box">Please wait...</div>';
+                        document.getElementById('question').value = '';
                         vscode.postMessage({ command: 'askQuestion', text: question, model: model });
                     });
                 });
@@ -232,10 +282,15 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     }
                     else if (message.type === 'update') {
                         const rawMarkdown = message.content || "No response received.";
+                        const chatContent = document.getElementById('chatContent').innerHTML;
                         // Convert chuỗi Markdown sang HTML
                         const renderedHtml = marked.parse(rawMarkdown);
                         // Render vào "response" bằng innerHTML
                         document.getElementById('response').innerHTML = renderedHtml;
+                        // document.getElementById('response').innerHTML = renderedHtml;
+                    }
+                    else if (message.type === 'updateDone') {
+                        document.getElementById('response').setAttribute('id', 'response-done');
                     }
                 });
             </script>
@@ -243,5 +298,5 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
         </body>
         </html>
         `;
-    }
+  }
 }

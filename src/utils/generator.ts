@@ -21,6 +21,8 @@ export async function generateAnswer(
         answer = answer.concat(chunk.response.toString());
         webview.postMessage({ type: "update", content: answer });
     }
+
+    webview.postMessage({ type: "updateDone" });
     return answer;
   } catch (error) {
     console.error(error);
