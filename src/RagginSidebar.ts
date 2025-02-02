@@ -203,6 +203,14 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     text-align: right;
                     width: auto;
                 }
+
+                .input-section {
+                    bottom: 0;
+                }
+
+                .chat-wrapper {
+                    margin-bottom: -300px;
+                }
             </style>
         </head>
         <body>
@@ -219,7 +227,8 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     </div>
                     -->
                 </div>
-
+            </div>
+            <div class="container">
                 <!-- Input Section (Fixed at Bottom) -->
                 <div class="input-section">
                     <label for="question">Your Question:</label>
@@ -283,11 +292,25 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                     else if (message.type === 'update') {
                         const rawMarkdown = message.content || "No response received.";
                         const chatContent = document.getElementById('chatContent').innerHTML;
+                        
                         // Convert chuỗi Markdown sang HTML
                         const renderedHtml = marked.parse(rawMarkdown);
+
+                        // Thêm tên model vào câu trả lời
+                        const model = message.model || "Unknown Model";
+                        const renderedAnswer = model + ": " + renderedHtml;
+
                         // Render vào "response" bằng innerHTML
-                        document.getElementById('response').innerHTML = renderedHtml;
-                        // document.getElementById('response').innerHTML = renderedHtml;
+                        document.getElementById('response').innerHTML = renderedAnswer;
+
+                        // Tự scroll xuống bottom khi đang response
+                        var bottom = document.getElementById('askBtn');
+                        var pos = bottom.getBoundingClientRect();
+                        window.scroll({
+                            top: pos.top,
+                            left: pos.left,
+                            behavior: "smooth",
+                            });
                     }
                     else if (message.type === 'updateDone') {
                         document.getElementById('response').setAttribute('id', 'response-done');

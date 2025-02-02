@@ -19,7 +19,7 @@ export async function generateAnswer(
         // console.log(chunk.response);
         // console.log(answer);
         answer = answer.concat(chunk.response.toString());
-        webview.postMessage({ type: "update", content: answer });
+        webview.postMessage({ type: "update", model: model, content: answer });
     }
 
     webview.postMessage({ type: "updateDone" });
