@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { OllamaServer } from "./ollama";
 import { getConfiguration } from "./utils/utils";
 import { generateAnswer } from "./utils/generator";
+import './output.css';
 
 export class RagginSidebar implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView;
@@ -79,167 +80,46 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="./output.css" rel="stylesheet">
             <title>Ask AI</title>
 
             <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    background-color: #1e1e1e;
-                    color: #ffffff;
-                    margin: 0;
-                    padding: 20px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                }
-
-                .container {
-                    max-width: 600px;
-                    margin: auto;
-                    width: 100%;
-                    background: #252526;
-                    padding: 10px;
-                    border-radius: 8px;
-                    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-                }
-
-                .chat-content {
-                    flex-grow: 1;
-                    overflow-y: auto;
-                    padding: 15px;
-                }
-
-                .response-box {
-                    background-color: #2d2d30;
-                    border: 1px solid #3c3c3c;
-                    border-radius: 6px;
-                    padding: 15px;
-                    margin-bottom: 10px;
-                    white-space: pre-wrap;
-                    font-size: 14px;
-                    color: #cccccc;
-                }
-
-                h3 {
-                    margin-bottom: 15px;
-                    text-align: center;
-                    font-size: 20px;
-                    color: #dcdcaa;
-                }
-
-                label {
-                    font-size: 14px;
-                    font-weight: bold;
-                    color: #bbbbbb;
-                    display: block;
-                    margin-top: 15px;
-                }
-
-                textarea, select {
-                    width: 100%;
-                    background-color: #2d2d30;
-                    color: #ffffff;
-                    border: 1px solid #3c3c3c;
-                    border-radius: 5px;
-                    padding: 10px;
-                    font-size: 14px;
-                    outline: none;
-                    transition: border 0.2s ease-in-out;
-                }
-                
-                #question {
-                    width: 100%;
-                }
-
-                textarea {
-                    resize: vertical;
-                }
-
-                textarea:focus, select:focus {
-                    border: 1px solid #007acc;
-                }
-
-                select {
-                    cursor: pointer;
-                    height: 40px;
-                }
-
-                .btn {
-                    width: 100%;
-                    background: #007acc;
-                    color: white;
-                    border: none;
-                    padding: 12px;
-                    font-size: 16px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    margin-top: 15px;
-                    transition: background 0.2s ease-in-out;
-                }
-
-                .btn:hover {
-                    background: #005f99;
-                }
-
-                .response-box {
-                    background-color: #2d2d30;
-                    border: 1px solid #3c3c3c;
-                    border-radius: 6px;
-                    padding: 15px;
-                    margin-top: 20px;
-                    white-space: pre-wrap;
-                    min-height: 50px;
-                    font-size: 14px;
-                    color: #cccccc;
-                    width: auto;
-                }
-
-                .question-sent-box {
-                    background-color: #2d2d30;
-                    align-self: flex-end;
-                    margin-right: 0;
-                    text-align: right;
-                    width: auto;
-                }
-
-                .input-section {
-                    bottom: 0;
-                }
-
-                .chat-wrapper {
-                    margin-bottom: -300px;
-                }
-            </style>
         </head>
         <body>
-
-            <div class="container">
-                <!-- Chat Content -->
-                <h3 style="text-align: center; color: #dcdcaa;">Chat with AI</h3>
-                <div class="chat-content" id="chatContent">
-                    <!-- <div id="mock-response" class="response-box">
-                        Response will appear here.
-                    </div> 
-                    <div class="question-sent-box">
-                        Sent question be like this.
+            <div class="flex flex-col items-center min-h-screen bg-gray-900 text-white p-5">
+                <!-- Chat Container -->
+                <div class="w-full max-w-lg bg-gray-800 p-4 rounded-lg shadow-lg">
+                    <h3 class="text-center text-yellow-300 text-xl mb-4">Chat with AI</h3>
+                    <div class="chat-content flex-grow overflow-y-auto p-4 space-y-4" id="chatContent">
+                        <!-- Example response and question boxes -->
+                        <!-- <div class="response-box bg-gray-700 border border-gray-600 rounded-md p-4 text-gray-300 text-sm">
+                            Response will appear here.
+                        </div>
+                        <div class="question-sent-box bg-gray-700 text-right p-2 rounded-md">
+                            Sent question be like this.
+                        </div> -->
                     </div>
-                    -->
                 </div>
-            </div>
-            <div class="container">
-                <!-- Input Section (Fixed at Bottom) -->
-                <div class="input-section">
-                    <label for="question">Your Question:</label>
-                    <textarea id="question" rows="2" placeholder="Type your question..."></textarea>
 
-                    <label for="model">Select a Model:</label>
-                    <select id="model">
-                        <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
-                    </select>
+                <!-- Input Section -->
+                <div class="w-full max-w-lg bg-gray-800 p-4 rounded-lg shadow-lg mt-5">
+                    <div class="input-section space-y-4">
+                        <label for="question" class="block text-gray-400 font-bold">Your Question:</label>
+                        <textarea id="question" rows="2" placeholder="Type your question..."
+                            class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-3 text-sm outline-none focus:border-blue-500"></textarea>
 
-                    <button class="btn" id="askBtn">Ask</button>
+                        <label for="model" class="block text-gray-400 font-bold">Select a Model:</label>
+                        <select id="model"
+                            class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-3 text-sm cursor-pointer focus:border-blue-500">
+                            <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option>
+                        </select>
+
+                        <button id="askBtn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition-all">
+                            Ask
+                        </button>
+                    </div>
                 </div>
             </div>
 
