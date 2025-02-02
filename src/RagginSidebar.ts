@@ -308,7 +308,7 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                         var pos = bottom.getBoundingClientRect();
                         window.scroll({
                             top: pos.top,
-                            left: pos.left,
+                            left: 0,
                             behavior: "smooth",
                             });
                     }
