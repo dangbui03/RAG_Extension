@@ -108,7 +108,7 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-    "watch:css": "npx @tailwindcss/cli -i ./src/main.css -o ./dist/output.css",
+    "watch:css": "npx @tailwindcss/cli -i ./src/main.css -o ./dist/output.css --watch",
     "postdebug": "npm run watch:css"
   },
   "devDependencies": {
