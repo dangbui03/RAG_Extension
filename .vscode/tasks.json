@@ -7,7 +7,8 @@
             "label": "watch",
             "dependsOn": [
                 "npm: watch:tsc",
-                "npm: watch:esbuild"
+                "npm: watch:esbuild",
+                "npm: watch:css"
             ],
             "presentation": {
                 "reveal": "never"
@@ -15,6 +16,9 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
             }
         },
         {
@@ -52,6 +56,33 @@
 			},
 			"group": "build"
 		},
+        {
+            "type": "npm",
+            "script": "watch:css",
+            "group": "build",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "external",
+                "fileLocation": "absolute",
+                "pattern": {
+                    "regexp": "([A-Z]:[^:]*):(\\d+):(\\d+):(.*)|(\\/[^:]*):(\\d+):(\\d+):(.*)",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "message": 4
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Rebuilding\\.\\.\\.$",
+                    "endsPattern": "Done in \\d+ms\\.$"
+                }
+            },
+            "label": "npm: watch:css",
+            "presentation": {
+                "group": "watch",
+                "reveal": "never"
+            }
+        },
 		{
 			"label": "tasks: watch-tests",
 			"dependsOn": [
@@ -59,6 +90,7 @@
 				"npm: watch-tests"
 			],
 			"problemMatcher": []
-		}
+		},
+        
 	]
 }

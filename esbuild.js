@@ -28,6 +28,7 @@ async function main() {
 		entryPoints: [
 			'src/extension.ts'
 		],
+		// tsconfig: 'tsconfig.json',
 		bundle: true,
 		format: 'cjs',
 		minify: production,

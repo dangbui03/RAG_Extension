@@ -30,11 +30,13 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
           const model = message.model;
           // Example: call a server to get an answer
           // const answer = await this.askServer(question, model);
-          const answer = await generateAnswer(
-            question,
-            model,
-            this._view.webview
-          );
+          if (this._view) {
+            const answer = await generateAnswer(
+              question,
+              model,
+              this._view.webview
+            );
+          }
           // Update the webview with the answer
           // this.updateContent(answer);
           break;

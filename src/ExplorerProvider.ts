@@ -9,7 +9,7 @@ export class ExplorerProvider implements vscode.TreeDataProvider<vscode.TreeItem
         return element;
     }
 
-    getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
+    getChildren(): Thenable<vscode.TreeItem[]> { //element?: vscode.TreeItem
         if (!vscode.workspace.workspaceFolders) {
             return Promise.resolve([]);
         }
