@@ -97,13 +97,13 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "compile": "npm run check-types && npm run lint && node esbuild.mjs",
     "watch": "npm-run-all -p watch:*",
-    "watch:esbuild": "node esbuild.js --watch",
+    "watch:esbuild": "node esbuild.mjs --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "watch:css": "npx @tailwindcss/cli -i ./src/main.css -o ./dist/output.css",
     "watch:html": "copy-and-watch --watch src/webviews/**/*.html ./dist/webviews",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "package": "npm run check-types && npm run lint && node esbuild.mjs --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -115,6 +115,8 @@
     "@tailwindcss/cli": "^4.0.4",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
     "@types/vscode": "^1.93.0",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
@@ -135,6 +137,9 @@
     "express": "^4.21.0",
     "node-fetch": "^3.3.2",
     "ollama": "^0.5.11",
-    "openai": "^4.61.0"
+    "openai": "^4.61.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
   }
 }

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { GenerateCommentCommand } from "./commands/generateComment";
 import { GfunctionCommentCommand } from "./commands/functionComment";
 import { readEntireCodeBase } from "./commands/readEntireCodeBase";
-import { RagginSidebar } from "./RagginSidebar";
+import { RagginSidebar } from "./webview/home/Raggin-home-view-provider";
 
 // import { buildPrompt } from "./promptBuilder";
 // import { generateComment } from './ollama';
