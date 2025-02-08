@@ -99,7 +99,7 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
             <!-- <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option> -->
         </select>
         </header>
-            <div class="flex flex-col items-center min-h-screen bg-gray-900 text-white p-5">
+            <div class="flex flex-col w-full min-h-screen bg-gray-900 text-white p-5">
                 <!-- Chat Container -->
                 <h3 class="text-center text-yellow-300 text-xl mb-4">Chat with AI</h3>
                 <div id="chatContent">
@@ -120,7 +120,7 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
                 </div>
 
                 <!-- Input Section -->
-                <div class="w-full max-w-lg bg-gray-800 p-4 rounded-lg shadow-lg mt-5">
+                <div class="w-full bg-gray-800 p-4 rounded-lg shadow-lg mt-5">
                     <div class="input-section space-y-4">
                         <textarea id="question" rows="2" placeholder="Type your question..."
                             class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-3 text-sm outline-none focus:border-blue-500"></textarea/>
