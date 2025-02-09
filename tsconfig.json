@@ -17,6 +17,6 @@
     "compilerOptions": {
 		"lib": ["ES2022"]
     },
-	"include": ["src/**/*", "scripts/**/*"],
+	"include": ["src/**/*", "scripts/**/*", "src/webview"],
 	"exclude": ["node_modules", ".vscode-test", "src/webview"]
 }
