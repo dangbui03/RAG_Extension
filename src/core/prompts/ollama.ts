@@ -1,22 +1,6 @@
 import { Ollama, ListResponse, GenerateResponse } from 'ollama';
 import fetch from 'cross-fetch';
 
-// const ollama = new Ollama({ host: 'http://127.0.0.1:11434', fetch: fetch });
-
-// export async function generateComment(model: string, prompt: string) {
-
-//   const t0 = performance.now();
-//   const response = await ollama.generate({
-//     model: model,
-//     prompt: prompt,
-//   });
-
-//   const t1 = performance.now();
-//   console.log('LLM took: ', t1 - t0, ', seconds');
-
-//   return response.response;
-// }
-
 // singleton
 export class OllamaServer {
 

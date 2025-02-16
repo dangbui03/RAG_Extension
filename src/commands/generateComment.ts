@@ -1,8 +1,7 @@
-import { Prompt, PromptBuilder } from '../promptBuilder';
+import { Prompt, PromptBuilder } from '../core/prompts/promptBuilder';
 import { getConfiguration, GetOllamaModelFromUser, handleError } from '../utils/utils';
-import { OllamaServer } from '../ollama';
-import { ActiveEditor } from '../manageEditor';
-import { Editor } from '../manageEditor';
+import { OllamaServer } from '../core/prompts/ollama';
+import { ActiveEditor, Editor } from '../core/editor/manageEditor';
 import * as vscode from 'vscode';
 
 export async function GenerateCommentCommand() {

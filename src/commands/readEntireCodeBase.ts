@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { handleError } from "../utils/utils";
 import fs from 'fs';
 import path from 'path';
-import { ExplorerProvider } from "../ExplorerProvider";
+import { ExplorerProvider } from "../core/explorer/ExplorerProvider";
 
 function catchNextJsVersion() {
     if (!vscode.workspace.workspaceFolders) {

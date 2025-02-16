@@ -1,6 +1,6 @@
-import { ActiveEditor } from "../manageEditor";
-import { OllamaServer } from "../ollama";
-import { Prompt, PromptBuilder } from "../promptBuilder";
+import { ActiveEditor } from "../core/editor/manageEditor";
+import { OllamaServer } from "../core/prompts/ollama";
+import { Prompt, PromptBuilder } from "../core/prompts/promptBuilder";
 import { getConfiguration, GetOllamaModelFromUser, handleError } from "../utils/utils";
 import * as vscode from "vscode";
 

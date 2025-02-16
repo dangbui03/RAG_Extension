@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { ErrorType, getConfiguration, MyError } from "./utils/utils";
-import { Editor } from "./manageEditor";
+import { ErrorType, getConfiguration, MyError } from "../../utils/utils";
+import { Editor } from "../editor/manageEditor";
 
 export class Prompt {
   private context: string = "";

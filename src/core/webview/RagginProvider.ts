@@ -1,17 +1,23 @@
 import * as vscode from "vscode";
-import { OllamaServer } from "../../ollama";
+import { OllamaServer } from "../prompts/ollama";
 import { getConfiguration } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
-import { getNonce, replaceWebviewHtmlTokens } from "../utils";
+import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 // import './output.css';
 
 const utf8TextDecoder = new TextDecoder("utf8");
-const utf8TextEncoder = new TextEncoder();
 
-export class RagginSidebar implements vscode.WebviewViewProvider {
-  private _view?: vscode.WebviewView;
+export class RagginProvider implements vscode.WebviewViewProvider {
+  private _view?: vscode.WebviewView | vscode.WebviewPanel;
+  // private disposables: vscode.Disposable[] = []
 
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(
+    // private readonly _extensionUri: vscode.Uri,
+    private readonly _context: vscode.ExtensionContext,
+    private readonly outputChannel: vscode.OutputChannel,
+  ) {
+    this.outputChannel.appendLine("RAGGIN Provider activated");
+  }
 
   public async resolveWebviewView(
     webviewView: vscode.WebviewView
@@ -78,37 +84,56 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
   }
 
   private async getRootUri() {
-    return this._extensionUri;
+    return this._context.extensionUri;
   }
+
+  private async getWebviewsUri() {
+    return vscode.Uri.joinPath(await this.getRootUri(), "webviews-ui");
+  }
+
+  // private async _getViewJSUri(webview: vscode.Webview) {
+  //   return webview.asWebviewUri(
+  //     vscode.Uri.joinPath(await this.getWebviewsUri(), this.viewName, `${this.viewName}.js`)
+  //   );
+  // }
 
   private async  _getHtmlForWebview(webview: vscode.Webview): Promise<string> {
 
-    const cssUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(await this.getRootUri(), "dist", "output.css")
-    );
-
-    const uri = vscode.Uri.joinPath(
-      await this.getRootUri(),
-      "src/webview/home/home.html"
-    );
-
-    try {
-      // Read the file content as bytes
-      const [bytes] = await Promise.all([vscode.workspace.fs.readFile(uri)]);
-      
-      // Decode the byte array to a string
-      const htmlContent = utf8TextDecoder.decode(bytes);
+    const nonce = getNonce();
   
-      // Replace placeholders with dynamic content such as CSP source and nonce
-      const html = replaceWebviewHtmlTokens(htmlContent, {
-        cssUri: cssUri.toString(),
-      });
+    // The CSS file from the React build output
+    const stylesUri = getUri(webview, this._context.extensionUri, ["webview-ui", "dist", "index.css"]);
+    // The JS file from the React build output
+    const scriptUri = getUri(webview, this._context.extensionUri, ["webview-ui", "dist", "index.js"]);
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="${stylesUri}" rel="stylesheet">
+            <title>Ask AI</title>
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        
+        </head>
+        <body>
+          <noscript>You need to enable JavaScript to run this app.</noscript>
+          <div id="root"></div>
+          <script src="${scriptUri}" nonce="${nonce}"></script>
+        </body>
+      </html>
+    `
+      // const html = replaceWebviewHtmlTokens(htmlContent, {
+      //   cssUri: cssUri.toString(),
+      //   jsUri: scriptUri.toString(),//this._getViewJSUri(webview).toString(),
+      //   cspNonce: getNonce(),
+      // });
   
-      return html; // Return the modified HTML content
-    } catch (error) {
-      console.error("Error reading HTML file:", error);
-      throw new Error("Failed to load HTML for webview.");
-    }
+      // return html; // Return the modified HTML content
+  }
+}
+
     // return /* html */ `
     //     <!DOCTYPE html>
     //     <html lang="en">
@@ -256,5 +281,3 @@ export class RagginSidebar implements vscode.WebviewViewProvider {
     //     </body>
     //     </html>
     //     `;
-  }
-}

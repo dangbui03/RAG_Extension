@@ -1,6 +1,6 @@
-# Ragify - VS Code Extension
+# RAGGIN - VS Code Extension
 
-Ragify is a powerful Visual Studio Code extension designed to provide seamless code assistance for web development. By integrating Retrieval-Augmented Generation (RAG) techniques, Ragify enhances your coding experience with intelligent suggestions and contextual assistance. This extension is optimized for modern web development frameworks and tools, including Next.js, HTML, CSS, and Tailwind CSS.
+RAGGIN is a powerful Visual Studio Code extension designed to provide seamless code assistance for web development. By integrating Retrieval-Augmented Generation (RAG) techniques, RAGGIN enhances your coding experience with intelligent suggestions and contextual assistance. This extension is optimized for modern web development frameworks and tools, including Next.js, HTML, CSS, and Tailwind CSS.
 
 ---
 
@@ -18,7 +18,7 @@ Ragify is a powerful Visual Studio Code extension designed to provide seamless c
 
 1. Open Visual Studio Code.
 2. Go to the Extensions Marketplace (`Ctrl+Shift+X` or `Cmd+Shift+X` on Mac).
-3. Search for `Ragify`.
+3. Search for `RAGGIN`.
 4. Click `Install` to add the extension to your VS Code environment.
 5. Reload or restart VS Code to activate the extension.
 
@@ -28,7 +28,7 @@ Ragify is a powerful Visual Studio Code extension designed to provide seamless c
 
 1. Open a web development project in VS Code.
 2. Start coding with Next.js, HTML, CSS, or Tailwind CSS.
-3. Use the `Ragify` commands:
+3. Use the `RAGGIN` commands:
    - **Ragify: Suggest Improvements**: Get suggestions for your code.
    - **Ragify: Generate Snippet**: Create optimized code snippets.
    - **Ragify: Debug Code**: Identify and fix potential issues.
@@ -57,19 +57,19 @@ If you'd like to contribute or modify the extension, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/ragify.git
+   git clone ...
    ```
 2. Navigate to the project directory:
    ```bash
-   cd ragify
+   cd RAG_Extension
    ```
 3. Install dependencies:
    ```bash
-   npm install
+   npm install:all
    ```
 4. Build the extension:
    ```bash
-   npm run build
+   npm run build:webview
    ```
 5. Launch the extension in VS Code:
    - Open the project in VS Code.
