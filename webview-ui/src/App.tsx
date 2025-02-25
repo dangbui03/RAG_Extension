@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Config from './components/Config';
 import History from './components/History';
+import ChatWindow from './components/ChatWindow';
 
 // // If you're in TypeScript, declare the VS Code API:
 // declare global {
@@ -151,6 +152,7 @@ const App: React.FC = () => {
         <Route path="/history" element={<History />} />
         {/* Optionally, add a default route */}
         <Route path="*" element={<div className="p-4">Welcome to RAGGIN!</div>} />
+        <ChatWindow/>
       </Routes>
     </Router>
     // <div className="w-screen h-screen items-center justify-center bg-gray-900 text-white p-8">
