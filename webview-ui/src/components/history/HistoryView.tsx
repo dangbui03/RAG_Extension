@@ -1,6 +1,6 @@
 import React from 'react';
 
-const History: React.FC = () => {
+const HistoryView: React.FC = () => {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Chat History</h1>
@@ -9,4 +9,4 @@ const History: React.FC = () => {
   );
 };
 
-export default History;
+export default HistoryView;

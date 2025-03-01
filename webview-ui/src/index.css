@@ -1,4 +1,8 @@
 @import "tailwindcss";
+
+@theme {
+  --breakpoint-xsm: 320px;
+}
 /* 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

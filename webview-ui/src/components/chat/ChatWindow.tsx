@@ -60,12 +60,11 @@ const ChatWindow: React.FC = () =>  {
   }
 
   return (
-    <div className='relative grow flex flex-col gap-6 pt-6'>
+    <div className='relative grow flex flex-col gap-6 pt-6 mx-4'>
       {messages.length === 0 && (
-        <div className='mt-3 font-urbanist text-primary-blue text-xl font-light space-y-2'>
-          <p>👋 Welcome!</p>
-          <p>I am powered by the latest technology reports from leading institutions like the World Bank, the World Economic Forum, McKinsey, Deloitte and the OECD.</p>
-          <p>Ask me anything about the latest technology trends.</p>
+        <div className='mt-3 text-black text-xl font-light'>
+          <p className='text-xl'>ASK SOMETHINGS</p>
+          <p className='text-base'>Free to ask about Next.js frameworks, we are supporting the framework from version 13.0.1 to 15.</p>
         </div>
       )}
       <ChatMessages
