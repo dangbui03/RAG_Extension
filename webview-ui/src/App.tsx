@@ -1,10 +1,11 @@
 import React from 'react'; //, { useEffect, useState, useRef }
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import { marked } from 'marked';
+
 import Header from './components/Header';
 import Config from './components/Config';
 import HistoryView from './components/history/HistoryView';
 import ChatWindow from './components/chat/ChatWindow';
+// import Test from './components/chat/test';
 
 // // If you're in TypeScript, declare the VS Code API:
 // declare global {
@@ -151,9 +152,7 @@ const App: React.FC = () => {
         <Route path="/config" element={<Config />} />
         <Route path="/history" element={<HistoryView />} />
         {/* Optionally, add a default route */}
-        <Route path="*" element={
-            <ChatWindow/>
-      } />
+        <Route path="*" element={<ChatWindow/>} />
       </Routes>
       
     </Router>

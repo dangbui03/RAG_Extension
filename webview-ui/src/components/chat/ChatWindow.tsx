@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { useImmer } from 'use-immer';
-// import api from '@/api';
-// import { parseSSEStream } from '@/utils';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 
