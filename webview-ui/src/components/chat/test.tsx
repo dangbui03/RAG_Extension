@@ -2,9 +2,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import { marked } from 'marked';
 
 // If you're in TypeScript, declare the VS Code API:
+declare type VsCodeApi = {
+    postMessage<T>(message: T): void;
+    };
+
 declare global {
   interface Window {
-    acquireVsCodeApi?: any;
+    acquireVsCodeApi?: () => VsCodeApi;
   }
 }
 
@@ -18,7 +22,7 @@ const Test:React.FC = () => {
     const [chatContent, setChatContent] = useState<string>('');
 
     // VS Code API reference
-    const vscode = useRef<any>(null);
+    const vscode = useRef<VsCodeApi>(null);
 
     // On mount, acquire the VS Code API and request model population
     useEffect(() => {
