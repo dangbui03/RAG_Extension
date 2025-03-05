@@ -105,6 +105,8 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     const stylesUri = getUri(webview, this._context.extensionUri, ["webview-ui", "dist", "index.css"]);
     // The JS file from the React build output
     const scriptUri = getUri(webview, this._context.extensionUri, ["webview-ui", "dist", "index.js"]);
+
+    const codiConsUri = getUri(webview, this._context.extensionUri, ["webview-ui", 'node_modules', '@vscode', "codicons", "dist", "codicon.css"]);
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -112,6 +114,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link href="${stylesUri}" rel="stylesheet">
+            <link href="${codiConsUri}" rel="stylesheet">
             <title>Ask AI</title>
         
             <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

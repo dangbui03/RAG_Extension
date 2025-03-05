@@ -7,6 +7,8 @@ import HistoryView from './components/history/HistoryView';
 import ChatWindow from './components/chat/ChatWindow';
 // import Test from './components/chat/test';
 
+// import { vscode } from './vscode/VsCodeApi';
+// import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 // // If you're in TypeScript, declare the VS Code API:
 // declare global {
 //   interface Window {
@@ -15,6 +17,12 @@ import ChatWindow from './components/chat/ChatWindow';
 // }
 
 const App: React.FC = () => {
+  // function handleHowdyClick() {
+  //   vscode.postMessage({
+  //     command: "hello",
+  //     text: "Hey there partner! 🤠",
+  //   })
+  // }
 //   // The original code uses document.getElementById(...) a lot,
 //   // but we'll store some of the data in React state:
 //   const [models, setModels] = useState<string[]>([]);
@@ -146,6 +154,12 @@ const App: React.FC = () => {
 //   };
 
   return (
+    // <main>
+    //   <h1 className="text-lg bg-vscode-panel-border">
+    //     Hello World from React!
+    //   </h1>
+    //   <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton>
+    // </main>
     <Router>
       <Header />
       <Routes>

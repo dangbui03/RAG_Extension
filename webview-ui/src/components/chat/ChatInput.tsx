@@ -1,6 +1,6 @@
 import useAutosize from '../../hooks/useAutoSize';
 import sendIcon from '../../assets/images/send.svg';
-import { VSCodeButton }  from "@vscode/webview-ui-toolkit/react";
+// import { VSCodeButton }  from "@vscode/webview-ui-toolkit/react";
 
 interface ChatInputProps {
   newMessage: string;
