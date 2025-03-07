@@ -1,27 +1,76 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect }  from 'react';
+import { useNavigate } from 'react-router-dom';
+import { vscode } from '../vscode/VsCodeApi';
+
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
+
+  const [models, setModels] = useState<string[]>([]);
+  const [selectedModel, setSelectedModel] = useState<string>('');
+
+  useEffect(() => {
+    vscode.postMessage({ command: 'populateModels' });
+  }, []);
+
+  useEffect(() => {
+      const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+
+      if (message.command === 'populateModels') {
+        // Update the list of models
+        if (Array.isArray(message.models)) {
+          setModels(message.models);
+          setSelectedModel(message.models[0] || '');
+        } else {
+          setModels(['No models found']);
+          setSelectedModel('');
+        }
+      }
+    }
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedModel(e.target.value);
+  };
+
   return (
-    <header className="flex justify-between items-center p-2 bg-vscode-panel-border text-white">
-      <Link to="/" className="p-2 text-xl font-bold">
-        RAGGIN
-      </Link>
-      <div className="flex gap-2 sm:gap-4">
-        <Link 
-          to="/config" 
-          className="codicon codicon-settings-gear p-2 text-white rounded-xl hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+    <div className="flex flex-row justify-between items-center text-sm">
+      <div className="gap-4">
+        <select
+            id="model"
+            className="w-full text-white rounded-md p-1 text-sm cursor-pointer "
+            value={selectedModel}
+            onChange={handleModelChange}
         >
-          a
-        </Link>
-        <Link 
-          to="/history" 
-          className="codicon codicon-history p-2 text-white rounded-xl hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
-        >
-          b
-        </Link>
+            {models.length === 0 && (
+            <option value="">Loading models...</option>
+            )}
+            {models.map((m) => (
+            <option key={m} value={m} className="bg-[#1e1e1e] text-white hover:bg-black">
+                {m}
+            </option>
+            ))}
+        </select>
       </div>
-    </header>
+      <div className="flex gap-2 text-white sm:gap-4">
+        <div
+          onClick={() => navigate("/")}
+          className="codicon codicon-comment-discussion rounded-xl cursor-pointer"
+        />
+        <div
+          onClick={() => navigate("/config")}
+          className="codicon codicon-settings-gear rounded-xl cursor-pointer"
+        />
+        <div
+          onClick={() => navigate("/history")}
+          className="codicon codicon-history rounded-xl cursor-pointer"
+        />
+      </div>
+    </div>
   );
 };
 

@@ -165,7 +165,6 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/config" element={<Config />} />
         <Route path="/history" element={<HistoryView />} />
-        {/* Optionally, add a default route */}
         <Route path="*" element={<ChatWindow/>} />
       </Routes>
       
