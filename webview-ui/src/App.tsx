@@ -1,10 +1,10 @@
 import React from 'react'; //, { useEffect, useState, useRef }
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Header from './components/Header';
 import Config from './components/Config';
 import HistoryView from './components/history/HistoryView';
-import ChatWindow from './components/chat/ChatWindow';
+// import ChatWindow from './components/chat/ChatWindow';
+import Index from './pages/Index';
 // import Test from './components/chat/test';
 
 // import { vscode } from './vscode/VsCodeApi';
@@ -161,13 +161,11 @@ const App: React.FC = () => {
     //   <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton>
     // </main>
     <Router>
-      <Header />
       <Routes>
         <Route path="/config" element={<Config />} />
         <Route path="/history" element={<HistoryView />} />
-        <Route path="*" element={<ChatWindow/>} />
+        <Route path="*" element={<Index />} />
       </Routes>
-      
     </Router>
     // <div className="w-screen h-screen items-center justify-center bg-gray-900 text-white p-8">
     //   <div className="flex flex-col text-white p-5">

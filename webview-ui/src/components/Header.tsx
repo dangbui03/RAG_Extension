@@ -62,11 +62,11 @@ const Header: React.FC = () => {
           className="codicon codicon-comment-discussion rounded-xl cursor-pointer"
         />
         <div
-          onClick={() => navigate("/config")}
+          onClick={() => navigate("/")}
           className="codicon codicon-settings-gear rounded-xl cursor-pointer"
         />
         <div
-          onClick={() => navigate("/history")}
+          onClick={() => navigate("/")}
           className="codicon codicon-history rounded-xl cursor-pointer"
         />
       </div>

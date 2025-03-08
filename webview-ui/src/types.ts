@@ -12,6 +12,7 @@ export interface AIModel {
 
 export interface ChatMessage {
     id: string;
+    role: "system" | "user" | "assistant";
     content: string;
     timestamp: Date;
     status?: "sending" | "sent" | "error";
