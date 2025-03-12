@@ -68,7 +68,7 @@ const ChatInput = () => {
   
   const handleSendMessage = () => {
     if (message.trim()) {
-      sendMessage(message, contextFiles);
+      sendMessage(message);
       setMessage("");
       setContextFiles([]);
       if (textareaRef.current) {
@@ -103,7 +103,7 @@ const ChatInput = () => {
   };
   
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-chat-darker border-t border-chat-border p-4">
+    <div className="absolute bottom-0 left-0 right-0 bg-chat-darker border-t border-chat-border py-2">
       <div className="max-w-4xl mx-auto">
         {contextFiles.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
@@ -169,8 +169,8 @@ const ChatInput = () => {
             onKeyDown={handleKeyDown}
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)}
-            placeholder="Type your message... (Shift+Enter for new line)"
-            className="flex-1 border-0 focus-visible:ring-0 resize-none bg-transparent py-3 px-3 min-h-[50px] max-h-[200px] scrollbar-thin"
+            placeholder="Type your message..."
+            className="flex-1 focus-visible:ring-transparent resize-none py-3 px-3 min-h-[50px] max-h-[200px] scrollbar-thin"
           />
           
           <Button 

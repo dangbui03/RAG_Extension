@@ -1,13 +1,9 @@
 export interface AIModel {
     id: string;
     name: string;
-    provider: string;
+    provider?: string;
     description?: string;
-    tags?: string[];
-    performance?: "optimized" | "standard" | "high";
     recommended?: boolean;
-    private?: boolean;
-    protected?: boolean;
   };  
 
 export interface ChatMessage {
@@ -22,7 +18,7 @@ export interface Chat {
     id: string;
     title: string;
     messages: ChatMessage[];
-    model: AIModel;
+    model: string;
     createdAt: Date;
     updatedAt: Date;
   };

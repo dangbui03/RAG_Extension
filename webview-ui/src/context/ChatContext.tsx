@@ -1,21 +1,19 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Chat, ChatMessage, AIModel } from "@/types";
+import { Chat, ChatMessage} from "@/types"; //, AIModel 
 import { v4 as uuidv4 } from "uuid";
-import { vscode } from '../vscode/VsCodeApi';
-// import { useToast } from "@/hooks/use-toast";
+import { vscode } from "@/vscode/VsCodeApi";
 
 interface ChatContextType {
   chats: Chat[];
   currentChat: Chat | null;
-  selectedModel: AIModel;
+  selectedModel: string;
   isModelSelectOpen: boolean;
   setIsModelSelectOpen: (isOpen: boolean) => void;
-  selectModel: (model: AIModel) => void;
+  selectModel: (model: string) => void;
   createNewChat: () => void;
-  sendMessage: (content: string, contextFiles?: string[]) => void;
+  sendMessage: (content: string) => void; //, contextFiles?: string[]
   setCurrentChat: (chatId: string) => void;
   deleteChat: (chatId: string) => void;
-  availableModels: AIModel[];  // Add availableModels to the context
 }
 
 const ChatContext = createContext<ChatContextType>({} as ChatContextType);
@@ -25,32 +23,26 @@ export const useChat = () => useContext(ChatContext);
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
-  const [selectedModel, setSelectedModel] = useState<AIModel>({} as AIModel);
+  const [selectedModel, setSelectedModel] = useState<string>('');
   const [isModelSelectOpen, setIsModelSelectOpen] = useState(false);
-  const [availableModels, setAvailableModels] = useState<AIModel[]>([]); // State to store available models
-//   const { toast } = useToast();
+  const [chatContent, setChatContent] = useState<string>('');
 
-  // Fetch available models from the API when the component mounts
+  // Listen for messages from the VS Code extension
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
-      if (message.command === 'populateModels' && Array.isArray(message.models)) {
-        const models: AIModel[] = message.models;
-        setAvailableModels(models);
-        if (models.length > 0) {
-          setSelectedModel(models[0]); // Default to the first model
-        }
-      }
-    };
 
-    // Request available models from the extension or backend
-    vscode.postMessage({ command: 'populateModels' });
+      if (message.type === 'update' || message.type === 'updateDone') {
+        // The extension sent an updated AI response in Markdown
+        const rawMarkdown = message.content || 'No response received.';
+        setChatContent(rawMarkdown);
+      } 
+    };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  // Initialize with a default chat
   useEffect(() => {
     if (chats.length === 0 && selectedModel) {
       const newChat: Chat = {
@@ -66,13 +58,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [selectedModel, chats.length]);
 
-  const selectModel = (model: AIModel) => {
+  const selectModel = (model: string) => {
     setSelectedModel(model);
-    // toast({
-    //   title: "Model Updated",
-    //   description: `Now using ${model.name}`,
-    //   duration: 3000,
-    // });
     setIsModelSelectOpen(false);
   };
 
@@ -104,12 +91,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (currentChat && currentChat.id === chatId) {
       setCurrentChat(updatedChats[0] || null);
     }
-
-    // toast({
-    //   title: "Chat Deleted",
-    //   description: "The chat has been removed",
-    //   duration: 3000,
-    // });
   };
 
   const sendMessage = (content: string) => { //, contextFiles: string[] = []) => {
@@ -142,8 +123,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       prevChats.map(chat => chat.id === updatedChat.id ? updatedChat : chat)
     );
 
+    vscode.postMessage({
+      command: 'askQuestion',
+      text: content,
+      model: selectedModel,
+    });
+
     setTimeout(() => {
-      const responseContent = `I'm responding to: "${content}".\n\nThis is a simulated response from ${selectedModel.name} by ${selectedModel.provider}. In a real implementation, this would call the appropriate API.`;
+      const responseContent = chatContent;//`I'm responding to: "${content}".\n\nThis is a simulated response from ${selectedModel}. In a real implementation, this would call the appropriate API.`;
 
       const completedMessage: ChatMessage = {
         ...assistantMessage,
@@ -161,6 +148,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setChats(prevChats =>
         prevChats.map(chat => chat.id === finalChat.id ? finalChat : chat)
       );
+
+      setChatContent('');
     }, 1500);
   };
 
@@ -177,7 +166,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         sendMessage,
         setCurrentChat: setCurrentChatById,
         deleteChat,
-        availableModels // Add availableModels to the context
       }}
     >
       {children}

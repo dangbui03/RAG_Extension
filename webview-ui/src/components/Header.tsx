@@ -1,40 +1,42 @@
 import React, { useState, useEffect }  from 'react';
 import { useNavigate } from 'react-router-dom';
-import { vscode } from '../vscode/VsCodeApi';
+import { vscode } from '@/vscode/VsCodeApi';
+import { useChat } from "@/context/ChatContext";
 
 
 const Header: React.FC = () => {
+  const { selectedModel, selectModel } = useChat();
   const navigate = useNavigate();
 
   const [models, setModels] = useState<string[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string>('');
+  // const [selectedModel, setSelectedModel] = useState<string>('');
 
   useEffect(() => {
     vscode.postMessage({ command: 'populateModels' });
   }, []);
 
   useEffect(() => {
-      const handleMessage = (event: MessageEvent) => {
-      const message = event.data;
+    const handleMessage = (event: MessageEvent) => {
+    const message = event.data;
 
-      if (message.command === 'populateModels') {
-        // Update the list of models
-        if (Array.isArray(message.models)) {
-          setModels(message.models);
-          setSelectedModel(message.models[0] || '');
-        } else {
-          setModels(['No models found']);
-          setSelectedModel('');
-        }
+    if (message.command === 'populateModels') {
+      // Update the list of models
+      if (Array.isArray(message.models)) {
+        setModels(message.models);
+        selectModel(message.models[0]);
+      } else {
+        setModels(['No models found']);
+        selectModel('No models found');
       }
     }
+  }
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedModel(e.target.value);
+    selectModel(e.target.value);
   };
 
   return (
@@ -42,17 +44,17 @@ const Header: React.FC = () => {
       <div className="gap-4">
         <select
             id="model"
-            className="w-full text-white rounded-md p-1 text-sm cursor-pointer "
+            className="w-full text-white p-1 text-sm cursor-pointer "
             value={selectedModel}
             onChange={handleModelChange}
         >
             {models.length === 0 && (
-            <option value="">Loading models...</option>
+              <option value="">Loading models...</option>
             )}
             {models.map((m) => (
-            <option key={m} value={m} className="bg-[#1e1e1e] text-white hover:bg-black">
-                {m}
-            </option>
+              <option key={m} value={m} className="bg-[#1e1e1e] text-white hover:bg-black">
+                  {m}
+              </option>
             ))}
         </select>
       </div>
