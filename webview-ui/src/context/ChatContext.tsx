@@ -25,23 +25,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [isModelSelectOpen, setIsModelSelectOpen] = useState(false);
-  const [chatContent, setChatContent] = useState<string>('');
-
-  // Listen for messages from the VS Code extension
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const message = event.data;
-
-      if (message.type === 'update' || message.type === 'updateDone') {
-        // The extension sent an updated AI response in Markdown
-        const rawMarkdown = message.content || 'No response received.';
-        setChatContent(rawMarkdown);
-      } 
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
 
   useEffect(() => {
     if (chats.length === 0 && selectedModel) {
@@ -93,9 +76,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const sendMessage = (content: string) => { //, contextFiles: string[] = []) => {
-    if (!currentChat || !selectedModel) return;
-
+  const sendMessage = (content: string) => {
+    console.log(selectedModel, content);
+  
+    if (!currentChat) return;
+  
+    if (!selectedModel) {
+      alert('Please select a model first.');
+      return;
+    }
+  
+    // Post the question to the VS Code extension
+    vscode.postMessage({
+      command: 'askQuestion',
+      text: content,
+      model: selectedModel,
+    });
+  
+    // Create the user message and assistant message placeholders
     const userMessage: ChatMessage = {
       id: uuidv4(),
       role: "user",
@@ -103,7 +101,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: new Date(),
       status: "sent"
     };
-
+  
     const assistantMessage: ChatMessage = {
       id: uuidv4(),
       role: "assistant",
@@ -111,46 +109,47 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: new Date(),
       status: "sending"
     };
-
+  
+    // Update the chat state with the new user and assistant messages
     const updatedChat = {
       ...currentChat,
       messages: [...currentChat.messages, userMessage, assistantMessage],
       updatedAt: new Date()
     };
-
+  
     setCurrentChat(updatedChat);
     setChats(prevChats =>
       prevChats.map(chat => chat.id === updatedChat.id ? updatedChat : chat)
     );
-
-    vscode.postMessage({
-      command: 'askQuestion',
-      text: content,
-      model: selectedModel,
+  
+    // Listen for the response from the VS Code extension
+    window.addEventListener("message", (event) => {
+      const message = event.data;
+  
+      // Check if the response contains an answer
+      if (message.command === "update") {
+        const responseContent = message.content || "No response received.";
+  
+        // Update the assistant's message with the actual response
+        const completedMessage: ChatMessage = {
+          ...assistantMessage,
+          content: responseContent,
+          status: "sent"
+        };
+  
+        // Finalize the chat with the updated assistant's message
+        const finalChat = {
+          ...updatedChat,
+          messages: [...updatedChat.messages.slice(0, -1), completedMessage],
+          title: updatedChat.messages.length === 0 ? content.slice(0, 30) + "..." : updatedChat.title
+        };
+  
+        setCurrentChat(finalChat);
+        setChats(prevChats =>
+          prevChats.map(chat => chat.id === finalChat.id ? finalChat : chat)
+        );
+      }
     });
-
-    setTimeout(() => {
-      const responseContent = chatContent;//`I'm responding to: "${content}".\n\nThis is a simulated response from ${selectedModel}. In a real implementation, this would call the appropriate API.`;
-
-      const completedMessage: ChatMessage = {
-        ...assistantMessage,
-        content: responseContent,
-        status: "sent"
-      };
-
-      const finalChat = {
-        ...updatedChat,
-        messages: [...updatedChat.messages.slice(0, -1), completedMessage],
-        title: updatedChat.messages.length === 0 ? content.slice(0, 30) + "..." : updatedChat.title
-      };
-
-      setCurrentChat(finalChat);
-      setChats(prevChats =>
-        prevChats.map(chat => chat.id === finalChat.id ? finalChat : chat)
-      );
-
-      setChatContent('');
-    }, 1500);
   };
 
   return (

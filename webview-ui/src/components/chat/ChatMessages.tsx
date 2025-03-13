@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { ChatMessage } from "@/types";
 // import useAutoScroll from '../../hooks/useAutoScroll';
 // import Spinner from '../Spinner';
 // import userIcon from '../../assets/images/user.svg';
@@ -55,16 +56,16 @@ import { format } from "date-fns";
 //   );
 // }
 
-interface Message {
-  id: string;
-  role: "system" | "user" | "assistant";
-  content: string;
-  timestamp: Date;
-  status?: "sending" | "sent" | "error";
-}
+// interface Message {
+//   id: string;
+//   role: "system" | "user" | "assistant";
+//   content: string;
+//   timestamp: Date;
+//   status?: "sending" | "sent" | "error";
+// }
 
 interface ChatMessagesProps {
-  message: Message;
+  message: ChatMessage;
   isLast: boolean;
 }
 

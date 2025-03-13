@@ -3,7 +3,6 @@ import { OllamaServer } from "../prompts/ollama";
 import { getConfiguration } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
-// import './output.css';
 
 const utf8TextDecoder = new TextDecoder("utf8");
 
@@ -36,17 +35,24 @@ export class RagginProvider implements vscode.WebviewViewProvider {
         case "askQuestion": {
           const question = message.text || "";
           const model = message.model;
-          // Example: call a server to get an answer
-          // const answer = await this.askServer(question, model);
-          if (this._view) {
-            const answer = await generateAnswer(
-              question,
-              model,
-              this._view.webview
-            );
+          
+          if (!question) {
+            webviewView.webview.postMessage({
+              command: "update",
+              content: "⚠️ Please enter a valid question.",
+            });
+            return;
           }
-          // Update the webview with the answer
-          // this.updateContent(answer);
+
+          // Process the question
+          if (this._view) {
+            const answer = await generateAnswer(question, model, this._view.webview);
+            webviewView.webview.postMessage({
+              command: "update",
+              content: answer,
+            });
+          }
+
           break;
         }
         case "populateModels": {

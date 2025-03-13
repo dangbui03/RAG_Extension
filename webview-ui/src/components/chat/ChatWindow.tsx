@@ -27,49 +27,7 @@ const WelcomeScreen: React.FC = () => {
 const ChatWindow: React.FC = () =>  {
   const { currentChat } = useChat();
   const bottomRef = useRef<HTMLDivElement>(null);
-  // const [chatId, setChatId] = useState<string | null>(null);
-  // const [messages, setMessages] = useImmer<Message[]>([]);
-  // const [newMessage, setNewMessage] = useState<string>('');
-
-  // const isLoading = !!(messages.length && messages[messages.length - 1].loading);
-
-  // async function submitNewMessage(): Promise<void> {
-    
-  //   if (!trimmedMessage || isLoading) return;
-
-  //   setMessages((draft: Message[]) => [
-  //     ...draft,
-  //     { role: 'user', content: trimmedMessage },
-  //     { role: 'assistant', content: '', sources: [], loading: true },
-  //   ]);
-  //   setNewMessage('');
-
-  //   // let chatIdOrNew = chatId;
-  //   try {
-  //     // if (!chatId) {
-  //     //   const { id } = await api.createChat();
-  //     //   setChatId(id);
-  //     //   chatIdOrNew = id;
-  //     // }
-
-  //   //   const stream = await api.sendChatMessage(chatIdOrNew, trimmedMessage);
-  //   //   // Ensure `parseSSEStream` is correctly implemented or imported
-  //   //   for await (const textChunk of parseSSEStream(stream)) {
-  //   //     setMessages(draft => {
-  //   //       draft[draft.length - 1].content += textChunk;
-  //   //     });
-  //   //   }
-  //   //   setMessages(draft => {
-  //   //     draft[draft.length - 1].loading = false;
-  //   //   });
-  //   } catch (err) {
-  //     console.log(err);
-  //     setMessages((draft: Message[]) => {
-  //       draft[draft.length - 1].loading = false;
-  //       draft[draft.length - 1].error = true;
-  //     });
-  //   }
-  // }
+  
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });

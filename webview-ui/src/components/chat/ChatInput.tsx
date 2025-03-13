@@ -74,6 +74,9 @@ const ChatInput = () => {
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
+    } else {
+      alert('⚠️ Please enter a question.');
+      return;
     }
   };
   
