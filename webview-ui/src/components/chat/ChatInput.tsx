@@ -9,56 +9,6 @@ import {
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils";
 
-// interface ChatInputProps {
-//   newMessage: string;
-//   isLoading: boolean;
-//   setNewMessage: (message: string) => void;
-//   submitNewMessage: () => void;
-// }
-
-// const ChatInput: React.FC = () => {
-//   const { currentChat } = useChat();
-
-//   const callbackRef = useCallback((inputElement: HTMLTextAreaElement) => {
-//     if (inputElement) {
-//       // Delay focus to make sure the input element is properly initialized
-//       setTimeout(() => {
-//         inputElement.focus();
-//       }, 50);
-//     }
-//   }, []);
-
-//   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-//     if (e.key === "Enter" && !e.shiftKey) {
-//       e.preventDefault();
-//       submitNewMessage();
-//     }
-//   };
-
-//   const textareaWrapperRef = useRef<HTMLDivElement>(null);
-
-//   return (
-//     <div className="bottom-0 py-4 z-50" ref={textareaWrapperRef}>
-//       <div className="flex relative shrink-0 overflow-hidden ring-primary-blue ring-1">
-//         <Textarea 
-//           ref={callbackRef}
-//           value={newMessage}
-//           onChange={e => setNewMessage(e.target.value)}
-//           onKeyDown={handleKeyDown}
-//           rows={1}
-//           placeholder="Type your message here..."
-//           className="block w-full max-h-[140px] p-2 resize-none" // Retaining your styles
-//         />
-//         <button
-//           onClick={submitNewMessage}
-//           className="codicon codicon-send cursor-pointer right-3 p-2 rounded-md"
-//         >
-//         </button>
-//       </div>  
-//     </div>
-//   );
-// };
-
 const ChatInput = () => {
   const { sendMessage } = useChat();
   const [message, setMessage] = useState("");
