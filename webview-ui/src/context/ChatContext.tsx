@@ -82,6 +82,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!currentChat) return;
   
     if (!selectedModel) {
+      // Need to toast a message here
       alert('Please select a model first.');
       return;
     }
