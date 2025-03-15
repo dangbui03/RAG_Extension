@@ -13,7 +13,7 @@ const ChatInput = () => {
   const { sendMessage } = useChat();
   const [message, setMessage] = useState("");
   const [contextFiles, setContextFiles] = useState<string[]>([]);
-  const [isInputFocused, setIsInputFocused] = useState(false);
+  // const [isInputFocused, setIsInputFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const handleSendMessage = () => {
@@ -78,16 +78,18 @@ const ChatInput = () => {
           </div>
         )}
         
-        <div className={cn(
-          "flex items-end gap-2 rounded-lg border transition-all duration-200 bg-chat-darker",
-          isInputFocused ? "border-blue-500" : "border-gray-700"
-        )}>
+        <div
+          className={cn(
+            "relative w-full rounded-lg border transition-all duration-200 bg-chat-darker border-gray-700",
+            // isInputFocused ? "border-blue-500" : "border-gray-700"
+          )}
+        >
           <Popover>
             <PopoverTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="codicon codicon-add text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 ml-1 mb-1"
+                className="codicon codicon-add text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2" //*ml-1 mb-1
               >
               </Button>
             </PopoverTrigger>
@@ -114,29 +116,27 @@ const ChatInput = () => {
               </div>
             </PopoverContent>
           </Popover>
-          
+
           <Textarea
             ref={textareaRef}
             value={message}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
-            placeholder="Type your message..."
-            className="flex-1 focus-visible:ring-transparent resize-none py-3 px-3 min-h-[50px] max-h-[200px] scrollbar-thin"
+            // onFocus={() => setIsInputFocused(true)}
+            // onBlur={() => setIsInputFocused(false)}
+            placeholder="Type your message here..."
+            className="w-full resize-none py-3 pl-12 pr-12 min-h-[50px] max-h-[200px] scrollbar-thin focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent border-0 bg-transparent"
           />
-          
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={handleSendMessage}
             disabled={!message.trim()}
             className={cn(
-              "codicon codicon-send text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 mr-1 mb-1 transition-opacity",
+              "codicon codicon-send text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity",
               !message.trim() && "opacity-50 cursor-not-allowed"
             )}
-          >
-          </Button>
+          />
         </div>
       </div>
     </div>

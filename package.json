@@ -101,7 +101,7 @@
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "watch:css": "npx @tailwindcss/cli -i ./src/main.css -o ./dist/output.css",
+    "watch:css": "npx @tailwindcss/cli -i ./webview-ui/src/index.css -o ./dist/output.css --watch",
     "watch:html": "copy-and-watch --watch src/webviews/**/*.html ./dist/webviews",
     "package": "npm run build:webview && npm run check-types && npm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
