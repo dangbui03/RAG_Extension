@@ -35,6 +35,12 @@
           "type": "string",
           "description": "Prompt to model",
           "default": "Given the {codeblock} below, write a brief, insightful comment that explains its purpose and functionality within the script. If applicable, mention any inputs expected in the code block.Keep the comment concise (maximum 2 lines). Wrap the comment with the appropriate comment syntax of {language} language. Avoid assumptions about the complete code and focus on the provided block.Don't rewrite the code block. Just give the comment, and no need to specify the language again. "
+        },
+        "RAGGIN.logLevel": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info",
+          "description": "Controls the verbosity of logs in the output panel"
         }
       }
     },

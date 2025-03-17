@@ -5,7 +5,7 @@ import { useChat } from "@/context/ChatContext";
 
 
 const Header: React.FC = () => {
-  const { selectedModel, selectModel, createNewChat } = useChat();
+  const { selectedModel, selectModel } = useChat();
   const navigate = useNavigate();
 
   const [models, setModels] = useState<string[]>([]);
@@ -60,15 +60,15 @@ const Header: React.FC = () => {
       </div>
       <div className="flex gap-2 text-white sm:gap-4">
         <div
-          onClick={createNewChat}
+          onClick={() => navigate("/")}
           className="codicon codicon-comment-discussion rounded-xl cursor-pointer"
         />
-        <div
+        {/* <div
           onClick={() => navigate("/")}
           className="codicon codicon-settings-gear rounded-xl cursor-pointer"
-        />
+        /> */}
         <div
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/history")}
           className="codicon codicon-history rounded-xl cursor-pointer"
         />
       </div>

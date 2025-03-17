@@ -3,7 +3,7 @@ import { GenerateCommentCommand } from "./commands/generateComment";
 import { GfunctionCommentCommand } from "./commands/functionComment";
 import { readEntireCodeBase } from "./commands/readEntireCodeBase";
 import { RagginProvider } from "./core/webview/RagginProvider";
-import { Logger } from "./utils/logging";
+import { Logger, LogLevel } from "./utils/logging";
 
 export function activate(context: vscode.ExtensionContext) {
   // Create the output channel and add it to the subscriptions.
@@ -11,8 +11,14 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(outputChannel);
 
   console.log('Congratulations, your extension "RAGGIN" is now active!');
-  Logger.initialize(outputChannel);
-  Logger.log("RAGGIN extension activated");
+
+  // Initialize the logger with the output channel.
+  Logger.initialize(outputChannel, 'RAGGIN');
+  const config = vscode.workspace.getConfiguration('RAGGIN');
+  const logLevelSetting = config.get<string>('logLevel', 'info').toUpperCase();
+  Logger.setLogLevel(LogLevel[logLevelSetting as keyof typeof LogLevel] || LogLevel.INFO);
+
+  Logger.info("RAGGIN extension activated");
 
   // Create the sidebar provider and register it.
   const ragginSidebar = new RagginProvider(context, outputChannel);
@@ -36,4 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated.
-export function deactivate() {}
+export function deactivate() {
+  Logger.info('Extension deactivated');
+}
