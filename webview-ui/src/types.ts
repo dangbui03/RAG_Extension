@@ -22,3 +22,10 @@ export interface Chat {
     createdAt: Date;
     updatedAt: Date;
   };
+
+export interface QAPair {
+  question: string;
+  answer: string;
+  model: string;
+  timestamp: number;
+}

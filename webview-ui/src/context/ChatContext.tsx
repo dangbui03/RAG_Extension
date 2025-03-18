@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Chat, ChatMessage} from "@/types"; //, AIModel 
+import { Chat, ChatMessage } from "@/types"; //, AIModel 
 import { v4 as uuidv4 } from "uuid";
 import { vscode } from "@/vscode/VsCodeApi";
 
@@ -14,6 +14,8 @@ interface ChatContextType {
   sendMessage: (content: string) => void; //, contextFiles?: string[]
   setCurrentChat: (chatId: string) => void;
   deleteChat: (chatId: string) => void;
+  fetchChatsHistory: () => void;
+  clearChatsHistory: () => void;
 }
 
 const ChatContext = createContext<ChatContextType>({} as ChatContextType);
@@ -25,6 +27,50 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [isModelSelectOpen, setIsModelSelectOpen] = useState(false);
+  // const [qaHistory, setQAHistory] = useState<QAPair[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Initialize and fetch history when component mounts
+  useEffect(() => {
+    console.log(isLoading);
+    fetchChatsHistory();
+    
+    // Set up message listener
+    const messageHandler = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.command === "chatsHistory") {
+        setChats(message.history || []);
+        if (message.history && message.history.length > 0) {
+          setCurrentChat(message.history[0]);
+        }
+        setIsLoading(false);
+      } else if (message.command === "update") {
+        updateCurrentChatWithResponse(message.content);
+      } else if (message.command === "chatStored") {
+        // Handle confirmation of chat storage if needed
+      }
+    };
+
+    window.addEventListener("message", messageHandler);
+    
+    return () => {
+      window.removeEventListener("message", messageHandler);
+    };
+  }, []);
+
+  const fetchChatsHistory = () => {
+    setIsLoading(true);
+    vscode.postMessage({
+      command: "getChatsHistory"
+    });
+  };
+
+  const clearChatsHistory = () => {
+    setIsLoading(true);
+    vscode.postMessage({
+      command: "clearChatsHistory"
+    });
+  };
 
   useEffect(() => {
     if (chats.length === 0 && selectedModel) {
@@ -40,6 +86,50 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentChat(newChat);
     }
   }, [selectedModel, chats.length]);
+
+    // Helper function to update current chat with response
+    const updateCurrentChatWithResponse = (content: string) => {
+      if (!currentChat) return;
+      
+      // Find the last assistant message that's in 'sending' status
+      const messages = [...currentChat.messages];
+      for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].role === 'assistant' && messages[i].status === 'sending') {
+          // Update this message with the response
+          messages[i] = {
+            ...messages[i],
+            content: content,
+            status: 'sent'
+          };
+          break;
+        }
+      }
+      
+      const updatedChat: Chat = {
+        ...currentChat,
+        messages,
+        updatedAt: new Date()
+      };
+      
+      // Update title if this is the first message
+      if (currentChat.messages.length <= 2) {
+        const firstUserMessage = currentChat.messages.find(m => m.role === 'user');
+        if (firstUserMessage) {
+          updatedChat.title = firstUserMessage.content.slice(0, 30) + (firstUserMessage.content.length > 30 ? "..." : "");
+        }
+      }
+      
+      setCurrentChat(updatedChat);
+      setChats(prevChats =>
+        prevChats.map(chat => chat.id === updatedChat.id ? updatedChat : chat)
+      );
+      
+      // Store updated chat
+      vscode.postMessage({
+        command: 'storeChat',
+        chat: updatedChat
+      });
+    };
 
   const selectModel = (model: string) => {
     setSelectedModel(model);
@@ -82,17 +172,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!currentChat) return;
   
     if (!selectedModel) {
-      // Need to toast a message here
       alert('Please select a model first.');
       return;
     }
-  
-    // Post the question to the VS Code extension
-    vscode.postMessage({
-      command: 'askQuestion',
-      text: content,
-      model: selectedModel,
-    });
   
     // Create the user message and assistant message placeholders
     const userMessage: ChatMessage = {
@@ -122,6 +204,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setChats(prevChats =>
       prevChats.map(chat => chat.id === updatedChat.id ? updatedChat : chat)
     );
+
+    // Store the updated chat before getting response
+    vscode.postMessage({
+      command: 'storeChat',
+      chat: updatedChat
+    });
+
+    // Post the question to the VS Code extension
+    vscode.postMessage({
+      command: 'askQuestion',
+      text: content,
+      model: selectedModel,
+    });
   
     // Listen for the response from the VS Code extension
     window.addEventListener("message", (event) => {
@@ -151,6 +246,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
       }
     });
+    console.log(chats);
   };
 
   return (
@@ -166,6 +262,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         sendMessage,
         setCurrentChat: setCurrentChatById,
         deleteChat,
+        fetchChatsHistory,
+        clearChatsHistory
       }}
     >
       {children}

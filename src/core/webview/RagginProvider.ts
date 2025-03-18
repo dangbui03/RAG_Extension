@@ -3,6 +3,7 @@ import { OllamaServer } from "../prompts/ollama";
 import { getConfiguration } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
+import { Chat } from "../../../webview-ui/src/types";
 
 const utf8TextDecoder = new TextDecoder("utf8");
 
@@ -16,6 +17,47 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     private readonly outputChannel: vscode.OutputChannel,
   ) {
     this.outputChannel.appendLine("RAGGIN Provider activated");
+  }
+
+     // Method to store a chat
+  private storeChat(chat: Chat): void {
+    try {
+      // Get existing chats history or initialize an empty array
+      const chats = this._context.globalState.get<Chat[]>('chats-history', []);
+      
+      // Check if the chat already exists
+      const existingIndex = chats.findIndex(c => c.id === chat.id);
+      
+      if (existingIndex >= 0) {
+        // Update existing chat
+        chats[existingIndex] = chat;
+      } else {
+        // Add new chat
+        chats.push(chat);
+      }
+      
+      // Save chats
+      this._context.globalState.update('chats-history', chats);
+      
+      this.outputChannel.appendLine(`Stored chat in history. ID: ${chat.id}. Total chats: ${chats.length}`);
+    } catch (error) {
+      this.outputChannel.appendLine(`Error storing chat: ${error}`);
+    }
+  }
+
+  // Method to clear the chats history
+  public clearChatsHistory(): void {
+    try {
+      this._context.globalState.update('chats-history', []);
+      this.outputChannel.appendLine('Chats history cleared');
+    } catch (error) {
+      this.outputChannel.appendLine(`Error clearing chats history: ${error}`);
+    }
+  }
+  
+  // Method to get chats history
+  public getChatsHistory(): Chat[] {
+    return this._context.globalState.get<Chat[]>('chats-history', []);
   }
 
   public async resolveWebviewView(
@@ -32,9 +74,11 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     // Listen for messages from the webview
     webviewView.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
+        // Add a handler for the askQuestion message
         case "askQuestion": {
           const question = message.text || "";
           const model = message.model;
+          const chatId = message.chatId;
           
           if (!question) {
             webviewView.webview.postMessage({
@@ -47,14 +91,17 @@ export class RagginProvider implements vscode.WebviewViewProvider {
           // Process the question
           if (this._view) {
             const answer = await generateAnswer(question, model, this._view.webview);
+
             webviewView.webview.postMessage({
               command: "update",
               content: answer,
+              chatId: chatId
             });
           }
 
           break;
         }
+        // Add a handler for the populateModels message
         case "populateModels": {
           // The Webview is requesting models
           const serverUrl: string = getConfiguration(
@@ -81,6 +128,36 @@ export class RagginProvider implements vscode.WebviewViewProvider {
           }
           break;
         }
+        case "storeChat": {
+          // Handle request to store a chat
+          const chat = message.chat;
+          if (chat) {
+            this.storeChat(chat);
+            webviewView.webview.postMessage({
+              command: "chatStored",
+              success: true,
+              chatId: chat.id
+            });
+          }
+          break;
+        }
+        case "getChatsHistory": {
+          // Handle request for chats history
+          const history = this.getChatsHistory();
+          webviewView.webview.postMessage({
+            command: "chatsHistory",
+            history: history
+          });
+          break;
+        }
+        case "clearChatsHistory": {
+          this.clearChatsHistory();
+          webviewView.webview.postMessage({
+            command: "chatsHistory",
+            history: []
+          });
+          break;
+        }
         default:
           break;
       }
@@ -96,12 +173,6 @@ export class RagginProvider implements vscode.WebviewViewProvider {
   private async getWebviewsUri() {
     return vscode.Uri.joinPath(await this.getRootUri(), "webviews-ui");
   }
-
-  // private async _getViewJSUri(webview: vscode.Webview) {
-  //   return webview.asWebviewUri(
-  //     vscode.Uri.joinPath(await this.getWebviewsUri(), this.viewName, `${this.viewName}.js`)
-  //   );
-  // }
 
   private async  _getHtmlForWebview(webview: vscode.Webview): Promise<string> {
 
@@ -133,160 +204,5 @@ export class RagginProvider implements vscode.WebviewViewProvider {
         </body>
       </html>
     `
-      // const html = replaceWebviewHtmlTokens(htmlContent, {
-      //   cssUri: cssUri.toString(),
-      //   jsUri: scriptUri.toString(),//this._getViewJSUri(webview).toString(),
-      //   cspNonce: getNonce(),
-      // });
-  
-      // return html; // Return the modified HTML content
   }
 }
-
-    // return /* html */ `
-    //     <!DOCTYPE html>
-    //     <html lang="en">
-    //     <head>
-    //         <meta charset="UTF-8">
-    //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    //         <link href="${cssUri}" rel="stylesheet">
-    //         <title>Ask AI</title>
-
-    //         <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    //     </head>
-    //     <body>
-    //     <header style="position: sticky; top: 0px;">
-    //     <select id="model"  
-    //         class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-3 text-sm cursor-pointer focus:border-blue-500">
-    //         <!-- <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option> -->
-    //     </select>
-    //     </header>
-    //         <div class="flex flex-col items-center min-h-screen bg-gray-900 text-white p-5">
-    //             <!-- Chat Container -->
-    //             <h3 class="text-center text-yellow-300 text-xl mb-4">Chat with AI</h3>
-    //             <div id="chatContent">
-    //             </div>
-    //             <div>               
-    //                 <div class="chat-content flex-grow overflow-y-auto p-4 space-y-4">
-    //                     <!-- Example response and question boxes -->
-    //                     <!-- <div class="response-box bg-gray-700 border border-gray-600 rounded-md p-4 text-gray-300 text-sm">
-    //                         Response will appear here.
-    //                     </div>
-    //                     <div class="grid justify-items-end">
-    //                       <div class="question-sent-box bg-gray-700 text-right p-2 rounded-md w-fit">
-    //                       Sent question be like this.
-    //                       </div>
-    //                     </div>
-    //                      -->
-    //                 </div>
-    //             </div>
-
-    //             <!-- Input Section -->
-    //             <div class="w-full max-w-lg bg-gray-800 p-4 rounded-lg shadow-lg mt-5">
-    //                 <div class="input-section space-y-4">
-    //                     <textarea id="question" rows="2" placeholder="Type your question..."
-    //                         class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-3 text-sm outline-none focus:border-blue-500"></textarea/>
-    //                 <div class="flex justify-end"><p>Press Enter to send, or use Shift+Enter for a new line</p></div>
-
-    //                     <!-- <button id="askBtn"
-    //                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition-all">
-    //                         Ask
-    //                     </button> -->
-    //                     <div id="theEnd"></div>
-    //                 </div>
-    //             </div>
-    //         </div>
-        
-    //         <script>
-    //             const vscode = acquireVsCodeApi();
-
-    //             document.addEventListener('DOMContentLoaded', () => {
-    //                 // Populate the model dropdown dynamically
-    //                 vscode.postMessage({ command: 'populateModels' });
-
-    //                 // Set up the click event for the Ask button
-    //                 // document.getElementById('askBtn').addEventListener('click', () => {
-    //                  document.getElementById('question').addEventListener('keypress', () => {
-    //                     if (event.key !== 'Enter') return;
-    //                     else if (event.key === 'Enter' && event.shiftKey) return;
-    //                     const question = document.getElementById('question').value.trim();
-    //                     const model = document.getElementById('model').value;
-
-    //                     if (question === "") {
-    //                     document.getElementById('response').textContent = "⚠️ Please enter a question.";
-    //                     return;
-    //                     }
-
-    //                     // Post a message to the VS Code extension with the question and selected model
-    //                     const chatContent = document.getElementById('chatContent').innerHTML;
-                        
-    //                     document.getElementById('chatContent').innerHTML = chatContent
-    //                     + '<div class="grid justify-items-end"> <div class="question-sent-box bg-gray-700 text-left p-2 rounded-md w-fit">' 
-    //                     + question + '</div> </div>'
-    //                     + '<div>' + model + '</div> <div id="response" class="bg-gray-700 text-left p-2 rounded-md w-fit">Please wait...</div>';
-
-    //                     document.getElementById('question').value = '';
-    //                     document.getElementById('question').disabled = true;
-    //                     vscode.postMessage({ command: 'askQuestion', text: question, model: model });
-    //                 });
-    //             });
-
-    //             window.addEventListener('message', (event) => {
-    //                 const message = event.data;
-    //                 if (message.command === 'populateModels') {
-    //                     const modelSelect = document.getElementById('model');
-    //                     modelSelect.innerHTML = ''; // Clear old options, if any
-
-    //                     if (message.models && Array.isArray(message.models)) {
-    //                         message.models.forEach((m) => {
-    //                             const option = document.createElement('option');
-    //                             option.value = m;
-    //                             option.textContent = m;
-    //                             modelSelect.appendChild(option);
-    //                         });
-    //                     } else {
-    //                         // If there was an error or no models, you can handle that
-    //                         const option = document.createElement('option');
-    //                         option.value = '';
-    //                         option.textContent = 'No models found';
-    //                         modelSelect.appendChild(option);
-    //                     }
-    //                 }
-    //                 else if (message.type === 'update') {
-    //                     const rawMarkdown = message.content || "No response received.";
-    //                     const chatContent = document.getElementById('chatContent').innerHTML;
-    //                     document.getElementById('question').value = '';
-    //                     // Convert chuỗi Markdown sang HTML
-    //                     const renderedHtml = marked.parse(rawMarkdown);
-
-    //                     // Thêm tên model vào câu trả lời
-    //                     // const model = message.model || "Unknown Model";
-    //                     // const renderedAnswer = model + ": " + renderedHtml;
-
-    //                     // Render vào "response" bằng innerHTML
-    //                     document.getElementById('response').innerHTML = renderedHtml;
-
-    //                     // Tự scroll xuống bottom khi đang response
-    //                     var bottom = document.getElementById('theEnd');
-    //                     var pos = bottom.getBoundingClientRect();
-    //                     window.scroll({
-    //                         top: pos.top,
-    //                         left: 0,
-    //                         behavior: "smooth",
-    //                         });
-    //                 }
-    //                 else if (message.type === 'updateDone') {
-    //                     var response = document.getElementById('response');
-    //                     var question = document.getElementById('question');
-    //                     response.setAttribute('id', 'response-done');
-    //                     response.outerHTML += '<div style="height: 10px;"></div>';
-    //                     question.disabled = false;
-    //                     question.focus();
-    //                 }
-    //             });
-    //         </script>
-
-    //     </body>
-    //     </html>
-    //     `;
