@@ -1,0 +1,34 @@
+# Build outputs
+dist/
+out/
+webview-ui/dist/
+
+# Dependencies
+node_modules/
+webview-ui/node_modules/
+
+# VS Code specific
+.vscode/
+.vscode-test/
+**/*.vsix
+
+# Generated files
+**/*.map
+**/*.d.ts
+webview-ui/src/vite-env.d.ts
+
+# Other files
+.DS_Store
+**/.DS_Store
+.git
+coverage/
+*.log
+
+# Markdown (optional, uncomment if you want to ignore markdown files)
+# *.md
+
+# Lock files (optional, usually these should be version controlled but not prettified)
+package-lock.json
+webview-ui/package-lock.json
+yarn.lock
+pnpm-lock.yaml
