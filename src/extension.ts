@@ -3,69 +3,45 @@ import { GenerateCommentCommand } from "./commands/generateComment";
 import { GfunctionCommentCommand } from "./commands/functionComment";
 import { readEntireCodeBase } from "./commands/readEntireCodeBase";
 import { RagginProvider } from "./core/webview/RagginProvider";
-import { Logger } from "./utils/logging";
-
-
-let outputChannel: vscode.OutputChannel
+import { Logger, LogLevel } from "./utils/logging";
 
 export function activate(context: vscode.ExtensionContext) {
-  // const sidebarProvider = new SidebarProvider(context.extensionUri);
-  outputChannel = vscode.window.createOutputChannel("RAGGIN")
-	context.subscriptions.push(outputChannel)
+  // Create the output channel and add it to the subscriptions.
+  const outputChannel = vscode.window.createOutputChannel("RAGGIN");
+  context.subscriptions.push(outputChannel);
 
   console.log('Congratulations, your extension "RAGGIN" is now active!');
-  Logger.initialize(outputChannel);
-	Logger.log("RAGGIN extension activated");
 
-  const disposables: vscode.Disposable[] = [];
-  context.subscriptions.push(
-    new vscode.Disposable(() => vscode.Disposable.from(...disposables).dispose())
-  );
+  // Initialize the logger with the output channel.
+  Logger.initialize(outputChannel, 'RAGGIN');
+  const config = vscode.workspace.getConfiguration('RAGGIN');
+  const logLevelSetting = config.get<string>('logLevel', 'info').toUpperCase();
+  Logger.setLogLevel(LogLevel[logLevelSetting as keyof typeof LogLevel] || LogLevel.INFO);
 
-  const ragginSidebar = new RagginProvider(
-    context,
-    outputChannel
-    // HomeViewProvider.viewType,
-    // new HomeViewProvider(context)
-  );
+  Logger.info("RAGGIN extension activated");
 
-  const item = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right
-  );
-  item.text = "Generate Comment";
-  item.command = "raggin.generateComment";
-  item.show();
-
+  // Create the sidebar provider and register it.
+  const ragginSidebar = new RagginProvider(context, outputChannel);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider("raggin-sidebar", ragginSidebar)
   );
-  // disposables.push(homeViewProvider);
-  
-  // const sidebarProvider = new SidebarProvider(context.extensionUri);
-  // context.subscriptions.push(
-  //   vscode.window.registerWebviewViewProvider(
-  // 	"raggin-sidebar",
-  // 	sidebarProvider
-  //   )
-  // );
 
-  const ragdisposable = vscode.commands.registerCommand(
-    "raggin.generateComment",
-    GenerateCommentCommand
-  );
-  const ragFunctionDisposable = vscode.commands.registerCommand(
-    "raggin.gfunctionComment",
-    GfunctionCommentCommand
-  );
-  const ragEntireCodeBaseDisposable = vscode.commands.registerCommand(
-    "raggin.readEntireCodeBase",
-    readEntireCodeBase
-  );
+  // Create a status bar item, assign a command, show it, and add it to subscriptions.
+  const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+  statusBarItem.text = "Generate Comment";
+  statusBarItem.command = "raggin.generateComment";
+  statusBarItem.show();
+  context.subscriptions.push(statusBarItem);
 
-  context.subscriptions.push(ragdisposable);
-  context.subscriptions.push(ragFunctionDisposable);
-  context.subscriptions.push(ragEntireCodeBaseDisposable);
+  // Register commands directly and push them to the context's subscriptions.
+  context.subscriptions.push(
+    vscode.commands.registerCommand("raggin.generateComment", GenerateCommentCommand),
+    vscode.commands.registerCommand("raggin.gfunctionComment", GfunctionCommentCommand),
+    vscode.commands.registerCommand("raggin.readEntireCodeBase", readEntireCodeBase)
+  );
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+// This method is called when your extension is deactivated.
+export function deactivate() {
+  Logger.info('Extension deactivated');
+}

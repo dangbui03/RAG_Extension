@@ -3,24 +3,23 @@ import { OllamaServer } from "../prompts/ollama";
 import { getConfiguration } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
+import { Chat } from "../../../webview-ui/src/types";
 
 const utf8TextDecoder = new TextDecoder("utf8");
-
 export class RagginProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView | vscode.WebviewPanel;
+  private readonly outputChannel: vscode.OutputChannel
   // private disposables: vscode.Disposable[] = []
 
   constructor(
-    // private readonly _extensionUri: vscode.Uri,
     private readonly _context: vscode.ExtensionContext,
-    private readonly outputChannel: vscode.OutputChannel,
+    outputChannel: vscode.OutputChannel
   ) {
+    this.outputChannel = outputChannel;
     this.outputChannel.appendLine("RAGGIN Provider activated");
   }
 
-  public async resolveWebviewView(
-    webviewView: vscode.WebviewView
-  ): Promise<void> {
+  public async resolveWebviewView( webviewView: vscode.WebviewView ): Promise<void> {
     this._view = webviewView;
 
     // Allow scripts in the webview
@@ -31,62 +30,92 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
     // Listen for messages from the webview
     webviewView.webview.onDidReceiveMessage(async (message) => {
-      switch (message.command) {
-        case "askQuestion": {
-          const question = message.text || "";
-          const model = message.model;
-          
-          if (!question) {
-            webviewView.webview.postMessage({
-              command: "update",
-              content: "⚠️ Please enter a valid question.",
-            });
-            return;
+      try {
+        switch (message.command) {
+          // Add a handler for the askQuestion message
+          case "askQuestion": {
+            const question = message.text || "";
+            const model = message.model;
+            const chatId = message.chatId;
+  
+            if (!question) {
+              webviewView.webview.postMessage({
+                command: "update",
+                content: "⚠️ Please enter a valid question.",
+              });
+              return;
+            }
+  
+            // Process the question
+            if (this._view) {
+              const answer = await generateAnswer(
+                question,
+                model,
+                this._view.webview
+              );
+              webviewView.webview.postMessage({
+                command: "update",
+                content: answer,
+                chatId: chatId,
+              });
+            }
+            break;
+          }
+          // Add a handler for the populateModels message
+          case "populateModels": {
+            // The Webview is requesting models
+            const serverUrl: string = getConfiguration(
+              "serverURL",
+              "http://127.0.0.1:11434"
+            );
+            const ollamaServer = OllamaServer.getInstance(serverUrl);
+  
+            try {
+              const models = await ollamaServer.listModels();
+              // Send the list of models back to the Webview
+              webviewView.webview.postMessage({
+                command: "populateModels",
+                models: models || [],
+              });
+            } catch (error) {
+              console.error("Error fetching models:", error);
+              // You could also send an error message back
+              webviewView.webview.postMessage({
+                command: "populateModels",
+                models: [],
+                error: String(error),
+              });
+            }
+            break;
           }
 
-          // Process the question
-          if (this._view) {
-            const answer = await generateAnswer(question, model, this._view.webview);
-            webviewView.webview.postMessage({
-              command: "update",
-              content: answer,
-            });
-          }
-
-          break;
+          case "fetchChats":
+            await this.handleFetchChats();
+            break;
+          case "fetchChatById":
+            await this.handleFetchChatById(message.chatId);
+            break;
+          case "storeChat":
+            await this.handleStoreChat(message.chat);
+            break;
+          case "deleteChat":
+            await this.handleDeleteChat(message.chatId);
+            break;
+          case "deleteAllChats":
+            await this.handleDeleteAllChats();
+            break;
+          default:
+            throw new Error(`Unknown command: ${message.command}`);
         }
-        case "populateModels": {
-          // The Webview is requesting models
-          const serverUrl: string = getConfiguration(
-            "serverURL",
-            "http://127.0.0.1:11434"
-          );
-          const ollamaServer = OllamaServer.getInstance(serverUrl);
-
-          try {
-            const models = await ollamaServer.listModels();
-            // Send the list of models back to the Webview
-            webviewView.webview.postMessage({
-              command: "populateModels",
-              models: models || [],
-            });
-          } catch (error) {
-            console.error("Error fetching models:", error);
-            // You could also send an error message back
-            webviewView.webview.postMessage({
-              command: "populateModels",
-              models: [],
-              error: String(error),
-            });
-          }
-          break;
-        }
-        default:
-          break;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        vscode.window.showErrorMessage(`RAGGIN Error: ${errorMessage}`);
       }
     });
 
-    webviewView.webview.html = await this._getHtmlForWebview(webviewView.webview);
+    webviewView.webview.html = await this._getHtmlForWebview(
+      webviewView.webview
+    );
   }
 
   private async getRootUri() {
@@ -97,22 +126,30 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     return vscode.Uri.joinPath(await this.getRootUri(), "webviews-ui");
   }
 
-  // private async _getViewJSUri(webview: vscode.Webview) {
-  //   return webview.asWebviewUri(
-  //     vscode.Uri.joinPath(await this.getWebviewsUri(), this.viewName, `${this.viewName}.js`)
-  //   );
-  // }
-
-  private async  _getHtmlForWebview(webview: vscode.Webview): Promise<string> {
-
+  private async _getHtmlForWebview(webview: vscode.Webview): Promise<string> {
     const nonce = getNonce();
-  
-    // The CSS file from the React build output
-    const stylesUri = getUri(webview, this._context.extensionUri, ["webview-ui", "dist", "index.css"]);
-    // The JS file from the React build output
-    const scriptUri = getUri(webview, this._context.extensionUri, ["webview-ui", "dist", "index.js"]);
 
-    const codiConsUri = getUri(webview, this._context.extensionUri, ["webview-ui", 'node_modules', '@vscode', "codicons", "dist", "codicon.css"]);
+    // The CSS file from the React build output
+    const stylesUri = getUri(webview, this._context.extensionUri, [
+      "webview-ui",
+      "dist",
+      "index.css",
+    ]);
+    // The JS file from the React build output
+    const scriptUri = getUri(webview, this._context.extensionUri, [
+      "webview-ui",
+      "dist",
+      "index.js",
+    ]);
+
+    const codiConsUri = getUri(webview, this._context.extensionUri, [
+      "webview-ui",
+      "node_modules",
+      "@vscode",
+      "codicons",
+      "dist",
+      "codicon.css",
+    ]);
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -124,7 +161,6 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             <title>Ask AI</title>
         
             <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        
         </head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -132,161 +168,81 @@ export class RagginProvider implements vscode.WebviewViewProvider {
           <script src="${scriptUri}" nonce="${nonce}"></script>
         </body>
       </html>
-    `
-      // const html = replaceWebviewHtmlTokens(htmlContent, {
-      //   cssUri: cssUri.toString(),
-      //   jsUri: scriptUri.toString(),//this._getViewJSUri(webview).toString(),
-      //   cspNonce: getNonce(),
-      // });
-  
-      // return html; // Return the modified HTML content
+    `;
+  };
+
+  // Fetch all chats from globalState
+  private async handleFetchChats() {
+    if (!this._view) throw new Error("Webview not initialized");
+    try {
+      const chats = this._context.globalState.get<Chat[]>("chats", []);
+      this._view.webview.postMessage({ command: "chatsFetched", chats });
+    } catch (error) {
+      throw new Error(`Failed to fetch chats: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
   }
-}
 
-    // return /* html */ `
-    //     <!DOCTYPE html>
-    //     <html lang="en">
-    //     <head>
-    //         <meta charset="UTF-8">
-    //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    //         <link href="${cssUri}" rel="stylesheet">
-    //         <title>Ask AI</title>
+  // Fetch a specific chat by ID from globalState
+  private async handleFetchChatById(chatId: string) {
+    if (!this._view) throw new Error("Webview not initialized");
+    try {
+      if (!chatId) {
+        throw new Error("No chat ID provided");
+      }
+      const chats = this._context.globalState.get<Chat[]>("chats", []);
+      const chat = chats.find((c) => c.id === chatId);
+      if (!chat) {
+        throw new Error(`Chat with ID ${chatId} not found`);
+      }
+      this._view.webview.postMessage({ command: "chatFetched", chat });
+    } catch (error) {
+      throw new Error(`Failed to fetch chat by ID: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
+  }
 
-    //         <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  // Store or update a chat in globalState
+  private async handleStoreChat(chat: Chat) {
+    try {
+      if (!chat || !chat.id) {
+        throw new Error("Invalid chat data provided");
+      }
+      const currentChats = this._context.globalState.get<Chat[]>("chats", []);
+      const updatedChats = currentChats.filter((c) => c.id !== chat.id);
+      updatedChats.unshift(chat); // Add to the top
+      await this._context.globalState.update("chats", updatedChats);
+      // Optionally notify the webview
+      if (this._view) {
+        this._view.webview.postMessage({ command: "chatStored", success: true, chatId: chat.id });
+      }
+    } catch (error) {
+      throw new Error(`Failed to store chat: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
+  }
 
-    //     </head>
-    //     <body>
-    //     <header style="position: sticky; top: 0px;">
-    //     <select id="model"  
-    //         class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-3 text-sm cursor-pointer focus:border-blue-500">
-    //         <!-- <option value="qwen2.5-coder:1.5b">qwen2.5-coder:1.5b</option> -->
-    //     </select>
-    //     </header>
-    //         <div class="flex flex-col items-center min-h-screen bg-gray-900 text-white p-5">
-    //             <!-- Chat Container -->
-    //             <h3 class="text-center text-yellow-300 text-xl mb-4">Chat with AI</h3>
-    //             <div id="chatContent">
-    //             </div>
-    //             <div>               
-    //                 <div class="chat-content flex-grow overflow-y-auto p-4 space-y-4">
-    //                     <!-- Example response and question boxes -->
-    //                     <!-- <div class="response-box bg-gray-700 border border-gray-600 rounded-md p-4 text-gray-300 text-sm">
-    //                         Response will appear here.
-    //                     </div>
-    //                     <div class="grid justify-items-end">
-    //                       <div class="question-sent-box bg-gray-700 text-right p-2 rounded-md w-fit">
-    //                       Sent question be like this.
-    //                       </div>
-    //                     </div>
-    //                      -->
-    //                 </div>
-    //             </div>
+  // Delete a specific chat from globalState
+  private async handleDeleteChat(chatId: string) {
+    if (!this._view) throw new Error("Webview not initialized");
+    try {
+      if (!chatId) {
+        throw new Error("No chat ID provided");
+      }
+      const currentChats = this._context.globalState.get<Chat[]>("chats", []);
+      const updatedChats = currentChats.filter((c) => c.id !== chatId);
+      await this._context.globalState.update("chats", updatedChats);
+      this._view.webview.postMessage({ command: "chatsFetched", chats: updatedChats });
+    } catch (error) {
+      throw new Error(`Failed to delete chat: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
+  }
 
-    //             <!-- Input Section -->
-    //             <div class="w-full max-w-lg bg-gray-800 p-4 rounded-lg shadow-lg mt-5">
-    //                 <div class="input-section space-y-4">
-    //                     <textarea id="question" rows="2" placeholder="Type your question..."
-    //                         class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-3 text-sm outline-none focus:border-blue-500"></textarea/>
-    //                 <div class="flex justify-end"><p>Press Enter to send, or use Shift+Enter for a new line</p></div>
-
-    //                     <!-- <button id="askBtn"
-    //                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition-all">
-    //                         Ask
-    //                     </button> -->
-    //                     <div id="theEnd"></div>
-    //                 </div>
-    //             </div>
-    //         </div>
-        
-    //         <script>
-    //             const vscode = acquireVsCodeApi();
-
-    //             document.addEventListener('DOMContentLoaded', () => {
-    //                 // Populate the model dropdown dynamically
-    //                 vscode.postMessage({ command: 'populateModels' });
-
-    //                 // Set up the click event for the Ask button
-    //                 // document.getElementById('askBtn').addEventListener('click', () => {
-    //                  document.getElementById('question').addEventListener('keypress', () => {
-    //                     if (event.key !== 'Enter') return;
-    //                     else if (event.key === 'Enter' && event.shiftKey) return;
-    //                     const question = document.getElementById('question').value.trim();
-    //                     const model = document.getElementById('model').value;
-
-    //                     if (question === "") {
-    //                     document.getElementById('response').textContent = "⚠️ Please enter a question.";
-    //                     return;
-    //                     }
-
-    //                     // Post a message to the VS Code extension with the question and selected model
-    //                     const chatContent = document.getElementById('chatContent').innerHTML;
-                        
-    //                     document.getElementById('chatContent').innerHTML = chatContent
-    //                     + '<div class="grid justify-items-end"> <div class="question-sent-box bg-gray-700 text-left p-2 rounded-md w-fit">' 
-    //                     + question + '</div> </div>'
-    //                     + '<div>' + model + '</div> <div id="response" class="bg-gray-700 text-left p-2 rounded-md w-fit">Please wait...</div>';
-
-    //                     document.getElementById('question').value = '';
-    //                     document.getElementById('question').disabled = true;
-    //                     vscode.postMessage({ command: 'askQuestion', text: question, model: model });
-    //                 });
-    //             });
-
-    //             window.addEventListener('message', (event) => {
-    //                 const message = event.data;
-    //                 if (message.command === 'populateModels') {
-    //                     const modelSelect = document.getElementById('model');
-    //                     modelSelect.innerHTML = ''; // Clear old options, if any
-
-    //                     if (message.models && Array.isArray(message.models)) {
-    //                         message.models.forEach((m) => {
-    //                             const option = document.createElement('option');
-    //                             option.value = m;
-    //                             option.textContent = m;
-    //                             modelSelect.appendChild(option);
-    //                         });
-    //                     } else {
-    //                         // If there was an error or no models, you can handle that
-    //                         const option = document.createElement('option');
-    //                         option.value = '';
-    //                         option.textContent = 'No models found';
-    //                         modelSelect.appendChild(option);
-    //                     }
-    //                 }
-    //                 else if (message.type === 'update') {
-    //                     const rawMarkdown = message.content || "No response received.";
-    //                     const chatContent = document.getElementById('chatContent').innerHTML;
-    //                     document.getElementById('question').value = '';
-    //                     // Convert chuỗi Markdown sang HTML
-    //                     const renderedHtml = marked.parse(rawMarkdown);
-
-    //                     // Thêm tên model vào câu trả lời
-    //                     // const model = message.model || "Unknown Model";
-    //                     // const renderedAnswer = model + ": " + renderedHtml;
-
-    //                     // Render vào "response" bằng innerHTML
-    //                     document.getElementById('response').innerHTML = renderedHtml;
-
-    //                     // Tự scroll xuống bottom khi đang response
-    //                     var bottom = document.getElementById('theEnd');
-    //                     var pos = bottom.getBoundingClientRect();
-    //                     window.scroll({
-    //                         top: pos.top,
-    //                         left: 0,
-    //                         behavior: "smooth",
-    //                         });
-    //                 }
-    //                 else if (message.type === 'updateDone') {
-    //                     var response = document.getElementById('response');
-    //                     var question = document.getElementById('question');
-    //                     response.setAttribute('id', 'response-done');
-    //                     response.outerHTML += '<div style="height: 10px;"></div>';
-    //                     question.disabled = false;
-    //                     question.focus();
-    //                 }
-    //             });
-    //         </script>
-
-    //     </body>
-    //     </html>
-    //     `;
+  // Delete all chats from globalState
+  private async handleDeleteAllChats() {
+    if (!this._view) throw new Error("Webview not initialized");
+    try {
+      await this._context.globalState.update("chats", []);
+      this._view.webview.postMessage({ command: "chatsFetched", chats: [] });
+    } catch (error) {
+      throw new Error(`Failed to delete all chats: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
+  }
+};

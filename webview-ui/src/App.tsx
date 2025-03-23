@@ -1,20 +1,29 @@
 import React from 'react'; //, { useEffect, useState, useRef }
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
-import Config from './components/Config';
-import HistoryView from './components/history/HistoryView';
-import Index from './pages/Index';
+// import page
+import Config from '@/components/Config';
+import Index from '@/pages/Index';
+import History from '@/pages/History';
+
+// import components
+import { ChatProvider } from "@/context/ChatContext";
 
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/config" element={<Config />} />
-        <Route path="/history" element={<HistoryView />} />
-        <Route path="*" element={<Index />} />
-      </Routes>
-    </Router>
+    <TooltipProvider>
+      <ChatProvider>
+        <Router>
+          <Routes>
+            <Route path="*" element={<Index />} />
+            <Route path="/config" element={<Config />} />
+            <Route path="/history" element={<History />} />
+          </Routes>
+        </Router>
+      </ChatProvider>
+    </TooltipProvider>
   );
 };
 

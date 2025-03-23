@@ -14,6 +14,7 @@ const WelcomeScreen: React.FC = () => {
 
 const ChatWindow: React.FC = () =>  {
   const { currentChat } = useChat();
+  console.log("currentChat", currentChat);
   const bottomRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -34,7 +35,7 @@ const ChatWindow: React.FC = () =>  {
           {currentChat.messages.map((message, index) => (
             <ChatMessages 
               key={message.id} 
-              message={message}
+              message={message} 
               isLast={index === currentChat.messages.length - 1}
             />
           ))}

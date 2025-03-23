@@ -35,6 +35,12 @@
           "type": "string",
           "description": "Prompt to model",
           "default": "Given the {codeblock} below, write a brief, insightful comment that explains its purpose and functionality within the script. If applicable, mention any inputs expected in the code block.Keep the comment concise (maximum 2 lines). Wrap the comment with the appropriate comment syntax of {language} language. Avoid assumptions about the complete code and focus on the provided block.Don't rewrite the code block. Just give the comment, and no need to specify the language again. "
+        },
+        "RAGGIN.logLevel": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info",
+          "description": "Controls the verbosity of logs in the output panel"
         }
       }
     },
@@ -101,7 +107,7 @@
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "watch:css": "npx @tailwindcss/cli -i ./src/main.css -o ./dist/output.css",
+    "watch:css": "npx @tailwindcss/cli -i ./webview-ui/src/index.css -o ./dist/output.css --watch",
     "watch:html": "copy-and-watch --watch src/webviews/**/*.html ./dist/webviews",
     "package": "npm run build:webview && npm run check-types && npm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
