@@ -10,13 +10,16 @@ import {
 import { cn } from "@/lib/utils";
 
 const ChatInput = () => {
-  const { sendMessage } = useChat();
+  const { sendMessage, selectedModel } = useChat();
   const [message, setMessage] = useState("");
   const [contextFiles, setContextFiles] = useState<string[]>([]);
-  // const [isInputFocused, setIsInputFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const handleSendMessage = () => {
+    if (!selectedModel) {
+      alert("⚠️ Please select a model first.");
+      return;
+    }
     if (message.trim()) {
       sendMessage(message);
       setMessage("");
@@ -79,6 +82,7 @@ const ChatInput = () => {
         )}
         
         <div
+          title='Add Context'
           className={cn(
             "relative w-full rounded-lg border transition-all duration-200 bg-chat-darker border-gray-700",
             // isInputFocused ? "border-blue-500" : "border-gray-700"
@@ -130,6 +134,7 @@ const ChatInput = () => {
           <Button
             variant="ghost"
             size="icon"
+            title='Send Message'
             onClick={handleSendMessage}
             disabled={!message.trim()}
             className={cn(
