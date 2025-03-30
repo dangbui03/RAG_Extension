@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { OllamaServer } from "../prompts/ollama";
-import { getConfiguration } from "../../utils/utils";
+import { getConfiguration, GetOllamaModelFromUser } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
@@ -48,8 +48,15 @@ export class RagginProvider implements vscode.WebviewViewProvider {
   
             // Process the question
             if (this._view) {
+              const chats = this._context.globalState.get<Chat[]>("chats", []);
+              const currentChat = chats.find((c) => c.id === chatId);
+              const optimizedContext = this.optimizeChatContext(currentChat);
+              const fullPrompt = optimizedContext 
+                ? `[Context]: ${optimizedContext}\n[Question]: ${question}`
+                : question;
+
               const answer = await generateAnswer(
-                question,
+                fullPrompt,
                 model,
                 this._view.webview
               );
@@ -72,6 +79,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
   
             try {
               const models = await ollamaServer.listModels();
+              
               // Send the list of models back to the Webview
               webviewView.webview.postMessage({
                 command: "populateModels",
@@ -170,6 +178,20 @@ export class RagginProvider implements vscode.WebviewViewProvider {
       </html>
     `;
   };
+
+  // Added helper method to optimize chat context for LLM
+  private optimizeChatContext(chat: Chat | undefined): string {
+    if (!chat || !chat.messages || chat.messages.length === 0) return "";
+
+    // Limit to last 3 messages to keep context small (adjust based on model limits)
+    const recentMessages = chat.messages.slice(-3);
+    const context = recentMessages
+      .map((msg) => `Previous user question: ${msg.user_prompt}`)
+      .join(" | ");
+    
+    // Optional: Further trim to a max length (e.g., 200 characters)
+    return context.length > 200 ? context.substring(0, 200) + "..." : context;
+  }
 
   // Fetch all chats from globalState
   private async handleFetchChats() {

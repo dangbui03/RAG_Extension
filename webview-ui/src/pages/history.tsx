@@ -20,11 +20,13 @@ const History: React.FC = () => {
     return formatDistanceToNow(dateObj, { addSuffix: true });
   };
 
+  // Handle chat selection
   const handleSelectChat = (chatId: string) => {
     setCurrentChat(chatId);
     navigate("/");
   };
 
+  // Handle clear history
   const handleClearHistory = () => {
       deleteAllChats();
       setOpen(false);
