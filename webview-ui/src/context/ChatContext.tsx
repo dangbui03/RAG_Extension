@@ -9,6 +9,8 @@ interface ChatContextType {
   currentChat: Chat | null;
   selectedModel: string;
   models: string[];
+  isGenerating: boolean;
+  generationStartTime: number | null;
   selectModel: (model: string) => void;
   sendMessage: (content: string, chatId?: string) => void; //, contextFiles?: string[]
   createNewChat: () => void;
@@ -31,15 +33,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [models, setModels] = useState<string[]>([]);
-
-  // const navigate = useNavigate();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStartTime, setGenerationStartTime] = useState<number | null>(
+    null
+  );
 
   // Initialize and fetch history when component mounts
   useEffect(() => {
     // Initial data fetch
     fetchModels();
     fetchChats();
-    // setChats(chats);
+
     if (chats.length > 0) {
       setCurrentChat(chats[0]);
     } else {
@@ -90,6 +94,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         case "chatStored":
           fetchChats();
           break;
+        case "chatDeleted":
+          // We already updated the local state, but we can sync with server state if needed
+          if (message.success && Array.isArray(message.chats)) {
+            setChats(message.chats);
+          }
+          break;
+        case "allChatsDeleted":
+          // We already updated the local state, but we can sync with server state if needed
+          if (message.success) {
+            setChats([]);
+          }
+          break;
       }
     };
 
@@ -110,23 +126,29 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   // Store chat in the extension
   const storeChat = (chat: Chat) =>
     vscode.postMessage({ command: "storeChat", chat });
-  
+
   // Delete chat by id
   const deleteChat = (chatId: string) => {
-    const updatedChats = chats.filter(c => c.id !== chatId);
+    const updatedChats = chats.filter((c) => c.id !== chatId);
     setChats(updatedChats);
 
+    // If we're deleting the current chat, create a new one or select the first available
     if (currentChat && currentChat.id === chatId) {
-      setCurrentChat(updatedChats[0] || null);
+      if (updatedChats.length > 0) {
+        setCurrentChat(updatedChats[0]);
+      } else {
+        createNewChat();
+      }
     }
     vscode.postMessage({ command: "deleteChat", chatId });
-  }
+  };
 
   // Delete all chat
   const deleteAllChats = () => {
+    setChats([]);
     createNewChat();
     vscode.postMessage({ command: "deleteAllChats" });
-  }
+  };
 
   const initializeDefaultChat = () => {
     const newChat: Chat = {
@@ -134,32 +156,32 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       title: "New Chat",
       messages: [],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-    setChats([newChat]);
+    // setChats([newChat]);
     setCurrentChat(newChat);
   };
 
   const createNewChat = () => {
     const newChat: Chat = {
       id: uuidv4(),
-      title: 'New Chat',
+      title: "New Chat",
       messages: [],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-    
+
     setCurrentChat(newChat);
-    
-    // Store the new chat
-    vscode.postMessage({
-      command: 'storeChat',
-      chat: newChat
-    });
+
+    // // Store the new chat
+    // vscode.postMessage({
+    //   command: 'storeChat',
+    //   chat: newChat
+    // });
   };
-  
+
   const sendMessage = (content: string) => {
-    console.log(selectedModel, content);
+    // console.log(selectedModel, content);
 
     if (!currentChat) return;
     if (!selectedModel) {
@@ -176,38 +198,37 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       status: "sent",
     };
 
-    // let updatedChat: Chat;
-    // // Update the chat state with the new user and assistant messages
-    // if (currentChat && (!chatId || currentChat.id === chatId)) {
-    //   updatedChat = {
-    //     ...currentChat,
-    //     messages: [...currentChat.messages, newMessage],
-    //     updatedAt: new Date(),
-    //   };
-    // } else {
-    //   updatedChat = {
-    //     id: uuidv4(),
-    //     title: content.substring(0, 30),
-    //     messages: [newMessage],
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //   };
-    // }
+    setIsGenerating(true);
+    setGenerationStartTime(Date.now());
+
     const updatedChat = {
       ...currentChat,
       messages: [...currentChat.messages, newMessage],
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-    
+
     const finalChat = {
       ...updatedChat,
-      title: updatedChat.messages.length === 1 ? content.slice(0, 30) + (content.length > 30 ? "..." : "") : updatedChat.title
+      title:
+        updatedChat.messages.length === 1
+          ? content.slice(0, 30) + (content.length > 30 ? "..." : "")
+          : updatedChat.title,
     };
 
     setCurrentChat(finalChat);
-    setChats(prevChats => 
-      prevChats.map(chat => chat.id === finalChat.id ? finalChat : chat)
-    );
+    // setChats(prevChats =>
+    //   prevChats.map(chat => chat.id === finalChat.id ? finalChat : chat)
+    // );
+    if (currentChat.messages.length === 0) {
+      setChats((prevChats) => [
+        finalChat,
+        ...prevChats.filter((chat) => chat.id !== finalChat.id),
+      ]);
+    } else {
+      setChats((prevChats) =>
+        prevChats.map((chat) => (chat.id === finalChat.id ? finalChat : chat))
+      );
+    }
 
     // storeChat(updatedChat);
     vscode.postMessage({
@@ -220,32 +241,36 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     // Listen for the response from the VS Code extension
     window.addEventListener("message", (event) => {
       const message = event.data;
-  
+
       // Check if the response contains an answer
       if (message.command === "update") {
         const responseContent = message.content || "No response received.";
 
-      const updatedMessage: ChatMessage = {
-        ...newMessage,
-        ai_answer: responseContent,
-        status: "sent"
-      };
-      
-      const completedChat = {
-        ...finalChat,
-        messages: finalChat.messages.map(msg => 
-          msg.id === newMessage.id ? updatedMessage : msg
-        )
-      };
+        const updatedMessage: ChatMessage = {
+          ...newMessage,
+          ai_answer: responseContent,
+          status: "sent",
+        };
 
-      setCurrentChat(completedChat);
-      setChats(prevChats => 
-        prevChats.map(chat => chat.id === completedChat.id ? completedChat : chat)
-      );
-      storeChat(completedChat);
+        const completedChat = {
+          ...finalChat,
+          messages: finalChat.messages.map((msg) =>
+            msg.id === newMessage.id ? updatedMessage : msg
+          ),
+        };
+
+        setCurrentChat(completedChat);
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat.id === completedChat.id ? completedChat : chat
+          )
+        );
+        storeChat(completedChat);
       }
+      setIsGenerating(false);
+      setGenerationStartTime(null);
     });
-  }
+  };
 
   const selectModel = (model: string) => {
     setSelectedModel(model);
@@ -259,6 +284,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         selectedModel,
         models,
         selectModel,
+        isGenerating,
+        generationStartTime,
         sendMessage,
         createNewChat,
         fetchChats,
