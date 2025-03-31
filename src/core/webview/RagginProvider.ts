@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { OllamaServer } from "../prompts/ollama";
-import { getConfiguration } from "../../utils/utils";
+import { getConfiguration, GetOllamaModelFromUser } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
@@ -8,7 +8,7 @@ import { Chat } from "../../../webview-ui/src/types";
 const utf8TextDecoder = new TextDecoder("utf8");
 export class RagginProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView | vscode.WebviewPanel;
-  private readonly outputChannel: vscode.OutputChannel
+  private readonly outputChannel: vscode.OutputChannel;
   // private disposables: vscode.Disposable[] = []
 
   constructor(
@@ -19,7 +19,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     this.outputChannel.appendLine("RAGGIN Provider activated");
   }
 
-  public async resolveWebviewView( webviewView: vscode.WebviewView ): Promise<void> {
+  public async resolveWebviewView(
+    webviewView: vscode.WebviewView
+  ): Promise<void> {
     this._view = webviewView;
 
     // Allow scripts in the webview
@@ -37,7 +39,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             const question = message.text || "";
             const model = message.model;
             const chatId = message.chatId;
-  
+
             if (!question) {
               webviewView.webview.postMessage({
                 command: "update",
@@ -45,14 +47,23 @@ export class RagginProvider implements vscode.WebviewViewProvider {
               });
               return;
             }
-  
+
             // Process the question
             if (this._view) {
+              const chats = this._context.globalState.get<Chat[]>("chats", []);
+              const currentChat = chats.find((c) => c.id === chatId);
+              const optimizedContext = this.optimizeChatContext(currentChat);
+              const fullPrompt = optimizedContext
+                ? `[Context]: \n${optimizedContext}\n\n[Question]: ${question}`
+                : question;
+
+              console.log("Full Prompt:", fullPrompt);
               const answer = await generateAnswer(
-                question,
+                fullPrompt,
                 model,
                 this._view.webview
               );
+              console.log("Answer:", answer);
               webviewView.webview.postMessage({
                 command: "update",
                 content: answer,
@@ -69,9 +80,10 @@ export class RagginProvider implements vscode.WebviewViewProvider {
               "http://127.0.0.1:11434"
             );
             const ollamaServer = OllamaServer.getInstance(serverUrl);
-  
+
             try {
               const models = await ollamaServer.listModels();
+
               // Send the list of models back to the Webview
               webviewView.webview.postMessage({
                 command: "populateModels",
@@ -108,7 +120,10 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             throw new Error(`Unknown command: ${message.command}`);
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred";
         vscode.window.showErrorMessage(`RAGGIN Error: ${errorMessage}`);
       }
     });
@@ -169,7 +184,43 @@ export class RagginProvider implements vscode.WebviewViewProvider {
         </body>
       </html>
     `;
-  };
+  }
+
+  // Added helper method to optimize chat context for LLM
+  private optimizeChatContext(chat: Chat | undefined): string {
+    if (!chat || !chat.messages || chat.messages.length === 0) return "";
+
+    // Limit to last 2 messages to keep context small (adjust based on model limits)
+    const recentMessages = chat.messages.slice(-3);
+
+    const prefixed = [
+      "Previous sentence: \n",
+      "the sentence before that: \n",
+      "the sentence before that: \n",
+    ];
+
+    // const context = recentMessages
+    // .map((msg, index) => `${prefixed[index]}${msg.user_prompt}`)
+    // .join("\n");
+    let context = "";
+    recentMessages.forEach((msg, index) => {
+      if (index < prefixed.length) {
+        // Use the correct property names from the ChatMessage interface
+        if (msg.user_prompt) {
+          context += `${prefixed[index]}${msg.user_prompt}\n`;
+        }
+        if (msg.ai_answer && index == 0) {
+          context += `${prefixed[index]}Response: ${msg.ai_answer}\n`;
+        }
+      }
+    });
+
+    // Add a separator to clearly distinguish context from the new question
+    context += "\n---\n";
+
+    // Optional: Further trim to a max length (e.g., 300 characters)
+    return context.length > 500 ? context.substring(0, 500) + "...\n" : context;
+  }
 
   // Fetch all chats from globalState
   private async handleFetchChats() {
@@ -178,7 +229,11 @@ export class RagginProvider implements vscode.WebviewViewProvider {
       const chats = this._context.globalState.get<Chat[]>("chats", []);
       this._view.webview.postMessage({ command: "chatsFetched", chats });
     } catch (error) {
-      throw new Error(`Failed to fetch chats: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(
+        `Failed to fetch chats: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
 
@@ -196,7 +251,11 @@ export class RagginProvider implements vscode.WebviewViewProvider {
       }
       this._view.webview.postMessage({ command: "chatFetched", chat });
     } catch (error) {
-      throw new Error(`Failed to fetch chat by ID: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(
+        `Failed to fetch chat by ID: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
 
@@ -212,10 +271,18 @@ export class RagginProvider implements vscode.WebviewViewProvider {
       await this._context.globalState.update("chats", updatedChats);
       // Optionally notify the webview
       if (this._view) {
-        this._view.webview.postMessage({ command: "chatStored", success: true, chatId: chat.id });
+        this._view.webview.postMessage({
+          command: "chatStored",
+          success: true,
+          chatId: chat.id,
+        });
       }
     } catch (error) {
-      throw new Error(`Failed to store chat: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(
+        `Failed to store chat: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
 
@@ -229,9 +296,22 @@ export class RagginProvider implements vscode.WebviewViewProvider {
       const currentChats = this._context.globalState.get<Chat[]>("chats", []);
       const updatedChats = currentChats.filter((c) => c.id !== chatId);
       await this._context.globalState.update("chats", updatedChats);
-      this._view.webview.postMessage({ command: "chatsFetched", chats: updatedChats });
+      // this._view.webview.postMessage({
+      //   command: "chatsFetched",
+      //   chats: updatedChats,
+      // });
+      this._view.webview.postMessage({
+        command: "chatDeleted",
+        success: true,
+        chatId: chatId,
+        chats: updatedChats,
+      });
     } catch (error) {
-      throw new Error(`Failed to delete chat: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(
+        `Failed to delete chat: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
 
@@ -240,9 +320,18 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     if (!this._view) throw new Error("Webview not initialized");
     try {
       await this._context.globalState.update("chats", []);
-      this._view.webview.postMessage({ command: "chatsFetched", chats: [] });
+      // this._view.webview.postMessage({ command: "chatsFetched", chats: [] });
+      this._view.webview.postMessage({
+        command: "allChatsDeleted",
+        success: true,
+        chats: [],
+      });
     } catch (error) {
-      throw new Error(`Failed to delete all chats: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(
+        `Failed to delete all chats: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
-};
+}
