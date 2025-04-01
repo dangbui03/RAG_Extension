@@ -3,3 +3,106 @@
 @theme {
     --color-chat-darker: var(--vscode-sideBar-background);
 }
+
+@layer base {
+    .text-light-onSurface {
+        color: var(--vscode-editor-foreground);
+    }
+    .text-dark-onSurface {
+        color: var(--vscode-editor-foreground);
+    }
+    .text-titleMedium {
+        color: var(--vscode-editor-foreground);
+    }
+    .text-bodyMedium {
+        color: var(--vscode-editor-foreground);
+    }
+    .markdown-content {
+        @apply text-light-onSurface
+        dark:text-dark-onSurface
+        leading-7
+        pt-1;
+    }
+    .markdown-content > :first-child {
+        @apply !mt-0;
+    }
+
+    .markdown-content :where(h0, h1, h2, h3, h4, h5, h6) {
+        @apply text-titleMedium
+        font-semibold
+        mt-8
+        mb-4;
+    }
+    .markdown-content :where(p, pre, table) {
+        @apply my-4;
+    }
+
+    .markdown-content :where(strong, span, a) {
+        @apply inline;
+    }
+
+    .markdown-content :where(ul, ol) {
+        list-style: revert;
+        @apply my-1
+        ps-[18px];
+    }
+
+    .markdown-content code {
+        @apply inline-block
+        text-bodyMedium
+        text-light-onSurfaceVariant
+        dark:text-dark-onSurfaceVariant
+        bg-light-onSurfaceContainerHigh
+        dark:bg-dark-onSurfaceContainerHigh
+        rounded-md
+        py-[1px]
+        px-1.5
+        ;
+    }
+
+    .markdown-content strong code {
+        @apply text-light-onSurface
+        dark:text-dark-onSurface
+        font-semibold;
+    }
+    
+    .markdown-content pre code {
+        @apply block
+        py-2
+        px-3
+        overflow-x-auto;
+    }
+
+    .markdown-content table {
+        @apply bg-light-onSurfaceContainer
+        dark:bg-dark-onSurfaceContainer
+        block
+        max-w-max
+        overflow-auto
+        rounded-large;
+    }
+
+    .markdown-content table th {
+        @apply text-titleMedium
+        p-4
+        text-left
+        whitespace-nowrap
+    }
+
+    .markdown-content table td {
+        @apply text-bodyMedium
+        px-3
+        py-4
+        border-t-[1px]
+        border-solid
+        border-light-surfaceContainerHigh
+        dark:border-dark-surfaceContainerHigh
+    }
+
+    .markdown-content a {
+        @apply text-light-primary
+        dark:text-dark-primary
+        underline
+        break-words;
+    }
+}
