@@ -11,6 +11,21 @@ interface ChatMessagesProps {
 }
 
 const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
+  const code = ({ children, className, ...rest }) => {
+    const match = className?.match(/language-(\w+)/);
+
+    return match ? (
+      <>
+        <div className="code-block">
+          <div className="">
+            {match[0]}
+          </div>
+        </div>
+      </>
+    ) : (
+      <code className={className}>{children}</code>
+    );
+  };
   return (
     <div className="flex items-start gap-4">
       <div className="w-6 h-6 rounded flex items-center justify-center text-xs flex-shrink-0 mt-1 bg-gray-700">
