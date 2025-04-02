@@ -4,19 +4,7 @@
     --color-chat-darker: var(--vscode-sideBar-background);
 }
 
-@layer base {
-    .text-light-onSurface {
-        color: var(--vscode-editor-foreground);
-    }
-    .text-dark-onSurface {
-        color: var(--vscode-editor-foreground);
-    }
-    .text-titleMedium {
-        color: var(--vscode-editor-foreground);
-    }
-    .text-bodyMedium {
-        color: var(--vscode-editor-foreground);
-    }
+@layer components {
     .markdown-content {
         @apply text-light-onSurface
         dark:text-dark-onSurface
@@ -65,7 +53,7 @@
         dark:text-dark-onSurface
         font-semibold;
     }
-    
+
     .markdown-content pre code {
         @apply block
         py-2
