@@ -121,4 +121,17 @@
         underline
         break-words;
     }
+
+    .markdown-content .code-block {
+        @apply bg-light-onSurfaceContainer
+        dark:bg-dark-onSurfaceContainer
+        rounded-t-md
+        rounded-b-xs
+        mb-0.5
+        overflow-hidden;
+    }
+
+    .markdown-content .code-block {
+        @apply !bg-inherit;
+    }
 }

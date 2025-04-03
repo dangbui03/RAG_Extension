@@ -2,6 +2,9 @@ import React from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { format } from "date-fns";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { hopscotch } from "react-syntax-highlighter/dist/esm/styles/prism";
+
 import { ChatMessage } from "@/types";
 
 interface ChatMessagesProps {
@@ -11,15 +14,40 @@ interface ChatMessagesProps {
 }
 
 const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
-  const code = ({ children, className, ...rest }) => {
+  const code = ({ children, className, ...rest }: { children: React.ReactNode, className?: string, [key: string]: unknown }) => {
     const match = className?.match(/language-(\w+)/);
 
     return match ? (
       <>
         <div className="code-block">
-          <div className="">
-            {match[0]}
-          </div>
+          <div className="">{match[0]}</div>
+
+          <SyntaxHighlighter
+            { ...rest }
+            pretag="div"
+            language={match[1]}
+            style={hopscotch}
+            customStyle={{
+              marginBlock: "0",
+              padding: "2px",
+            }}
+            codeTagProps={{
+              style: {
+                padding: "14px",
+                fontWeight: "400",
+              }
+            }}
+          >
+            {children}
+          </SyntaxHighlighter>
+        </div>
+
+        <div className="">
+            <p>
+              <a className="link" href="" target="_blank">
+
+              </a>
+            </p>
         </div>
       </>
     ) : (
@@ -40,9 +68,14 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
         </div>
 
         {children}
-        
+
         <div className="markdown-content">
-          <Markdown remarkPlugins={[remarkGfm]}>{chat.ai_answer}</Markdown>
+          <Markdown 
+            remarkPlugins={[remarkGfm]}
+            components={{ code }}
+          >
+            {chat.ai_answer}
+          </Markdown>
         </div>
       </div>
     </div>
