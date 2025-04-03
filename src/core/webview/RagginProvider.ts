@@ -4,6 +4,7 @@ import { getConfiguration, GetOllamaModelFromUser } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
+import { RagCallFunction } from "../../commands/ragCallFunction";
 
 const utf8TextDecoder = new TextDecoder("utf8");
 export class RagginProvider implements vscode.WebviewViewProvider {
@@ -40,35 +41,45 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             const model = message.model;
             const chatId = message.chatId;
 
-            if (!question) {
+            if (!question || !model) {
               webviewView.webview.postMessage({
                 command: "update",
                 content: "⚠️ Please enter a valid question.",
+                chatId: chatId,
               });
               return;
             }
 
             // Process the question
             if (this._view) {
-              const chats = this._context.globalState.get<Chat[]>("chats", []);
-              const currentChat = chats.find((c) => c.id === chatId);
-              const optimizedContext = this.optimizeChatContext(currentChat);
-              const fullPrompt = optimizedContext
-                ? `[Context]: \n${optimizedContext}\n\n[Question]: ${question}`
-                : question;
+              try {
+                const chats = this._context.globalState.get<Chat[]>("chats", []);
+                const currentChat = chats.find((c) => c.id === chatId);
+                const optimizedContext = this.optimizeChatContext(currentChat);
+                const fullPrompt = optimizedContext
+                  ? `[Context]: \n${optimizedContext}\n\n[Question]: ${question}`
+                  : question;
 
-              console.log("Full Prompt:", fullPrompt);
-              const answer = await generateAnswer(
-                fullPrompt,
-                model,
-                this._view.webview
-              );
-              console.log("Answer:", answer);
-              webviewView.webview.postMessage({
-                command: "update",
-                content: answer,
-                chatId: chatId,
-              });
+                // console.log("Full Prompt:", fullPrompt);
+                const answer = await generateAnswer(
+                  fullPrompt,
+                  model,
+                  this._view.webview
+                );
+                // console.log("Answer:", answer);
+                webviewView.webview.postMessage({
+                  command: "update",
+                  content: answer,
+                  chatId: chatId,
+                });
+              } catch (error) {
+                console.error("Error generating answer:", error);
+                webviewView.webview.postMessage({
+                  command: "update",
+                  content: "⚠️ Error generating answer.",
+                  chatId: chatId,
+                });
+              }
             }
             break;
           }
@@ -96,6 +107,50 @@ export class RagginProvider implements vscode.WebviewViewProvider {
                 command: "populateModels",
                 models: [],
                 error: String(error),
+              });
+            }
+            break;
+          }
+
+          case "ragCall": {
+            const model = message.model || "";
+            const question = message.prompt || "";
+            const nextJSVersion = message.nextJSVersion || "";
+            const chatId = message.chatId;
+            
+            if (!model || !question || !nextJSVersion) {
+              webviewView.webview.postMessage({
+                command: "ragCallComplete",
+                content: "⚠️ Missing required parameters for RAG call.",
+                chatId: chatId
+              });
+              return;
+            }
+            
+            try {
+              const chats = this._context.globalState.get<Chat[]>("chats", []);
+              const currentChat = chats.find((c) => c.id === chatId);
+              const optimizedContext = this.optimizeChatContext(currentChat);
+              const fullPrompt = optimizedContext
+                ? `[Context]: \n${optimizedContext}\n\n[Question]: ${question}`
+                : question;
+
+              // Call the RAG function with the optimized context and question
+              const answer = await RagCallFunction(model, fullPrompt, nextJSVersion);
+              
+              // Answer is expected to be a string or an object with a 'text' property
+              webviewView.webview.postMessage({
+                command: "ragCallComplete",
+                content: answer,
+                chatId: chatId,
+              });
+            } catch (error) {
+              console.error("Error in RAG call:", error);
+              webviewView.webview.postMessage({
+                command: "ragCallComplete",
+                success: false,
+                content: String(error),
+                chatId: chatId
               });
             }
             break;
