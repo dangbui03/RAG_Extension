@@ -26,8 +26,8 @@
 @layer components {
     .markdown-content {
         @apply 
-        text-light-onSurface
-        dark:text-dark-onSurface
+        /* text-light-onSurface */
+        text-dark-onSurface
         leading-7
         pt-1;
     }
@@ -123,15 +123,17 @@
     }
 
     .markdown-content .code-block {
-        @apply bg-light-onSurfaceContainer
-        dark:bg-dark-onSurfaceContainer
+        @apply 
+        /* bg-light-onSurfaceContainer */
+        bg-dark-onSurfaceContainer
+        text-sm
         rounded-t-md
         rounded-b-xs
         mb-0.5
         overflow-hidden;
     }
 
-    .markdown-content .code-block {
+    .markdown-content .code-block * {
         @apply !bg-inherit;
     }
 }

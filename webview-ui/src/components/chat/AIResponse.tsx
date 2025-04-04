@@ -5,8 +5,6 @@ import { format } from "date-fns";
 
 import { darcula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-
-
 import { ChatMessage } from "@/types";
 
 interface ChatMessagesProps {
@@ -15,30 +13,37 @@ interface ChatMessagesProps {
   children?: any;
 }
 
-const sampleChat = {
-  ai_answer: `
-Hello! Here's some code:
+// const sampleChat = {
+//   ai_answer: `
+// Hello! Here's some code:
 
-\`\`\`javascript
-function greet(name) {
-return "Hello, " + name + "!";
-}
-console.log(greet("World"));
-\`\`\`
+// \`\`\`javascript
+// function greet(name) {
+// return "Hello, " + name + "!";
+// }
+// console.log(greet("World"));
+// \`\`\`
 
-And some text.
-  `,
-  timestamp: "2025-04-02T14:30:00Z",
-};
+// And some text.
+//   `,
+//   timestamp: "2025-04-02T14:30:00Z",
+// };
 
 const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
+  // const [codeTheme, setCodeTheme] = useState<{ [key: string]: React.CSSProperties }>(coy);
+
+  // useEffect(() => {
+  //   const mediaQuery = window.matchMedia("(prefers-color-scheme: white)");
+  //   setCodeTheme(mediaQuery.matches ? darcula : coy);
+  // }, []);
+
   const Code: React.FC<React.ComponentPropsWithoutRef<"code">> = ({ children, className, ...rest }) => {
     const match = className?.match(/language-(\w+)/);
   
     return match ? (
       <>
         <div className="code-block">
-          <div className="">{match[0]}</div>
+          <div className="p-4 pb-0 font-sans">{match[0]}</div>
   
           <SyntaxHighlighter
             {...rest}
@@ -60,7 +65,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
           </SyntaxHighlighter>
         </div>
   
-        <div className="">
+        <div className="rounded-t-xs rounded-b-md flex justify-between items-center h-11 font-sans text-md ps-4 pe-2">
           <p>
             Use Code
             <a className="link ms-2" href="#" target="_blank">
@@ -68,7 +73,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
             </a>
           </p>
   
-          <a className="codicon codicon-copy">Copy</a>
+          <a className="codicon codicon-copy text-sm" title="Copy code">Copy</a>
         </div>
       </>
     ) : (
@@ -99,7 +104,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
             components={{ code: Code }}
           >
             {/* {chat.ai_answer} */}
-            {sampleChat.ai_answer}
+            {chat.ai_answer}
           </Markdown>
         </div>
       </div>
