@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { format } from "date-fns";
 
-import { darcula } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { ChatMessage } from "@/types";
+
+import toTitleCase from "@/utils/ToTitleCase";
 
 interface ChatMessagesProps {
   chat: ChatMessage;
@@ -13,43 +15,43 @@ interface ChatMessagesProps {
   children?: any;
 }
 
-// const sampleChat = {
-//   ai_answer: `
-// Hello! Here's some code:
-
-// \`\`\`javascript
-// function greet(name) {
-// return "Hello, " + name + "!";
-// }
-// console.log(greet("World"));
-// \`\`\`
-
-// And some text.
-//   `,
-//   timestamp: "2025-04-02T14:30:00Z",
-// };
-
 const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
-  // const [codeTheme, setCodeTheme] = useState<{ [key: string]: React.CSSProperties }>(coy);
+  const [copied, setCopied] = React.useState(false);
 
-  // useEffect(() => {
-  //   const mediaQuery = window.matchMedia("(prefers-color-scheme: white)");
-  //   setCodeTheme(mediaQuery.matches ? darcula : coy);
-  // }, []);
+  const handleCopyCode = useCallback(async (text: string) => {
+    try {
+      setCopied(false);
+      setCopied(true);
+      await navigator.clipboard.writeText(text).then(() => {
+        console.log("Code copied to clipboard!");
+      });
+      setTimeout(() => {
+        setCopied(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error copying code:", error);
+    }
+  }, []);
 
-  const Code: React.FC<React.ComponentPropsWithoutRef<"code">> = ({ children, className, ...rest }) => {
+  const Code: React.FC<React.ComponentPropsWithoutRef<"code">> = ({
+    children,
+    className,
+    ...rest
+  }) => {
     const match = className?.match(/language-(\w+)/);
-  
+
     return match ? (
       <>
         <div className="code-block">
-          <div className="p-4 pb-0 font-sans">{match[0]}</div>
-  
+          <div className="px-4 py-2 pb-0 font-sans">
+            {toTitleCase(match[1])}
+          </div>
+
           <SyntaxHighlighter
             {...rest}
             PreTag="div"
             language={match[1]}
-            style={darcula}
+            style={dracula}
             customStyle={{
               marginBlock: "0",
               padding: "2px",
@@ -64,16 +66,29 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
             {String(children)}
           </SyntaxHighlighter>
         </div>
-  
-        <div className="rounded-t-xs rounded-b-md flex justify-between items-center h-11 font-sans text-md ps-4 pe-2">
+
+        <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center h-11 font-sans text-sm ps-4 pe-2">
           <p>
             Use Code
             <a className="link ms-2" href="#" target="_blank">
               with caution.
             </a>
           </p>
-  
-          <a className="codicon codicon-copy text-sm" title="Copy code">Copy</a>
+
+          <div
+            className="rounded-md border-gray-500/50 w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-gray-700/50 group"
+            onClick={() => handleCopyCode(String(children))}
+            title="Copy code"
+          >
+            {copied ? (
+              <div
+                className="codicon codicon-check text-sm text-green-500"
+                title="Copied"
+              />
+            ) : (
+              <div className="codicon codicon-copy text-sm cursor-pointer group-hover:text-blue-300" />
+            )}
+          </div>
         </div>
       </>
     ) : (
@@ -99,10 +114,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
         {children}
 
         <div className="markdown-content">
-          <Markdown 
-            remarkPlugins={[remarkGfm]}
-            components={{ code: Code }}
-          >
+          <Markdown remarkPlugins={[remarkGfm]} components={{ code: Code }}>
             {/* {chat.ai_answer} */}
             {chat.ai_answer}
           </Markdown>

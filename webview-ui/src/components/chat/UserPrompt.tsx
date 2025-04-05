@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+// import Markdown from "react-markdown";
+// import remarkGfm from "remark-gfm";
 import { format } from "date-fns";
 import { ChatMessage } from "@/types";
 
@@ -28,11 +28,15 @@ const UserPrompt: React.FC<UserPromptProps> = ({ chat }) => {
             {format(new Date(chat.timestamp), "h:mm a")}
           </span>
         </div>
-        <p
-          className={`markdown-content text-bodyLarge pt-1 whitespace-pre-wrap ${isExpanded ? "" : "line-clamp-4"}`}
+        <div
+          className={`markdown-content text-bodyLarge pt-1 ${
+            isExpanded ? "" : "line-clamp-4"
+          }`}
         >
-          <Markdown remarkPlugins={[remarkGfm]}>{chat.user_prompt}</Markdown>
-        </p>
+          <p className="text-sm text-gray-300 whitespace-pre-wrap break-words">
+            {chat.user_prompt}
+          </p>
+        </div>
         {chat.user_prompt.split("\n").length > 4 && (
           <div className="h-8 flex items-center mt-1">
             <Button

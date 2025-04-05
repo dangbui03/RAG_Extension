@@ -29,6 +29,7 @@
         /* text-light-onSurface */
         text-dark-onSurface
         leading-7
+        text-sm
         pt-1;
     }
     .markdown-content > :first-child {
@@ -126,7 +127,7 @@
         @apply 
         /* bg-light-onSurfaceContainer */
         bg-dark-onSurfaceContainer
-        text-sm
+        text-xs
         rounded-t-md
         rounded-b-xs
         mb-0.5
@@ -134,6 +135,7 @@
     }
 
     .markdown-content .code-block * {
-        @apply !bg-inherit;
+        @apply !bg-inherit
+        text-sm;
     }
 }

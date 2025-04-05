@@ -33,7 +33,7 @@ const ChatWindow: React.FC = () => {
 
   return (
     <ScrollArea className="h-full scrollbar-thin">
-      <div className="min-h-full pb-32">
+      <div className="min-h-full pb-32 flex flex-col items-center">
         {currentChat.messages.map((message, index) => (
           <ChatMessages
             key={message.id}

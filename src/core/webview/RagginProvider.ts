@@ -304,6 +304,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
       if (!chat) {
         throw new Error(`Chat with ID ${chatId} not found`);
       }
+      console.log("Chat fetched:", chat);
       this._view.webview.postMessage({ command: "chatFetched", chat });
     } catch (error) {
       throw new Error(
