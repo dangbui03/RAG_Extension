@@ -12,6 +12,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   console.log('Congratulations, your extension "RAGGIN" is now active!');
 
+  // Inititalize values
+  const readCodeBaseInstance = new readEntireCodeBase();
+
   // Initialize the logger with the output channel.
   Logger.initialize(outputChannel, "RAGGIN");
   const config = vscode.workspace.getConfiguration("RAGGIN");
@@ -54,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand(
       "raggin.readEntireCodeBase",
-      readEntireCodeBase
+      () => readCodeBaseInstance.catchNextJsVersion()
     ),
   ];
 

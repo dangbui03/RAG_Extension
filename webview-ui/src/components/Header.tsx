@@ -1,11 +1,18 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-// import { vscode } from "@/vscode/VsCodeApi";
 import { useChat } from "@/context/ChatContext";
+import { versions } from "@/types";
 
 const Header: React.FC = () => {
-  const { createNewChat, selectedModel, selectModel, models, deleteAllChats } =
-    useChat();
+  const {
+    createNewChat,
+    selectedModel,
+    selectModel,
+    models,
+    deleteAllChats,
+    nextjsVersion,
+    setNextjsVersion,
+  } = useChat();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,29 +35,55 @@ const Header: React.FC = () => {
     }
   };
 
+  const selectNextjsVersion = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setNextjsVersion(e.target.value);
+  };
+
   return (
     <>
-      <div className="flex flex-row justify-between items-center text-sm my-1 mt-1">
-        <div className="gap-4">
-          <select
-            id="model"
-            title="Select Model"
-            className="w-full text-white text-sm cursor-pointer p-1"
-            value={selectedModel}
-            onChange={handleModelChange}
-          >
-            {models.length === 0 && <option value="">Not found</option>}
-            {models.map((m) => (
-              <option
-                key={m}
-                value={m}
-                className="bg-[#1e1e1e] text-white hover:bg-black"
-              >
-                {m}
-              </option>
-            ))}
-          </select>
+      <div className="flex flex-row justify-between items-center text-sm">
+        <div className="flex flex-row items-center gap-2 sm:gap-4">
+          <div className="gap-4">
+            <select
+              id="model"
+              title="Select Model"
+              className="w-[90px] text-white text-sm cursor-pointer !px-1"
+              value={selectedModel}
+              onChange={handleModelChange}
+            >
+              {models.length === 0 && <option value="">Not found</option>}
+              {models.map((m) => (
+                <option
+                  key={m}
+                  value={m}
+                  className="bg-[#1e1e1e] text-white hover:bg-black"
+                >
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="gap-4">
+            <select
+              id="nextjsVersion"
+              title="Select Next.js Version"
+              className="w-full text-white text-sm cursor-pointer px-1"
+              value={nextjsVersion}
+              onChange={selectNextjsVersion}
+            >
+              {versions.map((version) => (
+                <option
+                  key={version}
+                  value={version}
+                  className="bg-[#1e1e1e] text-white hover:bg-black"
+                >
+                  {version}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
         <div className="flex gap-2 text-white sm:gap-4">
           {location.pathname === "/history" && (
             <div

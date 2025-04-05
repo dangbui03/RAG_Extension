@@ -6,12 +6,13 @@ import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
 import { RagCallFunction } from "../../commands/ragCallFunction";
 import { Logger } from "../../utils/logging";
+import { readEntireCodeBase } from "../../commands/readEntireCodeBase";
 
 const utf8TextDecoder = new TextDecoder("utf8");
 export class RagginProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView | vscode.WebviewPanel;
   private readonly outputChannel: vscode.OutputChannel;
-  private disposables: vscode.Disposable[] = []
+  private disposables: vscode.Disposable[] = [];
 
   constructor(
     private readonly _context: vscode.ExtensionContext,
@@ -25,6 +26,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     webviewView: vscode.WebviewView
   ): Promise<void> {
     this._view = webviewView;
+    const readCodeBase = new readEntireCodeBase();
 
     // Allow scripts in the webview
     webviewView.webview.options = {
@@ -38,16 +40,20 @@ export class RagginProvider implements vscode.WebviewViewProvider {
         switch (message.command) {
           case "widthChanged": {
             const width = message.width;
-            const minWidth = vscode.workspace.getConfiguration('RAGGIN').get<number>('minWidth', 300);
-            
+            const minWidth = vscode.workspace
+              .getConfiguration("RAGGIN")
+              .get<number>("minWidth", 300);
+
             // Report width change to output channel for debugging
-            Logger.debug(`Webview width changed: ${width}px (min: ${minWidth}px)`);
-            
+            Logger.debug(
+              `Webview width changed: ${width}px (min: ${minWidth}px)`
+            );
+
             // Trigger the disposal command if needed
-            vscode.commands.executeCommand('raggin.handleWidthDisposal', width);
+            vscode.commands.executeCommand("raggin.handleWidthDisposal", width);
             break;
           }
-              
+
           // Add a handler for the askQuestion message
           case "askQuestion": {
             const question = message.text || "";
@@ -66,7 +72,10 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             // Process the question
             if (this._view) {
               try {
-                const chats = this._context.globalState.get<Chat[]>("chats", []);
+                const chats = this._context.globalState.get<Chat[]>(
+                  "chats",
+                  []
+                );
                 const currentChat = chats.find((c) => c.id === chatId);
                 const optimizedContext = this.optimizeChatContext(currentChat);
                 const fullPrompt = optimizedContext
@@ -130,16 +139,16 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             const question = message.text || "";
             const nextJSVersion = message.nextJSVersion || "";
             const chatId = message.chatId;
-            
+
             if (!model || !question || !nextJSVersion) {
               webviewView.webview.postMessage({
                 command: "ragCallComplete",
                 content: "⚠️ Missing required parameters for RAG call.",
-                chatId: chatId
+                chatId: chatId,
               });
               return;
             }
-            
+
             try {
               const chats = this._context.globalState.get<Chat[]>("chats", []);
               const currentChat = chats.find((c) => c.id === chatId);
@@ -149,8 +158,12 @@ export class RagginProvider implements vscode.WebviewViewProvider {
                 : question;
 
               // Call the RAG function with the optimized context and question
-              const answer = await RagCallFunction(model, fullPrompt, nextJSVersion);
-              
+              const answer = await RagCallFunction(
+                model,
+                fullPrompt,
+                nextJSVersion
+              );
+
               // Answer is expected to be a string or an object with a 'text' property
               webviewView.webview.postMessage({
                 command: "ragCallComplete",
@@ -163,12 +176,15 @@ export class RagginProvider implements vscode.WebviewViewProvider {
                 command: "ragCallComplete",
                 success: false,
                 content: String(error),
-                chatId: chatId
+                chatId: chatId,
               });
             }
             break;
           }
 
+          case "readNextJsVersion":
+            await this.fetchNextJsVersion(readCodeBase);
+            break;
           case "fetchChats":
             await this.handleFetchChats();
             break;
@@ -203,7 +219,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
   public dispose() {
     // Dispose all registered disposables
-    this.disposables.forEach(d => d.dispose());
+    this.disposables.forEach((d) => d.dispose());
     this.disposables.length = 0;
     this._view = undefined;
   }
@@ -405,6 +421,39 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     } catch (error) {
       throw new Error(
         `Failed to delete all chats: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  // Fetch the Next.js version from codebase
+  private async fetchNextJsVersion(readEntireCodeBase: readEntireCodeBase) {
+    if (!this._view) throw new Error("Webview not initialized");
+    try {
+      let nextjsVersion = "";
+      await readEntireCodeBase
+        .catchNextJsVersion()
+        .then((version) => {
+          if (version) {
+            vscode.window.showInformationMessage(
+              `Found Next.js version: ${version}`
+            );
+            nextjsVersion = version;
+          } else {
+            vscode.window.showWarningMessage(
+              "Next.js version not found in workspace."
+            );
+            nextjsVersion = "Not found";
+          }
+        });
+      this._view.webview.postMessage({
+        command: "nextJsVersionFetched",
+        version: nextjsVersion,
+      });
+    } catch (error) {
+      throw new Error(
+        `Failed to fetch Next.js version: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );

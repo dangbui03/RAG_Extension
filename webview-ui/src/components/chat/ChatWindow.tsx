@@ -10,7 +10,7 @@ const WelcomeScreen: React.FC = () => {
       <p className="text-xl">ASK SOMETHINGS</p>
       <p className="text-base">
         Free to ask about Next.js frameworks, we are supporting the framework
-        from version 13.0.1 to 15.
+        from version v13.0.0 to v15.1.3
       </p>
     </div>
   );

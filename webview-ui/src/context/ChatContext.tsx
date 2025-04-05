@@ -2,13 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { Chat, ChatMessage } from "@/types"; //, AIModel
 import { v4 as uuidv4 } from "uuid";
 import { vscode } from "@/vscode/VsCodeApi";
-// import { mockChats } from "@/types";
 
 interface ChatContextType {
   chats: Chat[];
   currentChat: Chat | null;
   selectedModel: string;
   models: string[];
+  nextjsVersion: string;
   isGenerating: boolean;
   generationStartTime: number | null;
   selectModel: (model: string) => void;
@@ -20,6 +20,7 @@ interface ChatContextType {
   deleteAllChats: () => void;
   fetchChats: () => void;
   fetchChatById: (chatId: string) => void;
+  setNextjsVersion: (version: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType>({} as ChatContextType);
@@ -32,6 +33,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>("");
+  const [nextjsVersion, setNextjsVersion] = useState<string>("");
   const [models, setModels] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(
@@ -43,6 +45,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     // Initial data fetch
     fetchModels();
     fetchChats();
+    fetchNextjsVersion();
 
     if (chats.length > 0) {
       setCurrentChat(chats[0]);
@@ -55,28 +58,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const messageHandler = (event: MessageEvent) => {
       const message = event.data;
       switch (message.command) {
-        // case "update":
-        //   console.log("update", message);
-        //   if (currentChat) {
-        //     const lastMessage =
-        //       currentChat.messages[currentChat.messages.length - 1];
-        //     const updatedMessages = [
-        //       ...currentChat.messages.slice(0, -1),
-        //       {
-        //         ...lastMessage,
-        //         ai_answer: message.content,
-        //         status: "sent" as const,
-        //       },
-        //     ];
-        //     const updatedChat = {
-        //       ...currentChat,
-        //       messages: updatedMessages,
-        //       updatedAt: new Date(),
-        //     };
-        //     setCurrentChat(updatedChat);
-        //     storeChat(updatedChat);
-        //   }
-        //   break;
+
+        case "nextJsVersionFetched":
+          console.log("Next.js version fetched:", message.version);
+          setNextjsVersion(message.version);
+          break;
         case "populateModels":
           if (Array.isArray(message.models)) {
             setModels(message.models);
@@ -96,13 +82,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           fetchChats();
           break;
         case "chatDeleted":
-          // We already updated the local state, but we can sync with server state if needed
           if (message.success && Array.isArray(message.chats)) {
             setChats(message.chats);
           }
           break;
         case "allChatsDeleted":
-          // We already updated the local state, but we can sync with server state if needed
           if (message.success) {
             setChats([]);
           }
@@ -116,6 +100,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Fetch models from the extension
   const fetchModels = () => vscode.postMessage({ command: "populateModels" });
+
+  // Set Next.js version in the extension
+  const fetchNextjsVersion = () =>
+    vscode.postMessage({ command: "readNextJsVersion" });
 
   // Fetch all chats from the extension
   const fetchChats = () => vscode.postMessage({ command: "fetchChats" });
@@ -173,12 +161,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     setCurrentChat(newChat);
-
-    // // Store the new chat
-    // vscode.postMessage({
-    //   command: 'storeChat',
-    //   chat: newChat
-    // });
   };
 
   const sendMessage = (content: string) => {
@@ -217,9 +199,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     setCurrentChat(finalChat);
-    // setChats(prevChats =>
-    //   prevChats.map(chat => chat.id === finalChat.id ? finalChat : chat)
-    // );
+
     if (currentChat.messages.length === 0) {
       setChats((prevChats) => [
         finalChat,
@@ -231,13 +211,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
 
-    // storeChat(updatedChat);
-    // vscode.postMessage({
-    //   command: "askQuestion",
-    //   text: content,
-    //   model: selectedModel,
-    //   chatId: updatedChat.id,
-    // });
     vscode.postMessage({
       command: "ragCall",
       text: content,
@@ -291,6 +264,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         currentChat,
         selectedModel,
         models,
+        nextjsVersion,
         selectModel,
         isGenerating,
         generationStartTime,
@@ -302,6 +276,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteChat,
         deleteAllChats,
         setCurrentChat: fetchChatById,
+        setNextjsVersion
       }}
     >
       {children}
