@@ -2,4 +2,140 @@
 
 @theme {
     --color-chat-darker: var(--vscode-sideBar-background);
+    --color-light-onSurface: #171D1B;
+    --color-light-onSurfaceVariant: #4B5451;
+    --color-light-onSurfaceContainer: #E7E9E8;
+    --color-light-onSurfaceContainerHigh: #E7E9E8;
+    --color-light-onSurfaceContainerLow: #E7E9E8;
+    --color-light-surfaceContainer: #F4F5F4;
+    --color-light-surfaceContainerHigh: #F4F5F4;
+    --color-light-surfaceContainerLow: #F4F5F4;
+    --color-dark-onSurface: #DEE4E0;
+    --color-dark-onSurfaceVariant: #B7C0BC;
+    --color-dark-onSurfaceContainer: #3A3F3D;
+    --color-dark-onSurfaceContainerHigh: #3A3F3D;
+    --color-dark-onSurfaceContainerLow: #3A3F3D;
+    --color-dark-surfaceContainer: #2B2F2D;
+    --color-dark-surfaceContainerHigh: #2B2F2D;
+    --color-dark-surfaceContainerLow: #2B2F2D;
+    --font-size-titleMedium: 1.25rem;
+    --color-light-primary: #096B5A;
+    --color-dark-primary: #85D6C1;
+}
+
+@layer components {
+    .markdown-content {
+        @apply 
+        /* text-light-onSurface */
+        text-dark-onSurface
+        leading-7
+        text-sm
+        pt-1;
+    }
+    .markdown-content > :first-child {
+        @apply !mt-0;
+    }
+
+    .markdown-content :where(h0, h1, h2, h3, h4, h5, h6) {
+        @apply 
+        text-base
+        tracking-normal
+        font-medium
+        mt-8
+        mb-4;
+    }
+    .markdown-content :where(p, pre, table) {
+        @apply my-4;
+    }
+
+    .markdown-content :where(strong, span, a) {
+        @apply inline;
+    }
+
+    .markdown-content :where(ul, ol) {
+        list-style: revert;
+        @apply my-1
+        ps-[18px];
+    }
+
+    .markdown-content code {
+        @apply inline-block
+        text-base
+        tracking-normal
+        font-medium
+        text-light-onSurfaceVariant
+        dark:text-dark-onSurfaceVariant
+        bg-light-onSurfaceContainerHigh
+        dark:bg-dark-onSurfaceContainerHigh
+        rounded-md
+        py-[1px]
+        px-1.5
+        ;
+    }
+
+    .markdown-content strong code {
+        @apply text-light-onSurface
+        dark:text-dark-onSurface
+        font-semibold;
+    }
+
+    .markdown-content pre code {
+        @apply block
+        py-2
+        px-3
+        overflow-x-auto;
+    }
+
+    .markdown-content table {
+        @apply bg-light-onSurfaceContainer
+        dark:bg-dark-onSurfaceContainer
+        block
+        max-w-max
+        overflow-auto
+        rounded-lg;
+    }
+
+    .markdown-content table th {
+        @apply 
+        text-lg
+        font-semibold
+        p-4
+        text-left
+        whitespace-nowrap
+    }
+
+    .markdown-content table td {
+        @apply 
+        text-base
+        font-normal
+        px-3
+        py-4
+        border-t-[1px]
+        border-solid
+        border-light-surfaceContainerHigh
+        dark:border-dark-surfaceContainerHigh
+    }
+
+    .markdown-content a {
+        @apply text-light-primary
+        dark:text-dark-primary
+        underline
+        break-words;
+    }
+
+    .markdown-content .code-block {
+        @apply 
+        /* bg-light-onSurfaceContainer */
+        bg-dark-onSurfaceContainer
+        text-xs
+        rounded-t-md
+        rounded-b-xs
+        mb-0.5
+        overflow-hidden;
+    }
+
+    .markdown-content .code-block * {
+        @apply !bg-inherit
+        text-sm;
+    }
 }

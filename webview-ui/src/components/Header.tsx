@@ -4,7 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useChat } from "@/context/ChatContext";
 
 const Header: React.FC = () => {
-  const { createNewChat, selectedModel, selectModel, models, deleteAllChats } = useChat();
+  const { createNewChat, selectedModel, selectModel, models, deleteAllChats } =
+    useChat();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,15 +15,15 @@ const Header: React.FC = () => {
 
   const handleNewChat = () => {
     createNewChat();
-    navigate('/');
+    navigate("/");
   };
 
   const handleHistory = () => {
-    navigate('/history');
+    navigate("/history");
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to delete all chats?')) {
+    if (window.confirm("Are you sure you want to delete all chats?")) {
       deleteAllChats();
     }
   };
@@ -38,7 +39,7 @@ const Header: React.FC = () => {
             value={selectedModel}
             onChange={handleModelChange}
           >
-            {models.length === 0 && <option value="">Loading models...</option>}
+            {models.length === 0 && <option value="">Not found</option>}
             {models.map((m) => (
               <option
                 key={m}
@@ -51,12 +52,11 @@ const Header: React.FC = () => {
           </select>
         </div>
         <div className="flex gap-2 text-white sm:gap-4">
-          {location.pathname === '/history' && (
-            <div 
-              onClick={handleClearAll} 
+          {location.pathname === "/history" && (
+            <div
+              onClick={handleClearAll}
               className="codicon codicon-clear-all rounded-xl cursor-pointer"
-            >
-            </div>
+            ></div>
           )}
           <div
             onClick={handleNewChat}
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
             className="codicon codicon-history rounded-xl cursor-pointer"
             title="History"
           />
-          </div>
+        </div>
       </div>
     </>
   );

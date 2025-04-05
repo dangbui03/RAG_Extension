@@ -47,6 +47,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     if (chats.length > 0) {
       setCurrentChat(chats[0]);
     } else {
+      // setCurrentChat(mockChats[0]);
       initializeDefaultChat();
     }
 
