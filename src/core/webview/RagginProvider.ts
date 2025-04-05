@@ -5,12 +5,13 @@ import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
 import { RagCallFunction } from "../../commands/ragCallFunction";
+import { Logger } from "../../utils/logging";
 
 const utf8TextDecoder = new TextDecoder("utf8");
 export class RagginProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView | vscode.WebviewPanel;
   private readonly outputChannel: vscode.OutputChannel;
-  // private disposables: vscode.Disposable[] = []
+  private disposables: vscode.Disposable[] = []
 
   constructor(
     private readonly _context: vscode.ExtensionContext,
@@ -35,6 +36,18 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async (message) => {
       try {
         switch (message.command) {
+          case "widthChanged": {
+            const width = message.width;
+            const minWidth = vscode.workspace.getConfiguration('RAGGIN').get<number>('minWidth', 300);
+            
+            // Report width change to output channel for debugging
+            Logger.debug(`Webview width changed: ${width}px (min: ${minWidth}px)`);
+            
+            // Trigger the disposal command if needed
+            vscode.commands.executeCommand('raggin.handleWidthDisposal', width);
+            break;
+          }
+              
           // Add a handler for the askQuestion message
           case "askQuestion": {
             const question = message.text || "";
@@ -114,7 +127,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
           case "ragCall": {
             const model = message.model || "";
-            const question = message.prompt || "";
+            const question = message.text || "";
             const nextJSVersion = message.nextJSVersion || "";
             const chatId = message.chatId;
             
@@ -186,6 +199,13 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = await this._getHtmlForWebview(
       webviewView.webview
     );
+  }
+
+  public dispose() {
+    // Dispose all registered disposables
+    this.disposables.forEach(d => d.dispose());
+    this.disposables.length = 0;
+    this._view = undefined;
   }
 
   private async getRootUri() {

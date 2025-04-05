@@ -232,9 +232,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     // storeChat(updatedChat);
+    // vscode.postMessage({
+    //   command: "askQuestion",
+    //   text: content,
+    //   model: selectedModel,
+    //   chatId: updatedChat.id,
+    // });
     vscode.postMessage({
-      command: "askQuestion",
+      command: "ragCall",
       text: content,
+      nextJSVersion: "v15.1.0",
       model: selectedModel,
       chatId: updatedChat.id,
     });
@@ -244,7 +251,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       const message = event.data;
 
       // Check if the response contains an answer
-      if (message.command === "update") {
+      if (message.command === "ragCallComplete") {
         const responseContent = message.content || "No response received.";
 
         const updatedMessage: ChatMessage = {

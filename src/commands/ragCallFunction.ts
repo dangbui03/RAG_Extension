@@ -6,15 +6,16 @@ export async function RagCallFunction (model: string, prompt: string, nextJSVers
     vscode.window.showInformationMessage('Rag Call Function Command Executed!');
     try {
         const payload = {
-            "model": model,
+            "versionName": nextJSVersion,
             "query": prompt,
-            "versionName": nextJSVersion
+            "model": model,
         }
 
-        const response = await axios.post('http://localhost:8080/generate_response', payload, {
+        const response = await axios.post('http://localhost:8000/generate_response', payload, {
             headers: { 'Content-Type': 'application/json' }
         });
-        const data = response.data;
+
+        const data = response.data.response;
         console.log(data);
         return data;
 
