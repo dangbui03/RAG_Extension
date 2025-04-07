@@ -1,4 +1,4 @@
-
+import { FileModel } from "../../webview-ui/src/types";
 export class MyError extends Error {
     type: ErrorType;
 
@@ -19,4 +19,18 @@ export enum ErrorType {
     INFO = 1,
     ERROR = 2,
     WARNING = 3
+}
+
+// Define interfaces for the API request and response
+export interface RagRequest {
+    versionName: string;
+    query: string;
+    model: string;
+    file_list?: FileModel[];
+}
+
+export interface RagResponse {
+    model: string;
+    response: string;
+    retrieved_data: any[];
 }

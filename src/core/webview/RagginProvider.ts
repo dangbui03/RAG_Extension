@@ -140,6 +140,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             const model = message.model || "";
             const question = message.text || "";
             const nextJSVersion = message.nextJSVersion || "";
+            const fileList = message.fileList || [];
             const chatId = message.chatId;
 
             if (!model || !question || !nextJSVersion) {
@@ -169,8 +170,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
               // Answer is expected to be a string or an object with a 'text' property
               webviewView.webview.postMessage({
                 command: "ragCallComplete",
-                content: answer,
+                content: answer.response,
                 chatId: chatId,
+                fileList,
               });
             } catch (error) {
               console.error("Error in RAG call:", error);
@@ -184,22 +186,29 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             break;
           }
 
-          case "getFileList":
-            const files = await this.fetchFileList(readCodeBase); // Call the function to fetch files and read content
-            webviewView.webview.postMessage({ 
-              command: "fileList", 
-              files 
+          // Handler to fetch the list of files in the workspace
+          case "getFileList": {
+            // Call fetchFileList() on the readEntireCodeBase instance,
+            // which returns an array of relative file names.
+            const files = await this.fetchFileList(readCodeBase);
+            webviewView.webview.postMessage({
+              command: "fileList",
+              files,
             });
             break;
+          }
 
-          case "getFileContent":
+          // Handler to read the content of a selected file
+          case "getFileContent": {
             const filePath = message.filePath;
-            const content = await this.readFile(readCodeBase, filePath); // Call the function to read file content
-            webviewView.webview.postMessage({ 
-              command: "fileContent", 
-              content 
+            const content = await this.readFile(readCodeBase, filePath);
+            webviewView.webview.postMessage({
+              command: "fileContent",
+              content,
+              filePath,
             });
             break;
+          }
 
           case "readNextJsVersion":
             await this.fetchNextJsVersion(readCodeBase);
@@ -446,7 +455,13 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  // Fetch the Next.js version from codebase
+  // --- Next.js Version Extraction and Other Handlers ---
+  /**
+   * Fetch the Next.js version from the workspace.
+   * This function uses the readEntireCodeBase class to find the version
+   * in package.json or other relevant files.
+   * It then sends the version back to the webview.
+   */
   private async fetchNextJsVersion(readEntireCodeBase: readEntireCodeBase) {
     if (!this._view) throw new Error("Webview not initialized");
     try {
@@ -477,22 +492,38 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  // Helper: fetch list of files (only their fsPath)
-  private async fetchFileList(readEntireCodeBase: readEntireCodeBase): Promise<{ name: string }[]> {
+  // --- Helper Methods for File Handling ---
+
+  /**
+   * Fetch the list of files from the workspace.
+   * Calls the readEntireCodeBase.fetchFileList() method which returns an array
+   * of relative file paths (e.g., "/package.json", "/src/main.tsx").
+   * This method then maps those strings to objects with a 'name' property.
+   */
+  private async fetchFileList(
+    readEntireCodeBase: readEntireCodeBase
+  ): Promise<{ name: string }[]> {
     // const catcher = new NextJsVersionCatcher();
-    const files = await readEntireCodeBase.fetchAllFiles();
-    return files.map(file => ({ name: file.fsPath }));
+    const files: string[] = await readEntireCodeBase.fetchFileList();
+    return files.map((file) => ({ name: file }));
   }
 
-  // Helper: read a single file given its path
-  private async readFile(readEntireCodeBase: readEntireCodeBase, filePath: string): Promise<string> {
+  /**
+   * Read the content of a single file given its relative path.
+   * Calls the readEntireCodeBase.readFile() method with the file name.
+   * Returns the full file content as a UTF-8 string.
+   */
+  private async readFile(
+    readEntireCodeBase: readEntireCodeBase,
+    filePath: string
+  ): Promise<string> {
     const fileUri = vscode.Uri.file(filePath);
     try {
       const content = await readEntireCodeBase.readFileContent(fileUri);
       return content;
     } catch (err) {
       console.error(`Failed to read file ${filePath}`, err);
-      return '';
+      return "";
     }
   }
 }

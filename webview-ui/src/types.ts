@@ -23,6 +23,12 @@ export interface Chat {
   updatedAt: Date;
 }
 
+export interface FileModel {
+  fileName: string;
+  fileExtension: string;
+  fileContent: string;
+}
+
 export const versions = [
   "v13.0.0",
   "v13.0.1",
