@@ -38,6 +38,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async (message) => {
       try {
         switch (message.command) {
+          // Handle width change event
           case "widthChanged": {
             const width = message.width;
             const minWidth = vscode.workspace
@@ -105,6 +106,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             }
             break;
           }
+
           // Add a handler for the populateModels message
           case "populateModels": {
             // The Webview is requesting models
@@ -181,6 +183,23 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             }
             break;
           }
+
+          case "getFileList":
+            const files = await this.fetchFileList(readCodeBase); // Call the function to fetch files and read content
+            webviewView.webview.postMessage({ 
+              command: "fileList", 
+              files 
+            });
+            break;
+
+          case "getFileContent":
+            const filePath = message.filePath;
+            const content = await this.readFile(readCodeBase, filePath); // Call the function to read file content
+            webviewView.webview.postMessage({ 
+              command: "fileContent", 
+              content 
+            });
+            break;
 
           case "readNextJsVersion":
             await this.fetchNextJsVersion(readCodeBase);
@@ -432,21 +451,19 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     if (!this._view) throw new Error("Webview not initialized");
     try {
       let nextjsVersion = "";
-      await readEntireCodeBase
-        .catchNextJsVersion()
-        .then((version) => {
-          if (version) {
-            vscode.window.showInformationMessage(
-              `Found Next.js version: ${version}`
-            );
-            nextjsVersion = version;
-          } else {
-            vscode.window.showWarningMessage(
-              "Next.js version not found in workspace."
-            );
-            nextjsVersion = "Not found";
-          }
-        });
+      await readEntireCodeBase.catchNextJsVersion().then((version) => {
+        if (version) {
+          vscode.window.showInformationMessage(
+            `Found Next.js version: ${version}`
+          );
+          nextjsVersion = version;
+        } else {
+          vscode.window.showWarningMessage(
+            "Next.js version not found in workspace."
+          );
+          nextjsVersion = "Not found";
+        }
+      });
       this._view.webview.postMessage({
         command: "nextJsVersionFetched",
         version: nextjsVersion,
@@ -457,6 +474,25 @@ export class RagginProvider implements vscode.WebviewViewProvider {
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+    }
+  }
+
+  // Helper: fetch list of files (only their fsPath)
+  private async fetchFileList(readEntireCodeBase: readEntireCodeBase): Promise<{ name: string }[]> {
+    // const catcher = new NextJsVersionCatcher();
+    const files = await readEntireCodeBase.fetchAllFiles();
+    return files.map(file => ({ name: file.fsPath }));
+  }
+
+  // Helper: read a single file given its path
+  private async readFile(readEntireCodeBase: readEntireCodeBase, filePath: string): Promise<string> {
+    const fileUri = vscode.Uri.file(filePath);
+    try {
+      const content = await readEntireCodeBase.readFileContent(fileUri);
+      return content;
+    } catch (err) {
+      console.error(`Failed to read file ${filePath}`, err);
+      return '';
     }
   }
 }

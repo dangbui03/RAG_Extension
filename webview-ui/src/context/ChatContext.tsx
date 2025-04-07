@@ -9,6 +9,8 @@ interface ChatContextType {
   selectedModel: string;
   models: string[];
   nextjsVersion: string;
+  file: string[];
+  setFile: (file: string[]) => void;
   isGenerating: boolean;
   generationStartTime: number | null;
   selectModel: (model: string) => void;
@@ -35,10 +37,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [nextjsVersion, setNextjsVersion] = useState<string>("");
   const [models, setModels] = useState<string[]>([]);
+  const [file, setFile] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStartTime, setGenerationStartTime] = useState<number | null>(
-    null
-  );
+  const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
 
   // Initialize and fetch history when component mounts
   useEffect(() => {
@@ -46,6 +47,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchModels();
     fetchChats();
     fetchNextjsVersion();
+    fetchFiles();
 
     if (chats.length > 0) {
       setCurrentChat(chats[0]);
@@ -70,6 +72,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
             if (message.models.length > 0) {
               setSelectedModel(message.models[0]);
             }
+          }
+          break;
+        case "fileList":
+          if (Array.isArray(message.files)) {
+            setFile(message.files);
           }
           break;
         case "chatsFetched":
@@ -97,6 +104,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     window.addEventListener("message", messageHandler);
     return () => window.removeEventListener("message", messageHandler);
   }, []);
+
+  // Fetch files from the workspace
+  const fetchFiles = () => vscode.postMessage({ command: "getFileList" });
 
   // Fetch models from the extension
   const fetchModels = () => vscode.postMessage({ command: "populateModels" });
@@ -265,6 +275,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         selectedModel,
         models,
         nextjsVersion,
+        file,
+        setFile,
         selectModel,
         isGenerating,
         generationStartTime,
