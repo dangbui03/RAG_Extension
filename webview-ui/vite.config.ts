@@ -20,13 +20,8 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        entryFileNames: 'index.js', // Ensures JS file is named index.js
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.css')) {
-            return 'index.css'; // Ensures CSS file is named index.css
-          }
-          return 'assets/[name][extname]'; // Keeps other assets in the assets folder
-        }
+        entryFileNames: '[name].js', // Dynamic file names to avoid conflict
+        assetFileNames: '[name][extname]', // Keeps the original asset file names
       }
     }
   }

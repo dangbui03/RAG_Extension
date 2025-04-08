@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-// import Markdown from "react-markdown";
-// import remarkGfm from "remark-gfm";
 import { format } from "date-fns";
 import { ChatMessage } from "@/types";
 

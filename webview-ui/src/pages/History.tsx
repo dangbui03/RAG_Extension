@@ -8,7 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-
 const History: React.FC = () => {
   const { chats, setCurrentChat, deleteChat, deleteAllChats } = useChat();
   const [open, setOpen] = useState(false);
@@ -35,8 +34,8 @@ const History: React.FC = () => {
   return (
     <div className="h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-semibold text-white">Chat History</h1>
-        <div className="flex justify-between gap-4">
+        <h1 className="text-base font-semibold text-white">Chat History</h1>
+        <div className="flex justify-between gap-2 sm:gap-4">
           {chats.length > 0 && (
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger>
@@ -47,7 +46,7 @@ const History: React.FC = () => {
                 />
               </PopoverTrigger>
               <PopoverContent>
-                <div className="p-2 text-sm text-gray-400">
+                <div className="text-sm text-gray-400">
                   <p>Are you sure you want to delete all chat history?</p>
                   <div className="flex justify-end mt-2">
                     <button

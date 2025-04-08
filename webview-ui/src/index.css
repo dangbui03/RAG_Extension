@@ -30,8 +30,11 @@
         text-dark-onSurface
         leading-7
         text-sm
-        pt-1;
+        pt-1
+        break-words
+        text-wrap;
     }
+
     .markdown-content > :first-child {
         @apply !mt-0;
     }
@@ -83,7 +86,10 @@
         @apply block
         py-2
         px-3
-        overflow-x-auto;
+        overflow-x-auto
+        whitespace-pre-wrap
+        break-all
+        min-w-[100px];
     }
 
     .markdown-content table {
@@ -91,7 +97,7 @@
         dark:bg-dark-onSurfaceContainer
         block
         max-w-max
-        overflow-auto
+        overflow-x-auto
         rounded-lg;
     }
 
@@ -130,8 +136,7 @@
         text-xs
         rounded-t-md
         rounded-b-xs
-        mb-0.5
-        overflow-hidden;
+        mb-0.5;
     }
 
     .markdown-content .code-block * {

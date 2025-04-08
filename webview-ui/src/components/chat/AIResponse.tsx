@@ -52,14 +52,18 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
             PreTag="div"
             language={match[1]}
             style={dracula}
+            wrapLongLines={true}
             customStyle={{
               marginBlock: "0",
               padding: "2px",
+              maxWidth: "100%",
             }}
             codeTagProps={{
               style: {
                 padding: "14px",
                 fontWeight: "400",
+                wordBreak: "break-word",
+                whiteSpace: "pre-wrap",
               },
             }}
           >
@@ -103,8 +107,8 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
       <div className="w-6 h-6 rounded flex items-center justify-center text-xs flex-shrink-0 mt-1 bg-gray-700">
         A
       </div>
-      <div className="flex-1 overflow-hidden">
-        <div className="flex justify-between items-center mb-1">
+      <div className="flex-1 overflow-hidden min-w-0">
+        <div className="flex flex-wrap justify-between items-center mb-1">
           <h3 className="font-medium text-sm text-gray-300">Assistant</h3>
           <span className="text-xs text-gray-500">
             {format(new Date(chat.timestamp), "h:mm a")}

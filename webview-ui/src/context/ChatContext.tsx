@@ -1,18 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Chat, ChatMessage } from "@/types"; //, AIModel
+import { Chat, ChatMessage, FileModel } from "@/types"; //, AIModel
 import { v4 as uuidv4 } from "uuid";
 import { vscode } from "@/vscode/VsCodeApi";
-// import { mockChats } from "@/types";
 
 interface ChatContextType {
+  // Chats
   chats: Chat[];
   currentChat: Chat | null;
-  selectedModel: string;
-  models: string[];
-  isGenerating: boolean;
-  generationStartTime: number | null;
-  selectModel: (model: string) => void;
-  sendMessage: (content: string, chatId?: string) => void; //, contextFiles?: string[]
+  sendMessage: (
+    content: string,
+    contextFiles: FileModel[],
+    chatId?: string
+  ) => void;
   createNewChat: () => void;
   setCurrentChat: (chatId: string) => void;
   storeChat: (chat: Chat) => void;
@@ -20,6 +19,27 @@ interface ChatContextType {
   deleteAllChats: () => void;
   fetchChats: () => void;
   fetchChatById: (chatId: string) => void;
+
+  // Models
+  selectedModel: string;
+  models: string[];
+  selectModel: (model: string) => void;
+
+  // Version and file state
+  nextjsVersion: string;
+  setNextjsVersion: (version: string) => void;
+  file: string[]; // List of file names (relative paths)
+  fetchFiles : () => void;
+  fetchFileContent: (filePath: string) => void;
+  selectedFileContent: string; // Content of the selected file
+  setSelectedFileContent: (content: string) => void;
+  selectedFileName: string; // Name (or relative path) of the selected file
+  setSelectedFileName: (fileName: string) => void;
+  setFile: (file: string[]) => void;
+
+  // Chat generation
+  isGenerating: boolean;
+  generationStartTime: number | null;
 }
 
 const ChatContext = createContext<ChatContextType>({} as ChatContextType);
@@ -29,20 +49,32 @@ export const useChat = () => useContext(ChatContext);
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // Chat-related states
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
+
+  // Model and version states
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [models, setModels] = useState<string[]>([]);
+  const [nextjsVersion, setNextjsVersion] = useState<string>("");
+
+  // File-related states
+  const [file, setFile] = useState<string[]>([]); // List of file names (relative paths)
+  const [selectedFileContent, setSelectedFileContent] = useState<string>(""); // File content for the selected file
+  const [selectedFileName, setSelectedFileName] = useState<string>(""); // Selected file name
+
+  // Generation state
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(
     null
   );
 
-  // Initialize and fetch history when component mounts
+  // On mount, fetch initial data (models, chats, Next.js version, file list)
   useEffect(() => {
     // Initial data fetch
     fetchModels();
     fetchChats();
+    fetchNextjsVersion();
 
     if (chats.length > 0) {
       setCurrentChat(chats[0]);
@@ -55,28 +87,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const messageHandler = (event: MessageEvent) => {
       const message = event.data;
       switch (message.command) {
-        // case "update":
-        //   console.log("update", message);
-        //   if (currentChat) {
-        //     const lastMessage =
-        //       currentChat.messages[currentChat.messages.length - 1];
-        //     const updatedMessages = [
-        //       ...currentChat.messages.slice(0, -1),
-        //       {
-        //         ...lastMessage,
-        //         ai_answer: message.content,
-        //         status: "sent" as const,
-        //       },
-        //     ];
-        //     const updatedChat = {
-        //       ...currentChat,
-        //       messages: updatedMessages,
-        //       updatedAt: new Date(),
-        //     };
-        //     setCurrentChat(updatedChat);
-        //     storeChat(updatedChat);
-        //   }
-        //   break;
+        case "nextJsVersionFetched":
+          console.log("Next.js version fetched:", message.version);
+          setNextjsVersion(message.version);
+          break;
         case "populateModels":
           if (Array.isArray(message.models)) {
             setModels(message.models);
@@ -85,6 +99,20 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
               setSelectedModel(message.models[0]);
             }
           }
+          break;
+        case "fileList":
+          if (Array.isArray(message.files)) {
+            // setFile(message.files);
+            const fileNames = message.files.map(
+              (file: { name: string }) => file.name
+            );
+            setFile(fileNames);
+          }
+          break;
+        case "fileContent":
+          // Set the selected file's content and name from the response
+          setSelectedFileContent(message.content);
+          setSelectedFileName(message.filePath);
           break;
         case "chatsFetched":
           setChats(message.chats);
@@ -96,13 +124,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           fetchChats();
           break;
         case "chatDeleted":
-          // We already updated the local state, but we can sync with server state if needed
           if (message.success && Array.isArray(message.chats)) {
             setChats(message.chats);
           }
           break;
         case "allChatsDeleted":
-          // We already updated the local state, but we can sync with server state if needed
           if (message.success) {
             setChats([]);
           }
@@ -114,8 +140,20 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => window.removeEventListener("message", messageHandler);
   }, []);
 
+  // --- VS Code API calls via vscode.postMessage ---
+  // Fetch files from the workspace
+  const fetchFiles = () => vscode.postMessage({ command: "getFileList" });
+
+  // Fetch the full content of a file given its path
+  const fetchFileContent = (filePath: string) =>
+    vscode.postMessage({ command: "getFileContent", filePath });
+
   // Fetch models from the extension
   const fetchModels = () => vscode.postMessage({ command: "populateModels" });
+
+  // Set Next.js version in the extension
+  const fetchNextjsVersion = () =>
+    vscode.postMessage({ command: "readNextJsVersion" });
 
   // Fetch all chats from the extension
   const fetchChats = () => vscode.postMessage({ command: "fetchChats" });
@@ -151,6 +189,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     vscode.postMessage({ command: "deleteAllChats" });
   };
 
+  // Initialize a default chat if no chats exist
   const initializeDefaultChat = () => {
     const newChat: Chat = {
       id: uuidv4(),
@@ -159,10 +198,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    // setChats([newChat]);
     setCurrentChat(newChat);
   };
 
+  // Create a new chat session
   const createNewChat = () => {
     const newChat: Chat = {
       id: uuidv4(),
@@ -171,19 +210,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
     setCurrentChat(newChat);
-
-    // // Store the new chat
-    // vscode.postMessage({
-    //   command: 'storeChat',
-    //   chat: newChat
-    // });
   };
 
-  const sendMessage = (content: string) => {
+  /**
+   * Send a message to the API. If a file has been selected, its content is automatically
+   * added to the contextFiles parameter (as a FileModel object).
+   */
+  const sendMessage = (content: string, contextFiles: FileModel[] = []) => {
     // console.log(selectedModel, content);
-
     if (!currentChat) return;
     if (!selectedModel) {
       alert("Please select a model first.");
@@ -217,9 +252,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     setCurrentChat(finalChat);
-    // setChats(prevChats =>
-    //   prevChats.map(chat => chat.id === finalChat.id ? finalChat : chat)
-    // );
+
     if (currentChat.messages.length === 0) {
       setChats((prevChats) => [
         finalChat,
@@ -231,22 +264,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
 
-    // storeChat(updatedChat);
     vscode.postMessage({
-      command: "askQuestion",
+      command: "ragCall",
       text: content,
+      nextJSVersion: nextjsVersion,
       model: selectedModel,
+      fileList: contextFiles,
       chatId: updatedChat.id,
     });
 
     // Listen for the response from the VS Code extension
     window.addEventListener("message", (event) => {
       const message = event.data;
-
       // Check if the response contains an answer
-      if (message.command === "update") {
+      if (message.command === "ragCallComplete") {
         const responseContent = message.content || "No response received.";
-
         const updatedMessage: ChatMessage = {
           ...newMessage,
           ai_answer: responseContent,
@@ -284,6 +316,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         currentChat,
         selectedModel,
         models,
+        nextjsVersion,
+        file,
+        fetchFiles,
+        setFile,
         selectModel,
         isGenerating,
         generationStartTime,
@@ -295,6 +331,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteChat,
         deleteAllChats,
         setCurrentChat: fetchChatById,
+        setNextjsVersion,
+        fetchFileContent,
+        selectedFileContent,
+        setSelectedFileContent,
+        selectedFileName,
+        setSelectedFileName,
       }}
     >
       {children}

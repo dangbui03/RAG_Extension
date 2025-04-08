@@ -10,10 +10,10 @@ interface ChatMessagesProps {
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({ message, isLast }) => {
   return (
-    <div className="mb-6 w-full max-w-xl">
+    <div className="mb-1 w-full max-w-xl">
       {/* User Message */}
       <div className="p-1 transition-all duration-300 animate-slide-in">
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto">
           <UserPrompt
             chat={message}
           />
@@ -28,7 +28,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ message, isLast }) => {
             isLast && message.status === "sending" && "animate-pulse"
           )}
         >
-          <div className="max-w-4xl mx-auto">
+          <div className="mx-auto">
             <AIResponse
               chat={message}
             />
