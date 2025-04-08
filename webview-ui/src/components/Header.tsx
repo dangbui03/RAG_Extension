@@ -41,7 +41,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center text-sm">
+      <div className="flex flex-row justify-between items-center text-sm pt-1">
         <div className="flex flex-row items-center gap-2 sm:gap-4">
           <div className="gap-4">
             <select

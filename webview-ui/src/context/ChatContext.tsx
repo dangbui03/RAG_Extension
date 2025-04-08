@@ -102,7 +102,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           break;
         case "fileList":
           if (Array.isArray(message.files)) {
-            setFile(message.files);
+            // setFile(message.files);
+            const fileNames = message.files.map(
+              (file: { name: string }) => file.name
+            );
+            setFile(fileNames);
           }
           break;
         case "fileContent":

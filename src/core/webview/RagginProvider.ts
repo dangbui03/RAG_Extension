@@ -504,8 +504,8 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     readEntireCodeBase: readEntireCodeBase
   ): Promise<{ name: string }[]> {
     // const catcher = new NextJsVersionCatcher();
-    const files: string[] = await readEntireCodeBase.fetchFileList();
-    return files.map((file) => ({ name: file }));
+    return await readEntireCodeBase.fetchFileList();
+    // return files.map((file) => ({ name: file }));
   }
 
   /**

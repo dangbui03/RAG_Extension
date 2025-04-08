@@ -15,21 +15,49 @@ export class readEntireCodeBase {
   }
 
   /**
-   * Fetch all files from the workspace (excluding node_modules)
-   * and return a list of relative file paths (e.g. "/package.json", "/src/main.tsx")
+   * Fetch all file URIs from the workspace (excluding those in node_modules)
    */
-  async fetchFileList(): Promise<string[]> {
+  async fetchAllFiles(): Promise<vscode.Uri[]> {
     if (!this.workspaceFolder) {
       return [];
     }
-    const files = await vscode.workspace.findFiles(
-      "**/*",
-      "**/node_modules/**"
-    );
-    return files.map((fileUri) => {
-      const relativePath = vscode.workspace.asRelativePath(fileUri);
-      return relativePath.startsWith("/") ? relativePath : "/" + relativePath;
+    return vscode.workspace.findFiles("**/*", "**/node_modules/**");
+  }
+
+  // /**
+  //  * Fetch all files from the workspace (excluding node_modules)
+  //  * and return a list of relative file paths (e.g. "/package.json", "/src/main.tsx")
+  //  */
+  // async fetchFileList(): Promise<string[]> {
+  //   if (!this.workspaceFolder) {
+  //     return [];
+  //   }
+  //   const files = await vscode.workspace.findFiles(
+  //     "**/*",
+  //     "**/node_modules/**"
+  //   );
+  //   return files.map((fileUri) => {
+  //     const relativePath = vscode.workspace.asRelativePath(fileUri);
+  //     return relativePath.startsWith("/") ? relativePath : "/" + relativePath;
+  //   });
+  // }
+
+  /**
+   * Fetch the list of file names (as objects with a "name" property)
+   * using the current workspace. Returns file names as relative paths,
+   * for example: "/package.json", "/src/main.tsx", etc.
+   */
+  async fetchFileList(): Promise<{ name: string }[]> {
+    // Fetch all file URIs in the workspace
+    const uris: vscode.Uri[] = await this.fetchAllFiles();
+    // Map each URI to a relative path string (with a leading slash)
+    const files = uris.map((uri) => {
+      // Convert the URI to a relative path from the workspace folder.
+      const relativePath = vscode.workspace.asRelativePath(uri);
+      // Prepend a "/" so it looks like an absolute path within the workspace.
+      return { name: `/${relativePath}` };
     });
+    return files;
   }
 
   /**
