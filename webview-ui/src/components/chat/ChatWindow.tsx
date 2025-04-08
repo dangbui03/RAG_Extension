@@ -7,7 +7,7 @@ import ResponseLoading from "@/components/chat/ResponseLoading";
 const WelcomeScreen: React.FC = () => {
   return (
     <div className="mt-3 text-white text-xl font-light">
-      <p className="text-xl">ASK SOMETHINGS</p>
+      <p className="text-xl font-semibold">ASK SOMETHINGS</p>
       <p className="text-base">
         Free to ask about Next.js frameworks, we are supporting the framework
         from version v13.0.0 to v15.1.3

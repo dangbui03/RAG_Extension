@@ -11,7 +11,17 @@ import { cn } from "@/lib/utils";
 import { FileModel } from "@/types"; // Import your FileModel type
 
 const ChatInput = () => {
-  const { sendMessage, selectedModel, file, fetchFileContent, selectedFileContent, selectedFileName, setSelectedFileContent, setSelectedFileName } = useChat();
+  const {
+    sendMessage,
+    selectedModel,
+    file,
+    fetchFiles,
+    fetchFileContent,
+    selectedFileContent,
+    selectedFileName,
+    setSelectedFileContent,
+    setSelectedFileName,
+  } = useChat();
   const [message, setMessage] = useState("");
   // const [contextFiles, setContextFiles] = useState<string[]>([]);
   const [contextFile, setContextFile] = useState<string>("");
@@ -62,6 +72,10 @@ const ChatInput = () => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleFetchFiles = () => {
+    fetchFiles();
   };
 
   // const addContextFile = (fileName: string) => {
@@ -118,7 +132,6 @@ const ChatInput = () => {
         )}
 
         <div
-          title="Add Context"
           className={cn(
             "relative w-full rounded-lg border transition-all duration-200 bg-chat-darker border-gray-700"
           )}
@@ -128,7 +141,9 @@ const ChatInput = () => {
               <Button
                 variant="ghost"
                 size="icon"
+                title="Add Context"
                 className="codicon codicon-add text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2"
+                onClick={handleFetchFiles}
               />
             </PopoverTrigger>
             <PopoverContent
@@ -136,22 +151,32 @@ const ChatInput = () => {
               align="start"
               className="w-80 p-0 bg-chat-darker border border-gray-700"
             >
-              <div className="p-4">
+              <div className="p-2">
                 <h3 className="font-medium mb-2">Add Context</h3>
                 <p className="text-sm text-gray-400 mb-4">
                   Select a file to provide additional context for your question
                 </p>
-                <div className="space-y-2">
-                  {file.map((fileName, index) => (
-                    <button
-                      key={index}
-                      className="flex items-center justify-between w-full p-2 text-sm text-left hover:bg-gray-800 rounded"
-                      onClick={() => addContextFile(fileName)}
-                    >
-                      <span>{fileName}</span>
-                      <span className="text-xs text-gray-500">Select</span>
-                    </button>
-                  ))}
+                <div className="max-h-60 overflow-auto">
+                  <div className="space-y-1">
+                    {file.map((fileName, index) => (
+                      <button
+                        key={index}
+                        className="flex items-center justify-between w-full p-2 text-sm text-left hover:bg-gray-800 rounded"
+                        onClick={() => addContextFile(fileName)}
+                      >
+                        <span
+                          title={fileName}
+                          className="whitespace-nowrap overflow-x-auto"
+                        >
+                          {/* Inline truncation: if fileName is longer than 30 characters, show only the last 30 characters prefixed with "..." */}
+                          {fileName.length > 30
+                            ? "..." + fileName.slice(-30)
+                            : fileName}
+                        </span>
+                        <span className="text-xs text-gray-500">Select</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </PopoverContent>
@@ -160,6 +185,7 @@ const ChatInput = () => {
           <Textarea
             ref={textareaRef}
             value={message}
+            title="Chat Input"
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
             placeholder="Type your message here..."
@@ -181,112 +207,5 @@ const ChatInput = () => {
     </div>
   );
 };
-//   return (
-//     <div className="absolute bottom-0 left-0 right-0 bg-chat-darker border-t border-chat-border py-2">
-//       <div className="max-w-4xl mx-auto">
-//         {/* {contextFiles.length > 0 && (
-//           <div className="flex flex-wrap gap-2 mb-2">
-//             {contextFiles.map((file) => (
-//               <div 
-//                 key={file}
-//                 className="bg-gray-800 text-gray-200 text-xs rounded-full px-3 py-1 flex items-center gap-1"
-//               >
-//                 <span>{file}</span>
-//                 <Button
-//                   variant="ghost"
-//                   size="icon"
-//                   className="codicon codicon-close h-4 w-4 rounded-full hover:bg-gray-700"
-//                   onClick={() => removeContextFile(file)}
-//                 >
-//                 </Button>
-//               </div>
-//             ))}
-//           </div>
-//         )}
-//          */}
-
-//         {contextFile && (
-//           <div className="flex flex-wrap gap-2 mb-2">
-//             <div className="bg-gray-800 text-gray-200 text-xs rounded-full px-3 py-1 flex items-center gap-1">
-//               <span>{contextFile}</span>
-//               <Button
-//                 variant="ghost"
-//                 size="icon"
-//                 className="codicon codicon-close h-4 w-4 rounded-full hover:bg-gray-700"
-//                 onClick={removeContextFile}
-//               />
-//             </div>
-//           </div>
-//         )}
-//         <div
-//           title="Add Context"
-//           className={cn(
-//             "relative w-full rounded-lg border transition-all duration-200 bg-chat-darker border-gray-700"
-//             // isInputFocused ? "border-blue-500" : "border-gray-700"
-//           )}
-//         >
-//           <Popover>
-//             <PopoverTrigger asChild>
-//               <Button
-//                 variant="ghost"
-//                 size="icon"
-//                 className="codicon codicon-add text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2" //*ml-1 mb-1
-//               ></Button>
-//             </PopoverTrigger>
-//             <PopoverContent
-//               side="top"
-//               align="start"
-//               className="w-80 p-0 bg-chat-darker border border-gray-700"
-//             >
-//               <div className="p-4">
-//                 <h3 className="font-medium mb-2">Add Context</h3>
-//                 <p className="text-sm text-gray-400 mb-4">
-//                   Select files to provide additional context for your question
-//                 </p>
-//                 <div className="space-y-2">
-//                   {/* {["package.json", "README.md", "src/App.tsx", "src/main.tsx"].map((file) => ( */}
-//                   {file.map((file) => (
-//                     <button
-//                       key={file}
-//                       className="flex items-center justify-between w-full p-2 text-sm text-left hover:bg-gray-800 rounded"
-//                       onClick={() => {
-//                         addContextFile(file);
-//                       }}
-//                     >
-//                       <span>{file}</span>
-//                       <span className="text-xs text-gray-500">Add</span>
-//                     </button>
-//                   ))}
-//                 </div>
-//               </div>
-//             </PopoverContent>
-//           </Popover>
-
-//           <Textarea
-//             ref={textareaRef}
-//             value={message}
-//             onChange={handleTextareaChange}
-//             onKeyDown={handleKeyDown}
-//             // onFocus={() => setIsInputFocused(true)}
-//             // onBlur={() => setIsInputFocused(false)}
-//             placeholder="Type your message here..."
-//             className="w-full resize-none py-3 pl-12 pr-12 min-h-[50px] max-h-[200px] scrollbar-thin focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent border-0 bg-transparent"
-//           />
-//           <Button
-//             variant="ghost"
-//             size="icon"
-//             title="Send Message"
-//             onClick={handleSendMessage}
-//             disabled={!message.trim()}
-//             className={cn(
-//               "codicon codicon-send text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity",
-//               !message.trim() && "opacity-50 cursor-not-allowed"
-//             )}
-//           />
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 export default ChatInput;

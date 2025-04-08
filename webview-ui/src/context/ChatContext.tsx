@@ -29,6 +29,7 @@ interface ChatContextType {
   nextjsVersion: string;
   setNextjsVersion: (version: string) => void;
   file: string[]; // List of file names (relative paths)
+  fetchFiles : () => void;
   fetchFileContent: (filePath: string) => void;
   selectedFileContent: string; // Content of the selected file
   setSelectedFileContent: (content: string) => void;
@@ -74,7 +75,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchModels();
     fetchChats();
     fetchNextjsVersion();
-    fetchFiles();
 
     if (chats.length > 0) {
       setCurrentChat(chats[0]);
@@ -318,6 +318,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         models,
         nextjsVersion,
         file,
+        fetchFiles,
         setFile,
         selectModel,
         isGenerating,

@@ -2,6 +2,11 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useChat } from "@/context/ChatContext";
 import { versions } from "@/types";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const Header: React.FC = () => {
   const {
@@ -15,10 +20,6 @@ const Header: React.FC = () => {
   } = useChat();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    selectModel(e.target.value);
-  };
 
   const handleNewChat = () => {
     createNewChat();
@@ -35,52 +36,85 @@ const Header: React.FC = () => {
     }
   };
 
-  const selectNextjsVersion = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNextjsVersion(e.target.value);
-  };
-
   return (
     <>
       <div className="flex flex-row justify-between items-center text-sm pt-1">
         <div className="flex flex-row items-center gap-2 sm:gap-4">
           <div className="gap-4">
-            <select
-              id="model"
-              title="Select Model"
-              className="w-[90px] text-white text-sm cursor-pointer !px-1"
-              value={selectedModel}
-              onChange={handleModelChange}
-            >
-              {models.length === 0 && <option value="">Not found</option>}
-              {models.map((m) => (
-                <option
-                  key={m}
-                  value={m}
-                  className="bg-[#1e1e1e] text-white hover:bg-black"
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  title="Select Model"
+                  className="w-[100px] text-white text-sm cursor-pointer overflow-ellipsis"
                 >
-                  {m}
-                </option>
-              ))}
-            </select>
+                  {(selectedModel.length > 10
+                    ? selectedModel.slice(0, 10) + ".."
+                    : selectedModel) || "Select Model"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                side="top"
+                align="start"
+                className="w-50 p-0 bg-chat-darker border border-gray-700"
+              >
+                <div className="p-2">
+                  <h3 className="font-medium mb-2">Select Model</h3>
+                  <div className="max-h-60 overflow-auto">
+                    <div className="space-y-1">
+                      {models.length === 0 ? (
+                        <p className="text-sm">Not found</p>
+                      ) : (
+                        models.map((m) => (
+                          <button
+                            key={m}
+                            value={m}
+                            onClick={() => selectModel(m)}
+                            className="block w-full text-left px-2 py-1 hover:bg-black"
+                          >
+                            {m}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
+
           <div className="gap-4">
-            <select
-              id="nextjsVersion"
-              title="Select Next.js Version"
-              className="w-full text-white text-sm cursor-pointer px-1"
-              value={nextjsVersion}
-              onChange={selectNextjsVersion}
-            >
-              {versions.map((version) => (
-                <option
-                  key={version}
-                  value={version}
-                  className="bg-[#1e1e1e] text-white hover:bg-black"
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  title="Select Next.js Version"
+                  className="w-full text-white text-sm cursor-pointer"
                 >
-                  {version}
-                </option>
-              ))}
-            </select>
+                  {nextjsVersion}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                side="top"
+                align="start"
+                className="w-40 p-0 bg-chat-darker border border-gray-700"
+              >
+                <div className="p-2">
+                  <h3 className="font-medium mb-2">Select Next.js Version</h3>
+                  <div className="max-h-60 overflow-auto">
+                    <div className="space-y-1">
+                      {versions.map((version) => (
+                        <button
+                          key={version}
+                          onClick={() => setNextjsVersion(version)}
+                          className="block w-full text-left px-2 py-1 hover:bg-black"
+                        >
+                          {version}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
