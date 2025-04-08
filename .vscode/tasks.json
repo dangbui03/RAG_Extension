@@ -68,6 +68,19 @@
 			"label": "tasks: watch-tests",
 			"dependsOn": ["npm: watch", "npm: watch-tests"],
 			"problemMatcher": []
+		},
+		{
+			"label": "stop",
+			"command": "echo ${input:terminate}",
+			"type": "shell"
+		}
+	],
+	"inputs": [
+		{
+			"id": "terminate",
+			"type": "command",
+			"command": "workbench.action.tasks.terminate",
+			"args": "terminateAll"
 		}
 	]
 }

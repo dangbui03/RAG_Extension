@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Chat, ChatMessage, FileModel } from "@/types"; //, AIModel
+import { Chat, ChatMessage, FileModel } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { vscode } from "@/vscode/VsCodeApi";
 
@@ -29,7 +29,7 @@ interface ChatContextType {
   nextjsVersion: string;
   setNextjsVersion: (version: string) => void;
   file: string[]; // List of file names (relative paths)
-  fetchFiles : () => void;
+  fetchFiles: () => void;
   fetchFileContent: (filePath: string) => void;
   selectedFileContent: string; // Content of the selected file
   setSelectedFileContent: (content: string) => void;
@@ -111,6 +111,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           break;
         case "fileContent":
           // Set the selected file's content and name from the response
+          console.log("File content fetched:", message.content);
           setSelectedFileContent(message.content);
           setSelectedFileName(message.filePath);
           break;
@@ -263,6 +264,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         prevChats.map((chat) => (chat.id === finalChat.id ? finalChat : chat))
       );
     }
+
+    console.log({
+      text: content,
+      nextJSVersion: nextjsVersion,
+      model: selectedModel,
+      fileList: contextFiles,
+      chatId: updatedChat.id,
+    });
 
     vscode.postMessage({
       command: "ragCall",

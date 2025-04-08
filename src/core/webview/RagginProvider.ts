@@ -4,9 +4,9 @@ import { getConfiguration, GetOllamaModelFromUser } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
-import { RagCallFunction } from "../../commands/ragCallFunction";
+import { RagCallFunction } from "../ragCallFunction";
 import { Logger } from "../../utils/logging";
-import { readEntireCodeBase } from "../../commands/readEntireCodeBase";
+import { readEntireCodeBase } from "../readEntireCodeBase";
 
 const utf8TextDecoder = new TextDecoder("utf8");
 export class RagginProvider implements vscode.WebviewViewProvider {
@@ -517,9 +517,8 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     readEntireCodeBase: readEntireCodeBase,
     filePath: string
   ): Promise<string> {
-    const fileUri = vscode.Uri.file(filePath);
     try {
-      const content = await readEntireCodeBase.readFileContent(fileUri);
+      const content = await readEntireCodeBase.readFile(filePath);
       return content;
     } catch (err) {
       console.error(`Failed to read file ${filePath}`, err);

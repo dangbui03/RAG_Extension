@@ -25,6 +25,8 @@ export async function RagCallFunction(
             payload.file_list = fileList;
         }
 
+        console.log('RAG Payload:', payload);
+
         const response = await axios.post('http://localhost:8000/generate_response', payload, {
             headers: { 'Content-Type': 'application/json' }
         });

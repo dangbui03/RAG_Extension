@@ -19,15 +19,6 @@ export async function GenerateCommentCommand() {
 
         // build the prompt
         const promptbuilder: PromptBuilder = new PromptBuilder(editor);
-        // const selectedCode = editor.getSelection();
-
-        // if (!selectedCode) {
-        //     vscode.window.showWarningMessage('No code selected. Generating comments for the entire file.');
-        //     promptbuilder.buildCodeBlock(editor.getEditorContent());
-        // } else {
-        //     promptbuilder.buildCodeBlock(selectedCode);
-        // }
-
         let prompt: Prompt = promptbuilder.buildContext().buildPromptText().buildCodeBlock(editor.getSelection()).build();
         const fullPrompt: string = prompt.getFullPrompt();
         console.log("Generated Prompt:", fullPrompt);
