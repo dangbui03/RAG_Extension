@@ -6,6 +6,12 @@
   "engines": {
     "vscode": "^1.93.0"
   },
+  "publisher": "raggin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dangbui03/RAG_Extension.git"
+  },
   "categories": [
     "Other"
   ],

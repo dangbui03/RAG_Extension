@@ -144,6 +144,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             const chatId = message.chatId;
 
             if (!model || !question || !nextJSVersion) {
+              vscode.window.showWarningMessage(
+                `⚠️ Need to provide model, question, and Next.js version.`
+              );
               webviewView.webview.postMessage({
                 command: "ragCallComplete",
                 content: "⚠️ Missing required parameters for RAG call.",
@@ -226,6 +229,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             await this.handleDeleteChat(message.chatId);
             break;
           case "deleteAllChats":
+            vscode.window.showInformationMessage(
+              `All chats have been deleted.`
+            );
             await this.handleDeleteAllChats();
             break;
           default:
@@ -293,13 +299,10 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             <link href="${stylesUri}" rel="stylesheet">
             <link href="${codiConsUri}" rel="stylesheet">
             <title>Ask AI</title>
-        
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        </head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>
           <div id="root"></div>
-          <script src="${scriptUri}" nonce="${nonce}"></script>
+          <script type="module" src="${scriptUri}" nonce="${nonce}"></script>
         </body>
       </html>
     `;
