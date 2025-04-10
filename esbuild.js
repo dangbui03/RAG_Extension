@@ -1,6 +1,6 @@
-const esbuild = require('esbuild');
-const fs = require("fs")
-const path = require("path")
+import { context } from 'esbuild';
+import { copyFileSync } from "fs";
+import { join } from "path";
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -30,14 +30,14 @@ const copyWasmFiles = {
 	setup(build) {
 		build.onEnd(() => {
 			// tree sitter
-			const sourceDir = path.join(__dirname, "node_modules", "web-tree-sitter");
-			const targetDir = path.join(__dirname, "dist");
+			const sourceDir = join(__dirname, "node_modules", "web-tree-sitter");
+			const targetDir = join(__dirname, "dist");
 
 			// Copy tree-sitter.wasm
-			fs.copyFileSync(path.join(sourceDir, "tree-sitter.wasm"), path.join(targetDir, "tree-sitter.wasm"));
+			copyFileSync(join(sourceDir, "tree-sitter.wasm"), join(targetDir, "tree-sitter.wasm"));
 
 			// Copy language-specific WASM files
-			const languageWasmDir = path.join(__dirname, "node_modules", "tree-sitter-wasms", "out");
+			const languageWasmDir = join(__dirname, "node_modules", "tree-sitter-wasms", "out");
 			const languages = [
 				"typescript",
 				"tsx",
@@ -56,14 +56,14 @@ const copyWasmFiles = {
 
 			languages.forEach((lang) => {
 				const filename = `tree-sitter-${lang}.wasm`;
-				fs.copyFileSync(path.join(languageWasmDir, filename), path.join(targetDir, filename));
+				copyFileSync(join(languageWasmDir, filename), join(targetDir, filename));
 			});
 		});
 	},
 };
 
 async function main() {
-	const ctx = await esbuild.context({
+	const ctx = await context({
 		entryPoints: [
 			'src/extension.ts'
 		],

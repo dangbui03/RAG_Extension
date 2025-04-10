@@ -3,6 +3,7 @@
   "displayName": "RAGGIN",
   "description": "This project focuses on the development of a Retrieval-Augmented Generation (RAG) system, which enhances the capabilities of Large Language Models (LLMs) by incorporating information retrieval from external data sources. ",
   "version": "0.0.1",
+  "type": "module",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -130,7 +131,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src --ext ts && eslint webview-ui/src --ext ts",
+    "lint": "eslint \"src/**/*.ts\" && eslint \"webview-ui/src/**/*.ts\"",
     "test": "vscode-test",
     "install:all": "npm install && cd webview-ui && npm install",
     "dev:webview": "cd webview-ui && npm run start",
