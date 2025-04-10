@@ -1,7 +1,7 @@
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
+const typescriptEslint = require("@typescript-eslint/eslint-plugin");
+const tsParser = require("@typescript-eslint/parser");
 
-export default [{
+module.exports = [{
     files: ["**/*.ts"],
 }, {
     plugins: {
