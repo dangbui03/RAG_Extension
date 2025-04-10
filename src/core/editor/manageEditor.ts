@@ -104,10 +104,6 @@ export class ActiveEditor implements Editor {
         const fileURI = this.document.uri;
         const fileName = this.document.fileName;
         const edit = new vscode.WorkspaceEdit();
-        // const lineNumber = await this.getLineNumber(selection);
-        // edit.insert(fileURI, new vscode.Position(lineNumber, 0), generatedComment.trim());
-        // await vscode.workspace.applyEdit(edit);
-        // vscode.window.showInformationMessage(`Commented added to ${fileName} at line ${lineNumber + 1}`);
         const lineNumber = selection.end.line + 1; // Add comment to the line below the code line
         edit.insert(fileURI, new vscode.Position(lineNumber, 1), generatedComment.trim() + '\n');
         await vscode.workspace.applyEdit(edit);

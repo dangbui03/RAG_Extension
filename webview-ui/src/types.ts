@@ -124,7 +124,7 @@ export const versions = [
   "v15.1.0",
   "v15.1.1",
   "v15.1.2",
-  "v15.1.3"
+  "v15.1.3",
 ];
 
 export const mockChats: Chat[] = [

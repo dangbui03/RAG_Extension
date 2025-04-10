@@ -1,6 +1,4 @@
 import * as vscode from "vscode";
-// import { ErrorType, MyError } from "./type";
-// import { ReadableStream } from "node:stream/web";
 import ollama from "ollama";
 
 export async function generateAnswer(
