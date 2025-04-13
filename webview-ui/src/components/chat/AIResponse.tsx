@@ -1,25 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypePrettyCode from "rehype-pretty-code";
 import { format } from "date-fns";
+
+import { dracula } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import SyntaxHighlighter from "react-syntax-highlighter";
 import { ChatMessage } from "@/types";
+
 import toTitleCase from "@/utils/ToTitleCase";
+import { Button } from "../ui/button";
 
 interface ChatMessagesProps {
   chat: ChatMessage;
-  children?: React.ReactNode;
-}
-
-// Define types for the Markdown components
-interface CodeProps extends React.HTMLAttributes<HTMLElement> {
-  className?: string;
-  children?: React.ReactNode;
-}
-
-interface PreProps extends React.HTMLAttributes<HTMLPreElement> {
-  children?: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  children?: any;
 }
 
 const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
@@ -27,6 +21,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
 
   const handleCopyCode = useCallback(async (text: string) => {
     try {
+      setCopied(false);
       setCopied(true);
       await navigator.clipboard.writeText(text).then(() => {
         console.log("Code copied to clipboard!");
@@ -39,104 +34,71 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
     }
   }, []);
 
-  // rehype-pretty-code options
-  const rehypePrettyCodeOptions = {
-    theme: 'dracula',
-    keepBackground: true,
-    onVisitLine(node: any) {
-      // Prevent lines from collapsing in `display: grid` mode
-      if (node.children.length === 0) {
-        node.children = [{ type: 'text', value: ' ' }];
-      }
-    },
-    onVisitHighlightedLine(node: any) {
-      // Add a class to highlighted lines
-      node.properties.className = ['highlighted-line'];
-    },
-    onVisitHighlightedWord(node: any) {
-      // Add a class to highlighted words
-      node.properties.className = ['highlighted-word'];
-    },
-  };
+  const Code: React.FC<React.ComponentPropsWithoutRef<"code">> = ({
+    children,
+    className,
+    ...rest
+  }) => {
+    const match = className?.match(/language-(\w+)/);
 
-  // Custom code block component
-  const Pre = React.forwardRef<HTMLPreElement, PreProps>(({ children, ...props }, ref) => {
-    // Extract the text content for copying
-    let textContent = '';
-    let language = '';
-    
-    // Check if children is a React element and has the necessary properties
-    if (React.isValidElement(children)) {
-      // Extract language from className if it exists and matches the pattern
-      const childClassName = (children.props as any)?.className || '';
-      const languageMatch = /language-(\w+)/.exec(childClassName);
-      language = languageMatch ? languageMatch[1] : '';
-      
-      // Extract text content for copying
-      const childChildren = (children.props as any)?.children;
-      if (typeof childChildren === 'string') {
-        textContent = childChildren;
-      } else if (Array.isArray(childChildren)) {
-        textContent = childChildren
-          .map(child => (typeof child === 'string' ? child : ''))
-          .join('');
-      }
-    }
+    return match ? (
+      <>
+        <div className="code-block">
+          <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center h-11 font-sans text-sm ps-4 pe-2">
+            <div className="px-4 py-2 pb-0 font-sans">
+              {toTitleCase(match[1])}
+            </div>
 
-    return (
-      <div className="code-wrapper rounded-md overflow-hidden my-2">
-        {language && (
-          <div className="px-4 py-2 pb-0 font-sans bg-dark-onSurfaceContainer">
-            {toTitleCase(language)}
+            <Button
+              className="rounded-md border-gray-500/50 w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-gray-700/50 group"
+              onClick={() => handleCopyCode(String(children).toString())}
+              title="Copy code"
+              aria-label="Copy code"
+            >
+              {copied ? (
+                <div
+                  className="codicon codicon-check text-sm text-green-500"
+                  title="Copied"
+                />
+              ) : (
+                <div className="codicon codicon-copy text-sm cursor-pointer group-hover:text-blue-300" />
+              )}
+            </Button>
           </div>
-        )}
-        <pre ref={ref} {...props} className="p-0 m-0 overflow-auto">
-          {children}
-        </pre>
-        <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center h-11 font-sans text-sm ps-4 pe-2">
-          <p>
-            Use Code
-            <a className="link ms-2" href="#" target="_blank">
-              with caution.
-            </a>
-          </p>
 
-          <div
-            className="rounded-md border-gray-500/50 w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-gray-700/50 group"
-            onClick={() => handleCopyCode(textContent)}
-            title="Copy code"
+          <SyntaxHighlighter
+            {...rest}
+            PreTag="div"
+            language={match[1]}
+            style={dracula}
+            wrapLongLines={true}
+            customStyle={{
+              marginBlock: "0",
+              padding: "2px",
+              maxWidth: "100%",
+            }}
+            codeTagProps={{
+              style: {
+                padding: "14px",
+                fontWeight: "400",
+                wordBreak: "break-word",
+                whiteSpace: "pre-wrap",
+              },
+            }}
           >
-            {copied ? (
-              <div
-                className="codicon codicon-check text-sm text-green-500"
-                title="Copied"
-              />
-            ) : (
-              <div className="codicon codicon-copy text-sm cursor-pointer group-hover:text-blue-300" />
-            )}
-          </div>
+            {String(children)}
+          </SyntaxHighlighter>
         </div>
-      </div>
-    );
-  });
-  
-  Pre.displayName = 'Pre';
 
-  // Custom code span component (for inline code)
-  const Code = React.forwardRef<HTMLElement, CodeProps>(({ className, ...props }, ref) => {
-    // Check if this is a code block (has language-*) or inline code
-    const match = className ? /language-(\w+)/.exec(className) : null;
-    
-    // Return the code without modifications if it's not a code block
-    if (!match) {
-      return <code ref={ref} className={className} {...props} />;
-    }
-    
-    // The code block styling is handled by the Pre component and rehype-pretty-code
-    return <code ref={ref} className={className} {...props} />;
-  });
-  
-  Code.displayName = 'Code';
+        <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center h-11 font-sans text-sm ps-4 pe-2">
+        </div>
+      </>
+    ) : (
+      <code className={className} {...rest}>
+        {children}
+      </code>
+    );
+  };
 
   return (
     <div className="flex items-start gap-4">
@@ -154,14 +116,8 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
         {children}
 
         <div className="markdown-content">
-          <Markdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[[rehypePrettyCode, rehypePrettyCodeOptions]]}
-            components={{
-              pre: Pre,
-              code: Code
-            }}
-          >
+          <Markdown remarkPlugins={[remarkGfm]} components={{ code: Code }}>
+            {/* {chat.ai_answer} */}
             {chat.ai_answer}
           </Markdown>
         </div>
