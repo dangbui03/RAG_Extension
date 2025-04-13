@@ -23,6 +23,7 @@ interface ChatContextType {
   // Models
   selectedModel: string;
   models: string[];
+  fetchModels: () => void;
   selectModel: (model: string) => void;
 
   // Version and file state
@@ -72,7 +73,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   // On mount, fetch initial data (models, chats, Next.js version, file list)
   useEffect(() => {
     // Initial data fetch
-    fetchModels();
+    // fetchModels();
     fetchChats();
     fetchNextjsVersion();
 
@@ -87,6 +88,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const messageHandler = (event: MessageEvent) => {
       const message = event.data;
       switch (message.command) {
+        case "restoreState":
+          // Restore your app state from the message
+          if (message.state.currentChat) {
+            setCurrentChat(message.state.currentChat);
+          }
+          if (message.state.selectedModel) {
+            setSelectedModel(message.state.selectedModel);
+          }
+          break;
         case "nextJsVersionFetched":
           console.log("Next.js version fetched:", message.version);
           setNextjsVersion(message.version);
@@ -137,15 +147,48 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
+    // Function to save state to the extension
+    const saveStateToExtension = () => {
+      const state = {
+        currentChat: currentChat,
+        selectedModel: selectedModel,
+        // ... other state variables you want to persist
+      };
+
+      vscode.postMessage({
+        command: "saveState",
+        state: state,
+      });
+    };
+
+    // Initial save and message listener setup
+    saveStateToExtension();
     window.addEventListener("message", messageHandler);
     return () => window.removeEventListener("message", messageHandler);
   }, []);
 
+  // Save state to extension whenever important state changes
+  useEffect(() => {
+    const saveStateToExtension = () => {
+      const state = {
+        currentChat: currentChat,
+        selectedModel: selectedModel,
+        // ... other state variables you want to persist
+      };
+
+      vscode.postMessage({
+        command: "saveState",
+        state: state,
+      });
+    };
+
+    saveStateToExtension();
+  }, [currentChat, selectedModel]);
+
   // --- VS Code API calls via vscode.postMessage ---
   // Fetch files from the workspace
   const fetchFiles = () => vscode.postMessage({ command: "getFileList" });
-
-  // Fetch the full content of a file given its path
+  
   const fetchFileContent = (filePath: string) =>
     vscode.postMessage({ command: "getFileContent", filePath });
 
@@ -330,6 +373,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchFiles,
         setFile,
         selectModel,
+        fetchModels,
         isGenerating,
         generationStartTime,
         sendMessage,

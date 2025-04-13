@@ -17,6 +17,7 @@ const Header: React.FC = () => {
     deleteAllChats,
     nextjsVersion,
     setNextjsVersion,
+    fetchModels
   } = useChat();
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,6 +47,7 @@ const Header: React.FC = () => {
                 <button
                   title="Select Model"
                   className="w-[100px] text-white text-sm cursor-pointer overflow-ellipsis"
+                  onClick={fetchModels}
                 >
                   {(selectedModel.length > 10
                     ? selectedModel.slice(0, 10) + ".."
