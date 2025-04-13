@@ -124,3 +124,51 @@ export async function GetNextjsVersionList(){
         throw new Error(`Failed to fetch Next.js versions data: ${err.message}`);
     }
 }
+
+export async function GetRetrieveNextjsVersion(version: string) {
+  try {
+    const payload = {
+      versionName: version
+    };
+    const response = await axios.post(
+      `http://localhost:8000/data/retrieve/`, 
+      payload,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const data = response.data;
+
+    return {
+      retrieved: data.retrieved,
+      date_retrieved: response.headers.date,
+    };
+  } catch (err: any) {
+    handleError(err);
+    throw new Error(`Failed to retrieve Next.js versions data: ${err.message}`);
+  }
+}
+
+export async function DeleteNextjsVersionData(version: string) {
+  try {
+    const payload = {
+      versionName: version
+    };
+    const response = await axios.delete(
+      `http://localhost:8000/data/delete/`, 
+      {
+        data: payload,
+        headers: { "Content-Type": "application/json" }
+      }
+    );
+    const data = response.data;
+
+    return {
+      deleted: data.deleted,
+      date_deleted: response.headers.date,
+    };
+  } catch (err: any) {
+    handleError(err);
+    throw new Error(`Failed to delete Next.js versions data: ${err.message}`);
+  }
+}
