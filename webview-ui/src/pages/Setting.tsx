@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Slider } from "@/components/ui/slider";
+// import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -90,8 +90,8 @@ const AdvancedSettingsPage: React.FC = () => {
   return (
     <div className="h-full bg-chat-darker text-white">
       {/* <div className="mx-auto p-4 md:p-6 max-w-4xl"> */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-base font-bold">Advanced Settings</h1>
+      <div className="flex justify-between items-center mb-2">
+        <h1 className="text-base">Advanced Settings</h1>
         <div
           className="codicon codicon-discard rounded-xl cursor-pointer"
           title="New Chat"
@@ -100,24 +100,24 @@ const AdvancedSettingsPage: React.FC = () => {
       </div>
 
       <Tabs defaultValue="retriever" className="mt-4 rounded-none">
-        <TabsList className="grid grid-cols-2 max-[300px]:grid-cols-1 max-[300px]:grid-rows-2 max-[300px]:h-max w-full bg-gray-800 mb-6">
+        <TabsList className="grid grid-cols-2 max-[350px]:grid-cols-1 max-[350px]:grid-rows-2 max-[350px]:h-max w-full bg-gray-800 mb-2">
           <TabsTrigger
             value="retriever"
             className="data-[state=active]:bg-gray-700"
           >
-            <span className="codicon codicon-database mr-1"></span>
+            <span className="codicon codicon-database"></span>
             Retriever Options
           </TabsTrigger>
           <TabsTrigger
             value="generator"
             className="data-[state=active]:bg-gray-700"
           >
-            <span className="codicon codicon-terminal mr-2"></span>
+            <span className="codicon codicon-terminal"></span>
             Generator Options
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="retriever" className="space-y-8">
+        <TabsContent value="retriever" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Weights */}
             <div className="space-y-2 bg-gray-800/50 p-4 rounded-lg">
@@ -148,7 +148,7 @@ const AdvancedSettingsPage: React.FC = () => {
                         parseFloat(e.target.value)
                       )
                     }
-                    className="bg-gray-800 border-gray-700 w-24"
+                    className="bg-gray-800 border-gray-700 w-18"
                     step={0.1}
                     min={0}
                     max={2}
@@ -178,7 +178,7 @@ const AdvancedSettingsPage: React.FC = () => {
                         parseFloat(e.target.value)
                       )
                     }
-                    className="bg-gray-800 border-gray-700 w-24"
+                    className="bg-gray-800 border-gray-700 w-18"
                     step={0.1}
                     min={0}
                     max={2}
@@ -213,7 +213,7 @@ const AdvancedSettingsPage: React.FC = () => {
                         parseFloat(e.target.value)
                       )
                     }
-                    className="bg-gray-800 border-gray-700 w-24"
+                    className="bg-gray-800 border-gray-700 w-18"
                     step={0.1}
                     min={0}
                     max={2}
@@ -245,7 +245,7 @@ const AdvancedSettingsPage: React.FC = () => {
                         parseInt(e.target.value, 10)
                       )
                     }
-                    className="bg-gray-800 border-gray-700 w-24"
+                    className="bg-gray-800 border-gray-700 w-18"
                     step={1}
                     min={1}
                     max={10}
@@ -257,9 +257,10 @@ const AdvancedSettingsPage: React.FC = () => {
                 <Switch
                   id="iterative-filter"
                   checked={options.retriever_options.iterativeFilter}
-                  onCheckedChange={(checked) =>
+                  onCheckedChange={(checked: boolean) =>
                     handleRetrieverOptionChange("iterativeFilter", checked)
                   }
+                  className="bg-gray-800 border-gray-700"
                 />
                 <Label htmlFor="iterative-filter">Iterative Filter</Label>
               </div>
@@ -298,7 +299,7 @@ const AdvancedSettingsPage: React.FC = () => {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="bg-gray-800 border-gray-700 w-24"
+                      className="bg-gray-800 border-gray-700 w-18"
                       step={0.01}
                       min={0}
                       max={1}
@@ -330,7 +331,7 @@ const AdvancedSettingsPage: React.FC = () => {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="bg-gray-800 border-gray-700 w-24"
+                      className="bg-gray-800 border-gray-700 w-18"
                       step={0.1}
                       min={0}
                       max={2}
@@ -367,7 +368,7 @@ const AdvancedSettingsPage: React.FC = () => {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="bg-gray-800 border-gray-700 w-24"
+                      className="bg-gray-800 border-gray-700 w-18"
                       step={0.01}
                       min={0}
                       max={1}
@@ -400,7 +401,7 @@ const AdvancedSettingsPage: React.FC = () => {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="bg-gray-800 border-gray-700 w-24"
+                      className="bg-gray-800 border-gray-700 w-18"
                       step={0.1}
                       min={0}
                       max={2}
@@ -437,7 +438,7 @@ const AdvancedSettingsPage: React.FC = () => {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="bg-gray-800 border-gray-700 w-24"
+                      className="bg-gray-800 border-gray-700 w-18"
                       step={0.01}
                       min={0}
                       max={1}
@@ -470,7 +471,7 @@ const AdvancedSettingsPage: React.FC = () => {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="bg-gray-800 border-gray-700 w-24"
+                      className="bg-gray-800 border-gray-700 w-18"
                       step={0.1}
                       min={0}
                       max={2}
@@ -494,7 +495,7 @@ const AdvancedSettingsPage: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="generator" className="space-y-6 py-4">
+        <TabsContent value="generator" className="space-y-6">
           <div className="bg-gray-800/50 p-6 rounded-lg max-w-2xl mx-auto">
             <h3 className="text-lg font-medium border-b border-gray-700 pb-2 mb-6">
               <span className="codicon codicon-settings-gear mr-2"></span>
@@ -503,7 +504,7 @@ const AdvancedSettingsPage: React.FC = () => {
 
             <div className="space-y-6">
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
+                {/* <div className="flex justify-between items-center">
                   <Label>
                     Temperature:{" "}
                     {options.generator_options.temperature.toFixed(2)}
@@ -517,7 +518,24 @@ const AdvancedSettingsPage: React.FC = () => {
                   onValueChange={(value) =>
                     handleGeneratorOptionChange("temperature", value[0])
                   }
-                />
+                /> */}
+                <div className="flex justify-between items-center">
+                  <Label>Temperature:</Label>
+                  <Input
+                    type="number"
+                    value={options.generator_options.temperature.toFixed(2)}
+                    onChange={(e) =>
+                      handleGeneratorOptionChange(
+                        "temperature",
+                        parseFloat(e.target.value)
+                      )
+                    }
+                    className="bg-gray-800 border-gray-700 w-18"
+                    step={0.01}
+                    min={0}
+                    max={2}
+                  />
+                </div>
                 <p className="text-sm text-gray-400 mt-2">
                   Lower values produce more focused, deterministic responses.
                   Higher values produce more creative, varied responses.
@@ -525,7 +543,7 @@ const AdvancedSettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-3 mt-8">
-                <div className="flex justify-between items-center">
+                {/* <div className="flex justify-between items-center">
                   <Label>
                     Top P: {options.generator_options.top_p.toFixed(2)}
                   </Label>
@@ -538,7 +556,24 @@ const AdvancedSettingsPage: React.FC = () => {
                   onValueChange={(value) =>
                     handleGeneratorOptionChange("top_p", value[0])
                   }
-                />
+                /> */}
+                <div className="flex justify-between items-center">
+                  <Label>Top P:</Label>
+                  <Input
+                    type="number"
+                    value={options.generator_options.top_p.toFixed(2)}
+                    onChange={(e) =>
+                      handleGeneratorOptionChange(
+                        "top_p",
+                        parseFloat(e.target.value)
+                      )
+                    }
+                    className="bg-gray-800 border-gray-700 w-18"
+                    step={0.01}
+                    min={0}
+                    max={1}
+                  />
+                </div>
                 <p className="text-sm text-gray-400 mt-2">
                   Controls diversity by considering only the tokens whose
                   cumulative probability exceeds the top_p value.
@@ -549,7 +584,7 @@ const AdvancedSettingsPage: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      <div className="flex justify-end mt-8 space-x-4 mb-3 sticky bottom-0 bg-chat-darker max-[300px]:flex-col max-[300px]:space-x-0 max-[300px]:space-y-2">
+      <div className="relative transition-all flex justify-end mt-3 space-x-4 bottom-0 bg-chat-darker max-[350px]:flex-col max-[350px]:space-x-0 max-[350px]:space-y-2">
         <Button
           variant="outline"
           onClick={handleGoBack}
