@@ -108,7 +108,7 @@ return (
             <PopoverContent
               side="top"
               align="start"
-              className="w-40 p-0 bg-chat-darker border border-gray-700"
+              className="w-50 p-0 bg-chat-darker border border-gray-700"
             >
               <div className="p-2">
                 <h3 className="font-medium mb-2">Select Next.js Version</h3>
@@ -129,8 +129,7 @@ return (
                       {/* Settings Icon with Popover */}
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className="text-white hover:text-gray-300 p-1">
-                            ⚙️
+                          <button className="codicon codicon-settings-gear text-white hover:text-gray-300 p-1">
                           </button>
                         </PopoverTrigger>
                         <PopoverContent
@@ -139,16 +138,16 @@ return (
                           className="w-32 p-2 bg-chat-darker border border-gray-700 text-sm"
                         >
                           <button
-                            className="block w-full text-left hover:bg-red-500 hover:text-white px-2 py-1 rounded"
+                            className="codicon codicon-trash block w-full text-left hover:bg-red-500 hover:text-white px-2 py-1 rounded"
+                            title="Delete Version"
                             onClick={() => handleDeleteVersion(version)}
                           >
-                            Delete
                           </button>
                           <button
-                            className="block w-full text-left hover:bg-blue-500 hover:text-white px-2 py-1 rounded mt-1"
+                            className="codicon codicon-symbol-property block w-full text-left hover:bg-blue-500 hover:text-white px-2 py-1 rounded mt-1"
+                            title="Repair Version"
                             onClick={() => handleRepairVersion(version)}
                           >
-                            Repair
                           </button>
                         </PopoverContent>
                       </Popover>
@@ -158,6 +157,7 @@ return (
                 </div>
               </div>
               <Separator className="my-2" />
+
             </PopoverContent>
           </Popover>
         </div>
@@ -170,6 +170,11 @@ return (
             className="codicon codicon-clear-all rounded-xl cursor-pointer"
           ></div>
         )}
+        <div
+          onClick={() => navigate("/settings")}
+          className="codicon codicon-gear rounded-xl cursor-pointer"
+          title="Settings"
+        />
         <div
           onClick={handleNewChat}
           className="codicon codicon-comment-discussion rounded-xl cursor-pointer"

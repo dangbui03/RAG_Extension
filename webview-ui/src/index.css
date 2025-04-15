@@ -28,7 +28,7 @@
         @apply 
         /* text-light-onSurface */
         text-dark-onSurface
-        leading-7
+        leading-5.5
         text-sm
         pt-1
         break-words
@@ -41,14 +41,14 @@
 
     .markdown-content :where(h0, h1, h2, h3, h4, h5, h6) {
         @apply 
-        text-base
+        text-sm
         tracking-normal
         font-medium
-        mt-8
-        mb-4;
+        mt-5
+        mb-2;
     }
     .markdown-content :where(p, pre, table) {
-        @apply my-4;
+        @apply my-2;
     }
 
     .markdown-content :where(strong, span, a) {
@@ -63,15 +63,14 @@
 
     .markdown-content code {
         @apply inline-block
-        text-base
+        text-sm
         tracking-normal
-        font-medium
+        font-normal
         text-light-onSurfaceVariant
         dark:text-dark-onSurfaceVariant
         bg-light-onSurfaceContainerHigh
         dark:bg-dark-onSurfaceContainerHigh
         rounded-md
-        py-[1px]
         px-1.5
         ;
     }

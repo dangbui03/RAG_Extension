@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // import page
 import Index from '@/pages/Index';
 import History from '@/pages/History';
+import AdvancedSettingsPage from './pages/Setting';
 
 // import components
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -18,6 +19,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="*" element={<Index />} />
             <Route path="/history" element={<History />} />
+            <Route path="/settings" element={<AdvancedSettingsPage />}/>
           </Routes>
         </Router>
       </ChatProvider>
