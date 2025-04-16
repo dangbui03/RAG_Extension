@@ -94,7 +94,7 @@ const AdvancedSettingsPage: React.FC = () => {
         <h1 className="text-base">Advanced Settings</h1>
         <div
           className="codicon codicon-discard rounded-xl cursor-pointer"
-          title="New Chat"
+          title="Go Back"
           onClick={handleGoBack}
         />
       </div>

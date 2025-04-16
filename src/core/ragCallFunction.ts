@@ -7,7 +7,6 @@ import * as vscode from "vscode";
 import axios from "axios";
 import { RagRequest, RagResponse } from "../utils/type";
 import { FileModel } from "../../webview-ui/src/types";
-import { date } from "zod";
 
 export async function RagCallFunction(
   model: string,
@@ -71,7 +70,7 @@ export async function NextjsVersionDataStats() {
   }
 }
 
-export async function GetNextjsVersionDownloadList() {
+export async function GetNextjsVersionDownloadedList() {
   try {
     const response = await axios.get("http://localhost:8000/data/downloaded", {
       headers: { "Content-Type": "application/json" },
@@ -125,7 +124,7 @@ export async function GetNextjsVersionList(){
     }
 }
 
-export async function GetRetrieveNextjsVersion(version: string) {
+export async function RetrieveNextjsVersion(version: string) {
   try {
     const payload = {
       versionName: version
@@ -164,11 +163,36 @@ export async function DeleteNextjsVersionData(version: string) {
     const data = response.data;
 
     return {
-      deleted: data.deleted,
+      message: data.message,
       date_deleted: response.headers.date,
     };
   } catch (err: any) {
     handleError(err);
     throw new Error(`Failed to delete Next.js versions data: ${err.message}`);
+  }
+}
+
+export async function RepairNextjsVersionData(version: string) {
+  try {
+    const payload = {
+      versionName: version
+    };
+    const response = await axios.post(
+      `http://localhost:8000/data/repair/`, 
+      payload,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const data = response.data;
+
+    return {
+      message: data.message,
+      date_repaired: response.headers.date,
+      file_path: data.file_path
+    };
+  } catch (err: any) {
+    handleError(err);
+    throw new Error(`Failed to repair Next.js versions data: ${err.message}`);
   }
 }

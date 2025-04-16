@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Chat, ChatMessage, FileModel } from "@/types";
+import { Chat, ChatMessage, FileModel, NextjsVersionList } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { vscode } from "@/vscode/VsCodeApi";
 
@@ -26,9 +26,13 @@ interface ChatContextType {
   fetchModels: () => void;
   selectModel: (model: string) => void;
 
-  // Version and file state
+  // Version 
+  userNextjsVersion: string;
+  nextjsVersionList: NextjsVersionList;
   nextjsVersion: string;
   setNextjsVersion: (version: string) => void;
+
+  // File-related states
   file: string[]; // List of file names (relative paths)
   fetchFiles: () => void;
   fetchFileContent: (filePath: string) => void;
@@ -58,6 +62,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [models, setModels] = useState<string[]>([]);
   const [nextjsVersion, setNextjsVersion] = useState<string>("");
+  const [userNextjsVersion, setUserNextjsVersion] = useState<string>("");
+  const [nextjsVersionList, setNextjsVersionList] = useState<NextjsVersionList>(
+    []
+  );
 
   // File-related states
   const [file, setFile] = useState<string[]>([]); // List of file names (relative paths)
@@ -73,7 +81,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   // On mount, fetch initial data (models, chats, Next.js version, file list)
   useEffect(() => {
     // Initial data fetch
-    // fetchModels();
     fetchChats();
     fetchNextjsVersion();
 
@@ -98,8 +105,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           }
           break;
         case "nextJsVersionFetched":
-          console.log("Next.js version fetched:", message.version);
+          setUserNextjsVersion(message.version);
           setNextjsVersion(message.version);
+          break;
+        case "nextJsVersionListFetched":
+          setNextjsVersionList(message.versions);
+          break;
+        case "retrieveNextJsVersion":
+          break;
+        case "deleteNextJsVersion":
+          break;
+        case "":
           break;
         case "populateModels":
           if (Array.isArray(message.models)) {
@@ -188,6 +204,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   // Fetch files from the workspace
   const fetchFiles = () => vscode.postMessage({ command: "getFileList" });
   
+  // Fetch file content by file path
   const fetchFileContent = (filePath: string) =>
     vscode.postMessage({ command: "getFileContent", filePath });
 
@@ -368,6 +385,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         selectedModel,
         models,
         nextjsVersion,
+        userNextjsVersion,
         file,
         fetchFiles,
         setFile,

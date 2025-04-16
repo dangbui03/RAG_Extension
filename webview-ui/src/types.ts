@@ -54,6 +54,12 @@ export interface AdditionalOptions {
   generator_options: GeneratorOptions;
 }
 
+export interface NextjsVersionItem {
+  versionName: string;
+  downloaded: boolean;
+}
+
+export type NextjsVersionList = NextjsVersionItem[];
 
 export const versions = [
   "v13.0.0",
