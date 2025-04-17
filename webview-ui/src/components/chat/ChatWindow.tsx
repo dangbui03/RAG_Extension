@@ -13,7 +13,7 @@ const WelcomeScreen: React.FC = () => {
 
   return (
     <div className="mt-3 text-white text-xl font-light">
-      <p className="text-sm">We has dectected Nextjs version you are using: {formattedVersion}</p>
+      <p className="text-base">We has dectected Nextjs version you are using: <a className="underline">{formattedVersion}</a></p>
     </div>
   );
 };
@@ -44,7 +44,7 @@ const ChatWindow: React.FC = () => {
           />
         ))}
         {isGenerating && (
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 w-full flex justify-center">
             <ResponseLoading />
           </div>
         )}
