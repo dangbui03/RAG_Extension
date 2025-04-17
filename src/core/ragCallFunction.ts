@@ -108,29 +108,27 @@ export async function GetNextjsVersionDataDetails(version: string) {
   }
 }
 
-export async function GetNextjsVersionList(){
-    try {
-        const response = await axios.get("http://localhost:8000/data/versions", {
-        headers: { "Content-Type": "application/json" },
-        });
-        const data = response.data;
-    
-        return {
-            versions: data,
-        };
-    } catch (err: any) {
-        handleError(err);
-        throw new Error(`Failed to fetch Next.js versions data: ${err.message}`);
-    }
+export async function GetNextjsVersionList() {
+  try {
+    const response = await axios.get("http://localhost:8000/data/versions", {
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = response.data;
+
+    return data;
+  } catch (err: any) {
+    handleError(err);
+    throw new Error(`Failed to fetch Next.js versions data: ${err.message}`);
+  }
 }
 
 export async function RetrieveNextjsVersion(version: string) {
   try {
     const payload = {
-      versionName: version
+      versionName: version,
     };
     const response = await axios.post(
-      `http://localhost:8000/data/retrieve/`, 
+      `http://localhost:8000/retrieve/`,
       payload,
       {
         headers: { "Content-Type": "application/json" },
@@ -138,9 +136,14 @@ export async function RetrieveNextjsVersion(version: string) {
     );
     const data = response.data;
 
+    vscode.window.showInformationMessage(
+      `Next.js version ${version} has been retrieved.`
+    );
+
     return {
-      retrieved: data.retrieved,
+      message: data.message,
       date_retrieved: response.headers.date,
+      file_path: data.file_path,
     };
   } catch (err: any) {
     handleError(err);
@@ -151,16 +154,17 @@ export async function RetrieveNextjsVersion(version: string) {
 export async function DeleteNextjsVersionData(version: string) {
   try {
     const payload = {
-      versionName: version
+      versionName: version,
     };
-    const response = await axios.delete(
-      `http://localhost:8000/data/delete/`, 
-      {
-        data: payload,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    const response = await axios.delete(`http://localhost:8000/delete/`, {
+      data: payload,
+      headers: { "Content-Type": "application/json" },
+    });
     const data = response.data;
+
+    vscode.window.showInformationMessage(
+      `Next.js version ${version} has been deleted.`
+    );
 
     return {
       message: data.message,
@@ -175,10 +179,10 @@ export async function DeleteNextjsVersionData(version: string) {
 export async function RepairNextjsVersionData(version: string) {
   try {
     const payload = {
-      versionName: version
+      versionName: version,
     };
     const response = await axios.post(
-      `http://localhost:8000/data/repair/`, 
+      `http://localhost:8000/repair/`,
       payload,
       {
         headers: { "Content-Type": "application/json" },
@@ -186,10 +190,14 @@ export async function RepairNextjsVersionData(version: string) {
     );
     const data = response.data;
 
+    vscode.window.showInformationMessage(
+      `Next.js version ${version} has been repaired.`
+    );
+
     return {
       message: data.message,
       date_repaired: response.headers.date,
-      file_path: data.file_path
+      file_path: data.file_path,
     };
   } catch (err: any) {
     handleError(err);

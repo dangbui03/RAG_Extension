@@ -4,7 +4,14 @@ import { getConfiguration, GetOllamaModelFromUser } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
-import { RagCallFunction, GetNextjsVersionDownloadedList, GetNextjsVersionList, RetrieveNextjsVersion, DeleteNextjsVersionData, RepairNextjsVersionData } from "../ragCallFunction";
+import {
+  RagCallFunction,
+  GetNextjsVersionDownloadedList,
+  GetNextjsVersionList,
+  RetrieveNextjsVersion,
+  DeleteNextjsVersionData,
+  RepairNextjsVersionData,
+} from "../ragCallFunction";
 import { Logger } from "../../utils/logging";
 import { readEntireCodeBase } from "../readEntireCodeBase";
 
@@ -63,7 +70,10 @@ export class RagginProvider implements vscode.WebviewViewProvider {
         switch (message.command) {
           case "saveState": {
             this._persistedState = message.state || {};
-            await this._context.globalState.update('ragginProviderState', this._persistedState);
+            await this._context.globalState.update(
+              "ragginProviderState",
+              this._persistedState
+            );
             break;
           }
 
@@ -249,38 +259,44 @@ export class RagginProvider implements vscode.WebviewViewProvider {
             const nextJsVersionList = await GetNextjsVersionDownloadedList();
             webviewView.webview.postMessage({
               command: "nextJsVersionDownloadedList",
-              nextJsVersionList,
+              versionList: nextJsVersionList,
             });
             break;
           case "getNextJsVersionList":
             const nextJsVersion = await GetNextjsVersionList();
             webviewView.webview.postMessage({
               command: "nextJsVersionList",
-              nextJsVersion,
+              versionList: nextJsVersion,
             });
             break;
           case "retrieveNextJsVersion":
             const version = message.version || "";
             const retrieveResult = await RetrieveNextjsVersion(version);
+
             webviewView.webview.postMessage({
-              command: "retrieveNextJsVersion",
-              retrieveResult,
+              command: "retrievedNextJsVersion",
+              version: retrieveResult,
+              versionName: version,
             });
             break;
           case "deleteNextJsVersion":
             const deleteVersion = message.version || "";
             const deleteResult = await DeleteNextjsVersionData(deleteVersion);
+
             webviewView.webview.postMessage({
-              command: "deleteNextJsVersion",
-              deleteResult,
+              command: "deletedNextJsVersion",
+              version: deleteResult,
+              versionName: deleteVersion,
             });
             break;
           case "repairNextJsVersion":
             const repairVersion = message.version || "";
             const repairResult = await RepairNextjsVersionData(repairVersion);
+            
             webviewView.webview.postMessage({
-              command: "repairNextJsVersion",
-              repairResult,
+              command: "repairedNextJsVersion",
+              version: repairResult,
+              versionName: repairVersion,
             });
             break;
           case "fetchChats":

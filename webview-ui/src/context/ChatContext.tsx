@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Chat, ChatMessage, FileModel, NextjsVersionList } from "@/types";
+import {
+  Chat,
+  ChatMessage,
+  FileModel,
+  NextjsVersionList,
+  NextjsVersionItem,
+} from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { vscode } from "@/vscode/VsCodeApi";
 
@@ -26,11 +32,16 @@ interface ChatContextType {
   fetchModels: () => void;
   selectModel: (model: string) => void;
 
-  // Version 
+  // Version
   userNextjsVersion: string;
-  nextjsVersionList: NextjsVersionList;
   nextjsVersion: string;
   setNextjsVersion: (version: string) => void;
+  fetchNextjsVersionList: () => void;
+  retrieveNextJsVersion: (version: string) => void;
+  deleteNextJsVersion: (version: string) => void;
+  repairNextJsVersion: (version: string) => void;
+  availableVersions: NextjsVersionList;
+  downloadedVersions: NextjsVersionList;
 
   // File-related states
   file: string[]; // List of file names (relative paths)
@@ -58,14 +69,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
 
-  // Model and version states
+  // Model
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [models, setModels] = useState<string[]>([]);
+
+  // Next.js version states
   const [nextjsVersion, setNextjsVersion] = useState<string>("");
   const [userNextjsVersion, setUserNextjsVersion] = useState<string>("");
-  const [nextjsVersionList, setNextjsVersionList] = useState<NextjsVersionList>(
+  const [availableVersions, setAvailableVersions] = useState<NextjsVersionList>(
     []
   );
+  const [downloadedVersions, setDownloadedVersions] =
+    useState<NextjsVersionList>([]);
 
   // File-related states
   const [file, setFile] = useState<string[]>([]); // List of file names (relative paths)
@@ -78,7 +93,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     null
   );
 
-  // On mount, fetch initial data (models, chats, Next.js version, file list)
   useEffect(() => {
     // Initial data fetch
     fetchChats();
@@ -108,14 +122,47 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           setUserNextjsVersion(message.version);
           setNextjsVersion(message.version);
           break;
-        case "nextJsVersionListFetched":
-          setNextjsVersionList(message.versions);
+        case "nextJsVersionList":
+          {
+            const downloadedVersions = message.versionList.filter(
+              (v: NextjsVersionItem) => v.downloaded === true
+            );
+            const availableVersions = message.versionList.filter(
+              (v: NextjsVersionItem) => v.downloaded === false
+            );
+            setDownloadedVersions(downloadedVersions);
+            setAvailableVersions(availableVersions);
+          }
           break;
-        case "retrieveNextJsVersion":
+        case "retrievedNextJsVersion":
+          if (message.versionName) {
+            setAvailableVersions((prev) =>
+              prev.filter((v) => v.versionName !== message.versionName)
+            );
+            setDownloadedVersions((prev) => [
+              ...prev,
+              { versionName: message.versionName, downloaded: true },
+            ]);
+          }
           break;
-        case "deleteNextJsVersion":
+        case "deletedNextJsVersion":
+          if (message.versionName) {
+            setDownloadedVersions((prev) =>
+              prev.filter((v) => v.versionName !== message.versionName)
+            );
+            setAvailableVersions((prev) => [
+              ...prev,
+              { versionName: message.versionName, downloaded: false },
+            ]);
+            if (nextjsVersion === message.versionName) {
+              setNextjsVersion("");
+            }
+          }
           break;
-        case "":
+        case "repairedNextJsVersion":
+          if (message.version) {
+            fetchNextjsVersionList();
+          }
           break;
         case "populateModels":
           if (Array.isArray(message.models)) {
@@ -203,7 +250,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   // --- VS Code API calls via vscode.postMessage ---
   // Fetch files from the workspace
   const fetchFiles = () => vscode.postMessage({ command: "getFileList" });
-  
+
   // Fetch file content by file path
   const fetchFileContent = (filePath: string) =>
     vscode.postMessage({ command: "getFileContent", filePath });
@@ -214,6 +261,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   // Set Next.js version in the extension
   const fetchNextjsVersion = () =>
     vscode.postMessage({ command: "readNextJsVersion" });
+
+  const fetchNextjsVersionList = () =>
+    vscode.postMessage({ command: "getNextJsVersionList" });
+
+  const retrieveNextJsVersion = (version: string) =>
+    vscode.postMessage({ command: "retrieveNextJsVersion", version });
+
+  const deleteNextJsVersion = (version: string) =>
+    vscode.postMessage({ command: "deleteNextJsVersion", version });
+
+  const repairNextJsVersion = (version: string) =>
+    vscode.postMessage({ command: "repairNextJsVersion", version });
 
   // Fetch all chats from the extension
   const fetchChats = () => vscode.postMessage({ command: "fetchChats" });
@@ -382,15 +441,30 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         chats,
         currentChat,
-        selectedModel,
-        models,
+
+        // Next.js version
         nextjsVersion,
         userNextjsVersion,
+        setNextjsVersion,
+        fetchNextjsVersionList,
+        retrieveNextJsVersion,
+        deleteNextJsVersion,
+        repairNextJsVersion,
+        availableVersions,
+        downloadedVersions,
+
+        // File-related states
         file,
         fetchFiles,
         setFile,
+
+        // Model
+        models,
+        selectedModel,
         selectModel,
         fetchModels,
+
+        // chat generation
         isGenerating,
         generationStartTime,
         sendMessage,
@@ -401,7 +475,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteChat,
         deleteAllChats,
         setCurrentChat: fetchChatById,
-        setNextjsVersion,
+
         fetchFileContent,
         selectedFileContent,
         setSelectedFileContent,
