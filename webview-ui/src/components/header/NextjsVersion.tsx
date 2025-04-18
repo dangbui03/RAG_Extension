@@ -4,8 +4,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useChat } from "@/context/ChatContext";
 import { Separator } from "@/components/ui/separator";
+
+import { useChat } from "@/context/ChatContext";
 
 const NextjsVersion: React.FC = () => {
   const {

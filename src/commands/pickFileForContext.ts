@@ -19,7 +19,7 @@ export async function pickFilesForContext(): Promise<Record<string, string>> {
         placeHolder: 'Chọn các file để thêm vào context'
     });
 
-    if (!selectedFiles) return {};
+    if (!selectedFiles) { return {}; }
 
     // Đọc nội dung file
     let fileContents: Record<string, string> = {};

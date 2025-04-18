@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -127,16 +126,6 @@ const AdvancedSettingsPage: React.FC = () => {
               </h3>
 
               <div className="space-y-3">
-                {/* <div className="flex justify-between items-center">
-                    <Label>Sparse Weight: {options.retriever_options.sparseWeight.toFixed(2)}</Label>
-                  </div>
-                  <Slider 
-                    value={[options.retriever_options.sparseWeight]}
-                    min={0} 
-                    max={2} 
-                    step={0.1}
-                    onValueChange={(value) => handleRetrieverOptionChange('sparseWeight', value[0])}
-                  /> */}
                 <div className="flex justify-between items-center">
                   <Label>Sparese Weight:</Label>
                   <Input
@@ -157,16 +146,6 @@ const AdvancedSettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                {/* <div className="flex justify-between items-center">
-                    <Label>Dense Text Weight: {options.retriever_options.denseTextWeight.toFixed(2)}</Label>
-                  </div>
-                  <Slider 
-                    value={[options.retriever_options.denseTextWeight]}
-                    min={0} 
-                    max={2} 
-                    step={0.1}
-                    onValueChange={(value) => handleRetrieverOptionChange('denseTextWeight', value[0])}
-                  /> */}
                 <div className="flex justify-between items-center">
                   <Label>Dense Text Weight:</Label>
                   <Input
@@ -187,21 +166,6 @@ const AdvancedSettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                {/* <div className="flex justify-between items-center">
-                  <Label>
-                    Dense Code Weight:{" "}
-                    {options.retriever_options.denseCodeWeight.toFixed(2)}
-                  </Label>
-                </div>
-                <Slider
-                  value={[options.retriever_options.denseCodeWeight]}
-                  min={0}
-                  max={2}
-                  step={0.1}
-                  onValueChange={(value) =>
-                    handleRetrieverOptionChange("denseCodeWeight", value[0])
-                  }
-                /> */}
                 <div className="flex justify-between items-center">
                   <Label>Dense Code Weight:</Label>
                   <Input
@@ -222,18 +186,6 @@ const AdvancedSettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                {/* <div className="flex justify-between items-center">
-                  <Label>Top K: {options.retriever_options.topK}</Label>
-                </div>
-                <Slider
-                  value={[options.retriever_options.topK]}
-                  min={1}
-                  max={20}
-                  step={1}
-                  onValueChange={(value) =>
-                    handleRetrieverOptionChange("topK", value[0])
-                  }
-                /> */}
                 <div className="flex justify-between items-center">
                   <Label>Top K:</Label>
                   <Input
@@ -275,19 +227,6 @@ const AdvancedSettingsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  {/* <Label>
-                    Radius Sparse:{" "}
-                    {options.retriever_options.radius_sparse.toFixed(2)}
-                  </Label>
-                  <Slider
-                    value={[options.retriever_options.radius_sparse]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onValueChange={(value) =>
-                      handleRetrieverOptionChange("radius_sparse", value[0])
-                    }
-                  /> */}
                   <div className="space-y-2 md:flex md:items-center md:justify-between">
                     <Label>Radius Sparse:</Label>
                     <Input
@@ -308,18 +247,6 @@ const AdvancedSettingsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2 ">
-                  {/* <Label>
-                    Range Sparse: {options.retriever_options.range_sparse}
-                  </Label>
-                  <Slider
-                    value={[options.retriever_options.range_sparse]}
-                    min={0}
-                    max={2}
-                    step={0.1}
-                    onValueChange={(value) =>
-                      handleRetrieverOptionChange("range_sparse", value[0])
-                    }
-                  /> */}
                   <div className="space-y-2 md:flex md:items-center md:justify-between">
                     <Label>Range Sparse:</Label>
                     <Input
@@ -342,19 +269,6 @@ const AdvancedSettingsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div className="space-y-2">
-                  {/* <Label>
-                    Radius Dense Text:{" "}
-                    {options.retriever_options.radius_dense_text.toFixed(2)}
-                  </Label>
-                  <Slider
-                    value={[options.retriever_options.radius_dense_text]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onValueChange={(value) =>
-                      handleRetrieverOptionChange("radius_dense_text", value[0])
-                    }
-                  /> */}
                   <div className="space-y-2 md:flex md:items-center md:justify-between">
                     <Label>Radius Dense Text:</Label>
                     <Input
@@ -377,19 +291,6 @@ const AdvancedSettingsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  {/* <Label>
-                    Range Dense Text:{" "}
-                    {options.retriever_options.range_dense_text}
-                  </Label>
-                  <Slider
-                    value={[options.retriever_options.range_dense_text]}
-                    min={0}
-                    max={2}
-                    step={0.1}
-                    onValueChange={(value) =>
-                      handleRetrieverOptionChange("range_dense_text", value[0])
-                    }
-                  /> */}
                   <div className="space-y-2 md:flex md:items-center md:justify-between">
                     <Label>Range Dense Text:</Label>
                     <Input
@@ -412,19 +313,6 @@ const AdvancedSettingsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div className="space-y-2">
-                  {/* <Label>
-                    Radius Dense Code:{" "}
-                    {options.retriever_options.radius_dense_code.toFixed(2)}
-                  </Label>
-                  <Slider
-                    value={[options.retriever_options.radius_dense_code]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onValueChange={(value) =>
-                      handleRetrieverOptionChange("radius_dense_code", value[0])
-                    }
-                  /> */}
                   <div className="space-y-2 md:flex md:items-center md:justify-between">
                     <Label>Radius Dense Code:</Label>
                     <Input
@@ -447,19 +335,6 @@ const AdvancedSettingsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  {/* <Label>
-                    Range Dense Code:{" "}
-                    {options.retriever_options.range_dense_code}
-                  </Label>
-                  <Slider
-                    value={[options.retriever_options.range_dense_code]}
-                    min={0}
-                    max={2}
-                    step={0.1}
-                    onValueChange={(value) =>
-                      handleRetrieverOptionChange("range_dense_code", value[0])
-                    }
-                  /> */}
                   <div className="space-y-2 md:flex md:items-center md:justify-between">
                     <Label>Range Dense Code:</Label>
                     <Input
@@ -504,21 +379,6 @@ const AdvancedSettingsPage: React.FC = () => {
 
             <div className="space-y-6">
               <div className="space-y-3">
-                {/* <div className="flex justify-between items-center">
-                  <Label>
-                    Temperature:{" "}
-                    {options.generator_options.temperature.toFixed(2)}
-                  </Label>
-                </div>
-                <Slider
-                  value={[options.generator_options.temperature]}
-                  min={0}
-                  max={2}
-                  step={0.01}
-                  onValueChange={(value) =>
-                    handleGeneratorOptionChange("temperature", value[0])
-                  }
-                /> */}
                 <div className="flex justify-between items-center">
                   <Label>Temperature:</Label>
                   <Input
@@ -543,20 +403,6 @@ const AdvancedSettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-3 mt-8">
-                {/* <div className="flex justify-between items-center">
-                  <Label>
-                    Top P: {options.generator_options.top_p.toFixed(2)}
-                  </Label>
-                </div>
-                <Slider
-                  value={[options.generator_options.top_p]}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onValueChange={(value) =>
-                    handleGeneratorOptionChange("top_p", value[0])
-                  }
-                /> */}
                 <div className="flex justify-between items-center">
                   <Label>Top P:</Label>
                   <Input
@@ -601,7 +447,6 @@ const AdvancedSettingsPage: React.FC = () => {
           Save Changes
         </Button>
       </div>
-      {/* </div> */}
     </div>
   );
 };

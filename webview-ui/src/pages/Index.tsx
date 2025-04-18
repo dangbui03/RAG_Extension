@@ -1,6 +1,6 @@
 // import { useEffect } from "react";
-import Header from "../components/Header";
-import ChatWindow from "../components/chat/ChatWindow";
+import Header from "@/components/header/Header";
+import ChatWindow from "@/components/chat/ChatWindow";
 import ChatInput from "@/components/chat/ChatInput";
 
 const Index = () => {

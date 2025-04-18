@@ -108,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Set up window change event listener for active editor width changes
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (!editor) return;
+      if (!editor) { return; }
       checkEditorWidth(editor, minWidth);
     })
   );
