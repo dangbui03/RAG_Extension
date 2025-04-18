@@ -8,6 +8,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { ChatMessage } from "@/types";
 
 import toTitleCase from "@/utils/ToTitleCase";
+import { Button } from "../ui/button";
 
 interface ChatMessagesProps {
   chat: ChatMessage;
@@ -16,23 +17,6 @@ interface ChatMessagesProps {
 }
 
 const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
-  const [copied, setCopied] = React.useState(false);
-
-  const handleCopyCode = useCallback(async (text: string) => {
-    try {
-      setCopied(false);
-      setCopied(true);
-      await navigator.clipboard.writeText(text).then(() => {
-        console.log("Code copied to clipboard!");
-      });
-      setTimeout(() => {
-        setCopied(false);
-      }, 3000);
-    } catch (error) {
-      console.error("Error copying code:", error);
-    }
-  }, []);
-
   const Code: React.FC<React.ComponentPropsWithoutRef<"code">> = ({
     children,
     className,
@@ -40,11 +24,46 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
   }) => {
     const match = className?.match(/language-(\w+)/);
 
+    const [copied, setCopied] = React.useState(false);
+
+    const handleCopyCode = useCallback(async (text: string) => {
+      try {
+        setCopied(false);
+        setCopied(true);
+        await navigator.clipboard.writeText(text).then(() => {
+          console.log("Code copied to clipboard!");
+        });
+        setTimeout(() => {
+          setCopied(false);
+        }, 3000);
+      } catch (error) {
+        console.error("Error copying code:", error);
+      }
+    }, []);
+
     return match ? (
       <>
         <div className="code-block">
-          <div className="px-4 py-2 pb-0 font-sans">
-            {toTitleCase(match[1])}
+          <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center pt-2 font-sans text-sm pe-2">
+            <div className="text-left px-4 py-2 pb-0 font-sans">
+              {toTitleCase(match[1])}
+            </div>
+
+            <Button
+              className="rounded-md border-gray-500/50 w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-gray-700/50 group"
+              onClick={() => handleCopyCode(String(children).toString())}
+              title="Copy code"
+              aria-label="Copy code"
+            >
+              {copied ? (
+                <div
+                  className="codicon codicon-check text-sm text-green-500"
+                  title="Copied"
+                />
+              ) : (
+                <div className="codicon codicon-copy text-sm cursor-pointer group-hover:text-blue-300" />
+              )}
+            </Button>
           </div>
 
           <SyntaxHighlighter
@@ -60,7 +79,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
             }}
             codeTagProps={{
               style: {
-                padding: "14px",
+                padding: "12px",
                 fontWeight: "400",
                 wordBreak: "break-word",
                 whiteSpace: "pre-wrap",
@@ -69,30 +88,6 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
           >
             {String(children)}
           </SyntaxHighlighter>
-        </div>
-
-        <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center h-11 font-sans text-sm ps-4 pe-2">
-          <p>
-            Use Code
-            <a className="link ms-2" href="#" target="_blank">
-              with caution.
-            </a>
-          </p>
-
-          <div
-            className="rounded-md border-gray-500/50 w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-gray-700/50 group"
-            onClick={() => handleCopyCode(String(children))}
-            title="Copy code"
-          >
-            {copied ? (
-              <div
-                className="codicon codicon-check text-sm text-green-500"
-                title="Copied"
-              />
-            ) : (
-              <div className="codicon codicon-copy text-sm cursor-pointer group-hover:text-blue-300" />
-            )}
-          </div>
         </div>
       </>
     ) : (

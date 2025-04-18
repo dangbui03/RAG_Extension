@@ -29,6 +29,38 @@ export interface FileModel {
   fileContent: string;
 }
 
+export interface RetrieverOptions {
+  sparseWeight: number;
+  denseTextWeight: number;
+  denseCodeWeight: number;
+  topK: number;
+  filter_expr?: string;
+  iterativeFilter: boolean;
+  radius_sparse: number;
+  range_sparse: number;
+  radius_dense_text: number;
+  range_dense_text: number;
+  radius_dense_code: number;
+  range_dense_code: number;
+}
+
+export interface GeneratorOptions {
+  temperature: number;
+  top_p: number;
+}
+
+export interface AdditionalOptions {
+  retriever_options: RetrieverOptions;
+  generator_options: GeneratorOptions;
+}
+
+export interface NextjsVersionItem {
+  versionName: string;
+  downloaded: boolean;
+}
+
+export type NextjsVersionList = NextjsVersionItem[];
+
 export const versions = [
   "v13.0.0",
   "v13.0.1",

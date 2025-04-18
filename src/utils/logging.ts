@@ -54,7 +54,7 @@ export class Logger {
     }
 
     // Only log if the message's level is at or above the current log level.
-    if (level < Logger.logLevel) return;
+    if (level < Logger.logLevel) { return; }
 
     const timestamp = new Date().toISOString();
     const levelName = LogLevel[level].padEnd(5);

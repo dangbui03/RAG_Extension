@@ -4,7 +4,14 @@ import { getConfiguration, GetOllamaModelFromUser } from "../../utils/utils";
 import { generateAnswer } from "../../utils/generator";
 import { getNonce, getUri, replaceWebviewHtmlTokens } from "./utils";
 import { Chat } from "../../../webview-ui/src/types";
-import { RagCallFunction } from "../ragCallFunction";
+import {
+  RagCallFunction,
+  GetNextjsVersionDownloadedList,
+  GetNextjsVersionList,
+  RetrieveNextjsVersion,
+  DeleteNextjsVersionData,
+  RepairNextjsVersionData,
+} from "../ragCallFunction";
 import { Logger } from "../../utils/logging";
 import { readEntireCodeBase } from "../readEntireCodeBase";
 
@@ -13,6 +20,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView | vscode.WebviewPanel;
   private readonly outputChannel: vscode.OutputChannel;
   private disposables: vscode.Disposable[] = [];
+  private _persistedState: any = {}; // Add state storage
 
   constructor(
     private readonly _context: vscode.ExtensionContext,
@@ -20,6 +28,12 @@ export class RagginProvider implements vscode.WebviewViewProvider {
   ) {
     this.outputChannel = outputChannel;
     this.outputChannel.appendLine("RAGGIN Provider activated");
+
+    // Load any persisted state from extensionContext.globalState
+    this._persistedState = this._context.globalState.get(
+      "ragginProviderState",
+      {}
+    );
   }
 
   public async resolveWebviewView(
@@ -34,10 +48,35 @@ export class RagginProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [await this.getRootUri()],
     };
 
+    // Add visibility change handler
+    webviewView.onDidChangeVisibility(() => {
+      if (webviewView.visible) {
+        // Restore state when view becomes visible again
+        if (
+          this._persistedState &&
+          Object.keys(this._persistedState).length > 0
+        ) {
+          webviewView.webview.postMessage({
+            command: "restoreState",
+            state: this._persistedState,
+          });
+        }
+      }
+    });
+
     // Listen for messages from the webview
     webviewView.webview.onDidReceiveMessage(async (message) => {
       try {
         switch (message.command) {
+          case "saveState": {
+            this._persistedState = message.state || {};
+            await this._context.globalState.update(
+              "ragginProviderState",
+              this._persistedState
+            );
+            break;
+          }
+
           // Handle width change event
           case "widthChanged": {
             const width = message.width;
@@ -216,6 +255,50 @@ export class RagginProvider implements vscode.WebviewViewProvider {
           case "readNextJsVersion":
             await this.fetchNextJsVersion(readCodeBase);
             break;
+          case "getNextJsVersionDownloadedList":
+            const nextJsVersionList = await GetNextjsVersionDownloadedList();
+            webviewView.webview.postMessage({
+              command: "nextJsVersionDownloadedList",
+              versionList: nextJsVersionList,
+            });
+            break;
+          case "getNextJsVersionList":
+            const nextJsVersion = await GetNextjsVersionList();
+            webviewView.webview.postMessage({
+              command: "nextJsVersionList",
+              versionList: nextJsVersion,
+            });
+            break;
+          case "retrieveNextJsVersion":
+            const version = message.version || "";
+            const retrieveResult = await RetrieveNextjsVersion(version);
+
+            webviewView.webview.postMessage({
+              command: "retrievedNextJsVersion",
+              version: retrieveResult,
+              versionName: version,
+            });
+            break;
+          case "deleteNextJsVersion":
+            const deleteVersion = message.version || "";
+            const deleteResult = await DeleteNextjsVersionData(deleteVersion);
+
+            webviewView.webview.postMessage({
+              command: "deletedNextJsVersion",
+              version: deleteResult,
+              versionName: deleteVersion,
+            });
+            break;
+          case "repairNextJsVersion":
+            const repairVersion = message.version || "";
+            const repairResult = await RepairNextjsVersionData(repairVersion);
+            
+            webviewView.webview.postMessage({
+              command: "repairedNextJsVersion",
+              version: repairResult,
+              versionName: repairVersion,
+            });
+            break;
           case "fetchChats":
             await this.handleFetchChats();
             break;
@@ -310,7 +393,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
   // Added helper method to optimize chat context for LLM
   private optimizeChatContext(chat: Chat | undefined): string {
-    if (!chat || !chat.messages || chat.messages.length === 0) return "";
+    if (!chat || !chat.messages || chat.messages.length === 0) {
+      return "";
+    }
 
     // Limit to last 2 messages to keep context small (adjust based on model limits)
     const recentMessages = chat.messages.slice(-3);
@@ -331,7 +416,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
         if (msg.user_prompt) {
           context += `${prefixed[index]}${msg.user_prompt}\n`;
         }
-        if (msg.ai_answer && index == 0) {
+        if (msg.ai_answer && index === 0) {
           context += `${prefixed[index]}Response: ${msg.ai_answer}\n`;
         }
       }
@@ -346,7 +431,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
   // Fetch all chats from globalState
   private async handleFetchChats() {
-    if (!this._view) throw new Error("Webview not initialized");
+    if (!this._view) {
+      throw new Error("Webview not initialized");
+    }
     try {
       const chats = this._context.globalState.get<Chat[]>("chats", []);
       this._view.webview.postMessage({ command: "chatsFetched", chats });
@@ -361,7 +448,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
   // Fetch a specific chat by ID from globalState
   private async handleFetchChatById(chatId: string) {
-    if (!this._view) throw new Error("Webview not initialized");
+    if (!this._view) {
+      throw new Error("Webview not initialized");
+    }
     try {
       if (!chatId) {
         throw new Error("No chat ID provided");
@@ -411,7 +500,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
   // Delete a specific chat from globalState
   private async handleDeleteChat(chatId: string) {
-    if (!this._view) throw new Error("Webview not initialized");
+    if (!this._view) {
+      throw new Error("Webview not initialized");
+    }
     try {
       if (!chatId) {
         throw new Error("No chat ID provided");
@@ -440,7 +531,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
 
   // Delete all chats from globalState
   private async handleDeleteAllChats() {
-    if (!this._view) throw new Error("Webview not initialized");
+    if (!this._view) {
+      throw new Error("Webview not initialized");
+    }
     try {
       await this._context.globalState.update("chats", []);
       // this._view.webview.postMessage({ command: "chatsFetched", chats: [] });
@@ -466,7 +559,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
    * It then sends the version back to the webview.
    */
   private async fetchNextJsVersion(readEntireCodeBase: readEntireCodeBase) {
-    if (!this._view) throw new Error("Webview not initialized");
+    if (!this._view) {
+      throw new Error("Webview not initialized");
+    }
     try {
       let nextjsVersion = "";
       await readEntireCodeBase.catchNextJsVersion().then((version) => {

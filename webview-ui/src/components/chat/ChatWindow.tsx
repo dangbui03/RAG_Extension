@@ -5,13 +5,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ResponseLoading from "@/components/chat/ResponseLoading";
 
 const WelcomeScreen: React.FC = () => {
+  const { userNextjsVersion } = useChat();
+
+  const formattedVersion = userNextjsVersion?.startsWith('v')
+    ? `version ${userNextjsVersion.slice(1)}`
+    : `version ${userNextjsVersion}`;
+
   return (
     <div className="mt-3 text-white text-xl font-light">
-      <p className="text-xl font-semibold">ASK SOMETHINGS</p>
-      <p className="text-base">
-        Free to ask about Next.js frameworks, we are supporting the framework
-        from version v13.0.0 to v15.1.3
-      </p>
+      <p className="text-base">We has dectected Nextjs version you are using: <a className="underline">{formattedVersion}</a></p>
     </div>
   );
 };
@@ -42,7 +44,7 @@ const ChatWindow: React.FC = () => {
           />
         ))}
         {isGenerating && (
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 w-full flex justify-center">
             <ResponseLoading />
           </div>
         )}

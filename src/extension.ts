@@ -32,7 +32,12 @@ export function activate(context: vscode.ExtensionContext) {
   let isProviderRegistered = true; // Track the registration status
   let sidebarRegistration = vscode.window.registerWebviewViewProvider(
     "raggin-sidebar",
-    ragginSidebar
+    ragginSidebar,
+    {
+      webviewOptions: {
+        retainContextWhenHidden: true // Keep the webview's state when it's not visible
+      }
+    }
   );
   context.subscriptions.push(sidebarRegistration);
 
@@ -83,7 +88,12 @@ export function activate(context: vscode.ExtensionContext) {
         // Re-register the provider if width is adequate again
         sidebarRegistration = vscode.window.registerWebviewViewProvider(
           "raggin-sidebar",
-          ragginSidebar
+          ragginSidebar,
+          {
+            webviewOptions: {
+              retainContextWhenHidden: true // Keep the webview's state when it's not visible
+            }
+          }
         );
         context.subscriptions.push(sidebarRegistration);
         isProviderRegistered = true;
@@ -98,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Set up window change event listener for active editor width changes
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (!editor) return;
+      if (!editor) { return; }
       checkEditorWidth(editor, minWidth);
     })
   );
