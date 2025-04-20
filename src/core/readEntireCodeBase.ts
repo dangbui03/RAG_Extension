@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { versions } from "../../webview-ui/src/types";
+import { versions } from "../../webview-ui/src/share/model_type";
 
 export class readEntireCodeBase {
   private workspaceFolder: vscode.Uri | undefined;

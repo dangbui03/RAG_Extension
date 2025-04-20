@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { FileModel } from "@/types"; // Import your FileModel type
+import { FileModel } from "@/share/types"; // Import your FileModel type
 
 const ChatInput = () => {
   const {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { ChatMessage } from "@/types";
+import { ChatMessage } from "@/share/types";
 
 interface UserPromptProps {
   chat: ChatMessage;

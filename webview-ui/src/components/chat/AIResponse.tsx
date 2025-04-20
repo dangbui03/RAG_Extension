@@ -5,7 +5,7 @@ import { format } from "date-fns";
 
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { ChatMessage } from "@/types";
+import { ChatMessage } from "@/share/types";
 
 import toTitleCase from "@/utils/ToTitleCase";
 import { Button } from "../ui/button";

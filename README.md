@@ -1,105 +1,116 @@
-# RAGGIN - VS Code Extension
+## 🚀 RAGGIN Introduction
 
-RAGGIN is a powerful Visual Studio Code extension designed to provide seamless code assistance for web development. By integrating Retrieval-Augmented Generation (RAG) techniques, RAGGIN enhances your coding experience with intelligent suggestions and contextual assistance. This extension is optimized for modern web development frameworks and tools, including Next.js, HTML, CSS, and Tailwind CSS.
+**RAGGIN** (Retrieval-Augmented Generation for Guided Intelligence in Next.js) is a powerful **Visual Studio Code extension** designed to assist developers working with the **Next.js framework**. It provides intelligent, real-time support for tasks such as:
+
+- Questions answering
+- Code generation, explanation, and suggestions
+
+
+RAGGIN delivers answers directly inside the editor, so developers can stay focused in their coding environment without needing to switch between browser tabs or external documentation tools.
+
+One of RAGGIN's key features is the ability to ask questions based on a specific version of the Next.js documentation. This ensures that answers are accurate and relevant to the version you're working with, helping avoid deprecated or outdated information.
+
+RAGGIN operates **100% locally**, powered by **Docker** and **Ollama**, eliminating the need for an internet connection during use. However, some resources—such as versioned Next.js documentation and local LLMs—must be downloaded beforehand.
+
+By ensuring that all processing happens on your machine, RAGGIN maintains **data privacy** and keeps your development environment secure from external data exposure. It's a smart, privacy-focused solution for modern web developers.
+
+
+## 🔧 RAGGIN Installation Guide
+
+To make RAGGIN runable, make sure these components are installed and configured properly:
+- [Ollama and LLM](#-ollama-installation-guide)
+- [RAGGIN Docker](#-raggin-docker-installation-guide)
+- [RAGGIN VS Code Extension](#-raggin-vs-code-extension-installation-guide)
+
+### 🧠 Ollama Installation Guide
+
+RAGGIN relies on **Ollama** to run a local Large Language Model (LLM) for answering Next.js-related questions. To ensure RAGGIN works properly, both **Ollama** and <mark>at least one</mark> **LLM model** must be installed on your system.
+
+#### ✅ Step 1: Install Ollama
+
+Visit [https://ollama.com](https://ollama.com) and download the installer for your operating system. Follow the installation instructions provided on the website.
+
+#### ✅ Step 2: Install an LLM Model
+
+After installing Ollama, open your terminal or command prompt and run the following command to install a model:
+
+```
+ollama pull <model-name>
+```
+
+For example, to install **qwen:1.8b**, run:
+
+```
+ollama pull qwen:1.8b
+```
+
+> ℹ️ You may use any supported model available via Ollama. A full list is available at [https://ollama.com/library](https://ollama.com/library).
+
+Once installed, RAGGIN will be able to use the selected model to generate accurate and contextual responses locally.
+
+Here's a more polished and professional version of your installation guide:
 
 ---
 
-## Features
+### 🐳 RAGGIN Docker Installation Guide
 
-- **RAG-Powered Code Assistance**: Get intelligent, context-aware suggestions and explanations to boost productivity.
-- **Framework Support**: Tailored support for Next.js, HTML, CSS, and Tailwind CSS.
-- **Real-Time Feedback**: Immediate code analysis and improvements.
-- **Seamless Integration**: Easy to set up and integrate into your existing workflows.
-- **Customization**: Configure extension settings to suit your specific development needs.
+To make RAGGIN work properly, ensure that **Docker** is installed and running on your system. You can follow the official installation guide here:  
+👉 [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
 
----
+#### 🔹 Quick Setup via Docker
 
-## Installation
+To get started immediately with RAGGIN, simply pull the Docker image:
 
-1. Open Visual Studio Code.
-2. Go to the Extensions Marketplace (`Ctrl+Shift+X` or `Cmd+Shift+X` on Mac).
-3. Search for `RAGGIN`.
-4. Click `Install` to add the extension to your VS Code environment.
-5. Reload or restart VS Code to activate the extension.
+```bash
+docker pull melukootto/raggin
+```
 
----
+#### 🔹 Customize Locally
 
-## Usage
+If you wish to modify or explore the source code, you can clone the repository:
 
-1. Open a web development project in VS Code.
-2. Start coding with Next.js, HTML, CSS, or Tailwind CSS.
-3. Use the `RAGGIN` commands:
-   - **Ragify: Suggest Improvements**: Get suggestions for your code.
-   - **Ragify: Generate Snippet**: Create optimized code snippets.
-   - **Ragify: Debug Code**: Identify and fix potential issues.
-4. Customize settings in the VS Code settings panel (`File > Preferences > Settings` or `Cmd+,` on Mac).
+```bash
+git clone https://github.com/silam741852963/RAGGIN
+```
 
----
+Then, use this command to run docker:
 
-## Configuration
-
-Ragify allows you to configure its features for a tailored development experience:
-
-```json
-{
-  "ragify.enable": true,
-  "ragify.suggestionThreshold": 0.8,
-  "ragify.frameworkSupport": ["Next.js", "HTML", "CSS", "Tailwind"],
-  "ragify.customPrompts": true
-}
+```bash
+docker compose up -d --build
 ```
 
 ---
 
-## Development Setup
+### 🧩 RAGGIN VS Code Extension Installation Guide
 
-If you'd like to contribute or modify the extension, follow these steps:
+To install the RAGGIN extension in Visual Studio Code:
 
-1. Clone the repository:
-   ```bash
-   git clone ...
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd RAG_Extension
-   ```
-3. Install dependencies:
-   ```bash
-   npm install:all
-   ```
-4. Build the extension:
-   ```bash
-   npm run build:webview
-   ```
-5. Launch the extension in VS Code:
-   - Open the project in VS Code.
-   - Press `F5` to start debugging.
+1. Open **VS Code**.
+2. Go to the **Extensions Sidebar** (or press `Ctrl+Shift+X`).
+3. Search for **"RAGGIN"**.
+4. Click **Install**.
 
----
+Once installed, the extension will automatically connect to your local RAGGIN backend and Ollama, allow you to interact with the Next.js assistant directly from your editor.
 
-## Contributing
+You can install any supported version of Next.js directly through the extension, ensuring that your queries are answered with version-accurate information.
 
-We welcome contributions from the community! Please check out our [Contributing Guide](CONTRIBUTING.md) for more details on how to get started.
+### 📊 Performance Benchmarks
 
----
+The performance of RAGGIN may vary depending on the user's hardware capabilities. Larger LLMs typically require a more powerful GPU to run efficiently. For optimal results, consider using a model that matches your system's resources.
 
-## License
+Below is a summary of performance benchmarks we evaluated to help you choose a suitable configuration based on your system's capabilities. These results provide insights into how different models perform under various hardware setups:
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
+| Hardware       | Model         | Average Response Time (s)  |
+|:---------------|:-------------:|:--------------------------:|
+| RTX 3060 12GB  | qwen:1.8b     | 40                         |
+| RTX 3060 12GB  | llama3.2:3b   | 22                         |
 
-## Feedback and Support
+> ⚠️ Note: Actual performance may vary depending on system load, GPU availability, and model size. Use this as a general reference for selecting a model that balances speed and accuracy for your development needs. You can view our evaluation for some popular LLMs [here](./LLMEvaluation.md).
 
-- Found a bug or have a feature request? Open an issue on our [GitHub Issues](https://github.com/yourusername/ragify/issues) page.
-- Need help? Join our community discussions or contact us directly.
 
----
+## 🤝 Contributors
 
-## Roadmap
-
-- Add support for additional frameworks (e.g., React, Vue.js).
-- Enhance RAG integration for more advanced code insights.
-- Include AI-powered auto-completion for complex use cases.
-
-Stay tuned for more updates and features!
+- [silam741852963](https://github.com/silam741852963)
+- [dangbui03](https://github.com/dangbui03)
+- [PhucLe03](https://github.com/PhucLe03)

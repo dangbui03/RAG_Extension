@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ChatMessage } from "@/types";
+import { ChatMessage } from "@/share/types";
 import UserPrompt from "@/components/chat/UserPrompt";
 import AIResponse from "@/components/chat/AIResponse";
 
@@ -14,9 +14,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ message, isLast }) => {
       {/* User Message */}
       <div className="p-1 transition-all duration-300 animate-slide-in">
         <div className="mx-auto">
-          <UserPrompt
-            chat={message}
-          />
+          <UserPrompt chat={message} />
         </div>
       </div>
 
@@ -29,9 +27,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ message, isLast }) => {
           )}
         >
           <div className="mx-auto">
-            <AIResponse
-              chat={message}
-            />
+            <AIResponse chat={message} />
           </div>
         </div>
       )}
