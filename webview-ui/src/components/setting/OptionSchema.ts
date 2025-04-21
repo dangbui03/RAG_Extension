@@ -80,20 +80,20 @@ export const generatorOptionsSchema = z.object({
     .number()
     .min(0, "Microstat eta must be between 0 and 1")
     .max(1, "Microstat eta must be between 0 and 1")
-    .default(0.6),
+    .default(0.1),
 
   mirostat_tau: z
     .number()
     .min(0, "Mirostat tau must be between 0 and 1")
-    .max(1, "Mirostat tau must be between 0 and 1")
-    .default(0.8),
+    .max(5, "Mirostat tau must be between 0 and 1")
+    .default(5),
 
   num_ctx: z
     .number()
     .int("Context length must be an integer")
     .min(1, "Context length must be ≥ 1")
-    .max(2048, "Context length must be ≤ 2048")
-    .default(1024),
+    .max(4096, "Context length must be ≤ 2048")
+    .default(2048),
 
   repeat_last_n: z
     .number()
@@ -104,14 +104,14 @@ export const generatorOptionsSchema = z.object({
 
   repeat_penalty: z
     .number()
-    .min(0, "Repeat penalty must be between 0 and 2")
-    .max(2, "Repeat penalty must be between 0 and 2")
-    .default(1.1),
+    .min(-1, "Repeat penalty must be between 0 and 2")
+    .max(100, "Repeat penalty must be between 0 and 2")
+    .default(64),
 
   temperature: z
     .number()
     .min(0, "Temperature must be between 0 and 2")
-    .max(2, "Temperature must be between 0 and 2")
+    .max(5, "Temperature must be between 0 and 2")
     .default(0.8),
 
   seed: z
@@ -135,7 +135,7 @@ export const generatorOptionsSchema = z.object({
     .int("Top‑k must be an integer")
     .min(0, "Top‑k must be ≥ 0")
     .max(100, "Top‑k must be ≤ 100")
-    .default(20),
+    .default(40),
 
   min_p: z
     .number()
