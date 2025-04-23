@@ -360,7 +360,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       id: uuidv4(),
       user_prompt: content,
       model: selectedModel,
-      files: contextFiles.map((file) => file.fileName),
+      files: contextFiles.map((file) => file.file_name),
       timestamp: new Date(),
       status: "sent",
     };
