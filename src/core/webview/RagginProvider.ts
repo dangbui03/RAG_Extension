@@ -208,7 +208,8 @@ export class RagginProvider implements vscode.WebviewViewProvider {
                 model,
                 fullPrompt,
                 nextJSVersion,
-                additionalOptions
+                additionalOptions,
+                fileList,
               );
 
               // Answer is expected to be a string or an object with a 'text' property

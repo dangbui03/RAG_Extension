@@ -25,12 +25,11 @@ export async function RagCallFunction(
     if (additional_options) {
       payload.additional_options = additional_options;
     }
-    console.log("Payload:", payload);
-
-    // Add optional file_list if provided
     if (fileList && fileList.length > 0) {
       payload.file_list = fileList;
     }
+    console.log("Payload:", payload);
+    console.log("Sending payload to API:", JSON.stringify(payload, null, 2));
 
     const response = await axios.post(
       "http://localhost:8000/prompt/generate/",

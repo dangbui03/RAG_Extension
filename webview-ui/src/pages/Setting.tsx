@@ -3,12 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -50,16 +45,16 @@ const defaultRetrieverOptions: RetrieverOptions = {
 
 const defaultGeneratorOptions: GeneratorOptions = {
   microstat: 0,
-  microstat_eta: 0.6,
-  mirostat_tau: 0.8,
-  num_ctx: 1024,
+  microstat_eta: 0.1,
+  mirostat_tau: 5,
+  num_ctx: 2048,
   repeat_last_n: 33,
-  repeat_penalty: 1.1,
+  repeat_penalty: 1,
   seed: 42,
   stop: "",
   num_predict: 42,
-  temperature: 0.5,
-  top_k: 20,
+  temperature: 0.8,
+  top_k: 40,
   top_p: 0.9,
   min_p: 0.0,
 };
@@ -137,7 +132,12 @@ const AdvancedSettingsPage: React.FC = () => {
   const invalidClass = "border-red-500";
   const baseInputClass = "bg-gray-800 border-gray-700 w-22";
   const getInputClass = (path: string) =>
-    baseInputClass + (path.split(".").reduce((prev: any, curr: string) => prev && (prev as any)[curr], errors) ? ` ${invalidClass}` : "");
+    baseInputClass +
+    (path
+      .split(".")
+      .reduce((prev: any, curr: string) => prev && (prev as any)[curr], errors)
+      ? ` ${invalidClass}`
+      : "");
 
   /**
    * Convenience component for simple numeric / text inputs that are wired
@@ -160,7 +160,9 @@ const AdvancedSettingsPage: React.FC = () => {
     type?: "number" | "text";
   }) => {
     const value = watch(name) as number | string;
-    const err = name.split(".").reduce((prev: any, curr: string) => prev && (prev as any)[curr], errors);
+    const err = name
+      .split(".")
+      .reduce((prev: any, curr: string) => prev && (prev as any)[curr], errors);
 
     return (
       <div className="flex justify-between items-center">
@@ -174,7 +176,7 @@ const AdvancedSettingsPage: React.FC = () => {
                   step={step}
                   min={min}
                   max={max}
-                  value={typeof value === "number" ? value : value ?? ""}
+                  value={typeof value === "number" ? value : (value ?? "")}
                   className={getInputClass(name)}
                   {...register(name as any, {
                     valueAsNumber: type === "number",
@@ -279,10 +281,22 @@ const AdvancedSettingsPage: React.FC = () => {
 
             {/* Radius & Range */}
             <div className="space-y-2 bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-base font-medium border-b border-gray-700">
-                <span className="codicon codicon-circle-outline mr-2" />
-                Radius and Range
-              </h3>
+              <div className="flex flex-col mb-2 border-b border-gray-700">
+                <h3 className="text-base font-medium">
+                  <span className="codicon codicon-circle-outline mr-2" />
+                  Radius and Range
+                </h3>
+                <a className="text-sm text-gray-400 mb-4 text-wrap">
+                  Before adjusting any of the parameters below, please refer to
+                  the documentation for usage{" "}
+                  <a
+                    className="text-blue-500 font-medium underline"
+                    href="https://milvus.io/docs/range-search.md#Range-Search"
+                  >
+                    instructions.
+                  </a>
+                </a>
+              </div>
 
               <div className="grid grid-cols-2 gap-4 max-[350px]:grid-cols-1">
                 <RHFInput
@@ -338,10 +352,23 @@ const AdvancedSettingsPage: React.FC = () => {
 
             {/* Filter */}
             <div className="space-y-2 bg-gray-800/50 p-4 rounded-lg">
-              <h3 className="text-base font-medium border-b border-gray-700">
-                <span className="codicon codicon-circle-outline mr-2" />
-                Filter
-              </h3>
+              <div className="flex flex-col mb-2 border-b border-gray-700">
+                <h3 className="text-base font-medium">
+                  <span className="codicon codicon-circle-outline mr-2" />
+                  Filter
+                </h3>
+                <a className="text-sm text-gray-400 mb-4 text-wrap">
+                  Before adjusting any of the parameters below, please refer to
+                  the documentation for usage{" "}
+                  <a
+                    className="text-blue-500 font-medium underline"
+                    href="https://milvus.io/docs/filtered-search.md#Iterative-Filtering"
+                  >
+                    instructions.
+                  </a>
+                </a>
+              </div>
+
               <div className="space-y-2 pt-1">
                 {/* Switch – needs Controller */}
                 <div className="flex items-center space-x-3">
@@ -367,7 +394,10 @@ const AdvancedSettingsPage: React.FC = () => {
                     <TooltipTrigger asChild>
                       <Input
                         id="filter-expr"
-                        className={getInputClass("retriever_options.filter_expr") + " w-50 text-wrap"}
+                        className={
+                          getInputClass("retriever_options.filter_expr") +
+                          " w-50 text-wrap"
+                        }
                         {...register("retriever_options.filter_expr" as const)}
                       />
                     </TooltipTrigger>
@@ -393,7 +423,7 @@ const AdvancedSettingsPage: React.FC = () => {
               </h3>
               <a className="text-sm text-gray-400 mb-4 text-wrap">
                 Before adjusting any of the parameters below, please refer to
-                the documentation for usage {" "}
+                the documentation for usage{" "}
                 <a
                   className="text-blue-500 font-medium underline"
                   href="https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values"
@@ -426,16 +456,16 @@ const AdvancedSettingsPage: React.FC = () => {
               <RHFInput
                 name="generator_options.mirostat_tau"
                 label="Mirostat Tau:"
-                step={0.01}
+                step={0.1}
                 min={0}
-                max={1}
+                max={5}
               />
               <RHFInput
                 name="generator_options.num_ctx"
                 label="Num Context:"
                 step={1}
                 min={1}
-                max={2048}
+                max={4096}
               />
             </div>
 
@@ -451,9 +481,9 @@ const AdvancedSettingsPage: React.FC = () => {
               <RHFInput
                 name="generator_options.repeat_penalty"
                 label="Repeat Penalty:"
-                step={0.01}
-                min={0}
-                max={2}
+                step={1}
+                min={-1}
+                max={100}
               />
             </div>
 
@@ -464,7 +494,7 @@ const AdvancedSettingsPage: React.FC = () => {
                 label="Temperature:"
                 step={0.1}
                 min={0}
-                max={2}
+                max={5}
               />
               <RHFInput
                 name="generator_options.seed"
@@ -539,7 +569,9 @@ const AdvancedSettingsPage: React.FC = () => {
           className="bg-blue-600 hover:bg-blue-700 px-6"
           disabled={saved}
         >
-          <span className={`codicon ${saved ? "codicon-check" : "codicon-save"} mr-2`} />
+          <span
+            className={`codicon ${saved ? "codicon-check" : "codicon-save"} mr-2`}
+          />
           {saved ? "Saved" : "Save"}
         </Button>
       </div>

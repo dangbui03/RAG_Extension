@@ -46,9 +46,9 @@ const ChatInput = () => {
       if (selectedFileName && selectedFileContent) {
         const fileExtension = getFileExtension(selectedFileName);
         const fileModel: FileModel = {
-          fileName: selectedFileName,
-          fileExtension,
-          fileContent: selectedFileContent,
+          file_name: selectedFileName,
+          file_extension: fileExtension,
+          file_content: selectedFileContent,
         };
         contextFiles.push(fileModel);
       }

@@ -339,7 +339,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const savedOptionsString = localStorage.getItem("advancedSettings");
     const savedOptions: AdditionalOptions = savedOptionsString
       ? JSON.parse(savedOptionsString)
-      : {};
+      : {retriever_options: {}, generator_options: {}};
     console.log("Saved options:", savedOptions);
   };
 
@@ -394,7 +394,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
 
-    console.log({
+    console.log("input", {
       text: content,
       nextJSVersion: nextjsVersion,
       model: selectedModel,
@@ -405,7 +405,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const savedOptionsString = localStorage.getItem("advancedSettings");
     const savedOptions: AdditionalOptions = savedOptionsString
       ? JSON.parse(savedOptionsString)
-      : {};
+      : {retriever_options: {}, generator_options: {}};
 
     vscode.postMessage({
       command: "ragCall",

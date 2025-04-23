@@ -24,9 +24,9 @@ export interface Chat {
 }
 
 export interface FileModel {
-  fileName: string;
-  fileExtension: string;
-  fileContent: string;
+  file_extension: string;
+  file_name: string;
+  file_content: string;
 }
 
 export interface RetrieverOptions {
