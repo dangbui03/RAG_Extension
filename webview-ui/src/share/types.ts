@@ -10,6 +10,7 @@ export interface ChatMessage {
   id: string;
   user_prompt: string;
   ai_answer?: string;
+  files?: string[];
   model: string;
   timestamp: Date;
   status?: "sending" | "sent" | "error";

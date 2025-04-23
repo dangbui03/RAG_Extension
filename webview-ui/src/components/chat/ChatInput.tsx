@@ -142,7 +142,7 @@ const ChatInput = () => {
                 variant="ghost"
                 size="icon"
                 title="Add Context"
-                className="codicon codicon-add text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2"
+                className="codicon codicon-new-file text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2"
                 onClick={handleFetchFiles}
               />
             </PopoverTrigger>

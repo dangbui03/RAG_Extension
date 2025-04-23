@@ -164,7 +164,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
                 models: models || [],
               });
             } catch (error) {
-              console.error("Error fetching models:", error);
+              vscode.window.showErrorMessage(
+                `⚠️ Error fetching models: ${String(error)}`
+              );
               // You could also send an error message back
               webviewView.webview.postMessage({
                 command: "populateModels",
