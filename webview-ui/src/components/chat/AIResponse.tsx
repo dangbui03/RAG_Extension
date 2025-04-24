@@ -114,7 +114,9 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
 
         <div className="markdown-content">
           <Markdown remarkPlugins={[remarkGfm]} components={{ code: Code }}>
-            {/* {chat.ai_answer} */}
+            {"hi"}
+          </Markdown>
+          <Markdown remarkPlugins={[remarkGfm]} components={{ code: Code }}>
             {chat.ai_answer}
           </Markdown>
         </div>
