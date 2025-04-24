@@ -2,7 +2,7 @@
   "name": "raggin",
   "displayName": "RAGGIN",
   "description": "This project focuses on the development of a Retrieval-Augmented Generation (RAG) system, which enhances the capabilities of Large Language Models (LLMs) by incorporating information retrieval from external data sources. ",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.93.0"
   },

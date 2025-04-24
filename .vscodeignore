@@ -28,6 +28,7 @@ webview-ui/README.md
 webview-ui/package.json
 webview-ui/package-lock.json
 webview-ui/node_modules/**
+webview-ui/stats.html
 **/.gitignore
 
 # Ignore docs
@@ -36,6 +37,8 @@ docs/**
 # Fix issue where codicons don't get packaged (https://github.com/microsoft/vscode-extension-samples/issues/692)
 !node_modules/@vscode/codicons/dist/codicon.css
 !node_modules/@vscode/codicons/dist/codicon.ttf
+!webview/node_modules/@vscode/codicons/dist/codicon.css
+!webview/node_modules/@vscode/codicons/dist/codicon.ttf
 
 # Include default themes JSON files used in getTheme
 !src/integrations/theme/default-themes/**
