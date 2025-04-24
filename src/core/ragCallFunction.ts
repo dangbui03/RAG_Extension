@@ -6,30 +6,33 @@ import {
 import * as vscode from "vscode";
 import axios from "axios";
 import { RagRequest, RagResponse } from "../utils/type";
-import { FileModel } from "../../webview-ui/src/types";
+import { FileModel, AdditionalOptions } from "../../webview-ui/src/share/types";
 
 export async function RagCallFunction(
   model: string,
   prompt: string,
   nextJSVersion: string,
+  additional_options?: AdditionalOptions,
   fileList?: FileModel[]
 ) {
   vscode.window.showInformationMessage("Rag Call Function Command Executed!");
   try {
-    // Prepare the payload according to the API description
-    const payload: RagRequest = {
-      versionName: nextJSVersion,
+    let payload: RagRequest = {
+      version_name: nextJSVersion,
       query: prompt,
       model: model,
     };
-
-    // Add optional file_list if provided
+    if (additional_options) {
+      payload.additional_options = additional_options;
+    }
     if (fileList && fileList.length > 0) {
       payload.file_list = fileList;
     }
+    console.log("Payload:", payload);
+    console.log("Sending payload to API:", JSON.stringify(payload, null, 2));
 
     const response = await axios.post(
-      "http://localhost:8000/generate_response",
+      "http://localhost:8000/prompt/generate/",
       payload,
       {
         headers: { "Content-Type": "application/json" },
@@ -38,7 +41,7 @@ export async function RagCallFunction(
 
     // Extract the full response data according to the API description
     const responseData: RagResponse = response.data;
-    console.log("RAG Retrieved Data:", responseData.retrieved_data);
+    console.log("RAG Retrieved Data:", responseData);
 
     return {
       model: responseData.model,
@@ -125,10 +128,10 @@ export async function GetNextjsVersionList() {
 export async function RetrieveNextjsVersion(version: string) {
   try {
     const payload = {
-      versionName: version,
+      version_name: version,
     };
     const response = await axios.post(
-      `http://localhost:8000/retrieve/`,
+      `http://localhost:8000/version/retrieve/`,
       payload,
       {
         headers: { "Content-Type": "application/json" },
@@ -154,12 +157,15 @@ export async function RetrieveNextjsVersion(version: string) {
 export async function DeleteNextjsVersionData(version: string) {
   try {
     const payload = {
-      versionName: version,
+      version_name: version,
     };
-    const response = await axios.delete(`http://localhost:8000/delete/`, {
-      data: payload,
-      headers: { "Content-Type": "application/json" },
-    });
+    const response = await axios.delete(
+      `http://localhost:8000/version/delete/`,
+      {
+        data: payload,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
     const data = response.data;
 
     vscode.window.showInformationMessage(
@@ -179,10 +185,10 @@ export async function DeleteNextjsVersionData(version: string) {
 export async function RepairNextjsVersionData(version: string) {
   try {
     const payload = {
-      versionName: version,
+      version_name: version,
     };
     const response = await axios.post(
-      `http://localhost:8000/repair/`,
+      `http://localhost:8000/version/repair/`,
       payload,
       {
         headers: { "Content-Type": "application/json" },

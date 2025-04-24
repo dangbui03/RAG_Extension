@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { FileModel } from "@/types"; // Import your FileModel type
+import { FileModel } from "@/share/types"; // Import your FileModel type
 
 const ChatInput = () => {
   const {
@@ -46,9 +46,9 @@ const ChatInput = () => {
       if (selectedFileName && selectedFileContent) {
         const fileExtension = getFileExtension(selectedFileName);
         const fileModel: FileModel = {
-          fileName: selectedFileName,
-          fileExtension,
-          fileContent: selectedFileContent,
+          file_name: selectedFileName,
+          file_extension: fileExtension,
+          file_content: selectedFileContent,
         };
         contextFiles.push(fileModel);
       }
@@ -142,7 +142,7 @@ const ChatInput = () => {
                 variant="ghost"
                 size="icon"
                 title="Add Context"
-                className="codicon codicon-add text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2"
+                className="codicon codicon-new-file text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2"
                 onClick={handleFetchFiles}
               />
             </PopoverTrigger>

@@ -3,9 +3,9 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { format } from "date-fns";
 
-import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import dracula from "react-syntax-highlighter/dist/cjs/styles/prism/dracula";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { ChatMessage } from "@/types";
+import { ChatMessage } from "@/share/types";
 
 import toTitleCase from "@/utils/ToTitleCase";
 import { Button } from "../ui/button";
@@ -113,8 +113,10 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
         {children}
 
         <div className="markdown-content">
+          {/* <Markdown remarkPlugins={[remarkGfm]} components={{ code: Code }}>
+            {"hi"}
+          </Markdown> */}
           <Markdown remarkPlugins={[remarkGfm]} components={{ code: Code }}>
-            {/* {chat.ai_answer} */}
             {chat.ai_answer}
           </Markdown>
         </div>

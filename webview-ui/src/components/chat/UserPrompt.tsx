@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { ChatMessage } from "@/types";
+import { ChatMessage } from "@/share/types";
 
 interface UserPromptProps {
   chat: ChatMessage;
@@ -26,6 +26,20 @@ const UserPrompt: React.FC<UserPromptProps> = ({ chat }) => {
             {format(new Date(chat.timestamp), "h:mm a")}
           </span>
         </div>
+
+        {chat.files && chat.files.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {chat.files.map((file, index) => (
+              <div
+                key={index}
+                className="codicon codicon-file flex items-center gap-1 text-xs bg-gray-800 text-gray-300 rounded-full px-3 py-1"
+              >
+                <span>{file}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div
           className={`markdown-content text-bodyLarge pt-1 ${
             isExpanded ? "" : "line-clamp-4"

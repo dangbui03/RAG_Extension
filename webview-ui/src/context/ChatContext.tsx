@@ -5,7 +5,8 @@ import {
   FileModel,
   NextjsVersionList,
   NextjsVersionItem,
-} from "@/types";
+  AdditionalOptions,
+} from "@/share/types";
 import { v4 as uuidv4 } from "uuid";
 import { vscode } from "@/vscode/VsCodeApi";
 
@@ -31,6 +32,10 @@ interface ChatContextType {
   models: string[];
   fetchModels: () => void;
   selectModel: (model: string) => void;
+
+  // Advaced settings
+  // advancedOptions: AdditionalOptions;
+  // setAdvancedOptions: (options: AdditionalOptions) => void;
 
   // Version
   userNextjsVersion: string;
@@ -120,7 +125,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           break;
         case "nextJsVersionFetched":
           setUserNextjsVersion(message.version);
-          setNextjsVersion(message.version);
           break;
         case "nextJsVersionList":
           {
@@ -135,28 +139,30 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           }
           break;
         case "retrievedNextJsVersion":
-          if (message.versionName) {
-            setAvailableVersions((prev) =>
-              prev.filter((v) => v.versionName !== message.versionName)
-            );
-            setDownloadedVersions((prev) => [
-              ...prev,
-              { versionName: message.versionName, downloaded: true },
-            ]);
+          if (message.version_name) {
+            // setAvailableVersions((prev) =>
+            //   prev.filter((v) => v.version_name !== message.version_name)
+            // );
+            // setDownloadedVersions((prev) => [
+            //   ...prev,
+            //   { version_name: message.version_name, downloaded: true },
+            // ]);
+            fetchNextjsVersionList();
           }
           break;
         case "deletedNextJsVersion":
-          if (message.versionName) {
-            setDownloadedVersions((prev) =>
-              prev.filter((v) => v.versionName !== message.versionName)
-            );
-            setAvailableVersions((prev) => [
-              ...prev,
-              { versionName: message.versionName, downloaded: false },
-            ]);
-            if (nextjsVersion === message.versionName) {
-              setNextjsVersion("");
-            }
+          if (message.version_name) {
+            // setDownloadedVersions((prev) =>
+            //   prev.filter((v) => v.version_name !== message.version_name)
+            // );
+            // setAvailableVersions((prev) => [
+            //   ...prev,
+            //   { version_name: message.version_name, downloaded: false },
+            // ]);
+            // if (nextjsVersion === message.version_name) {
+            //   setNextjsVersion("");
+            // }
+            fetchNextjsVersionList();
           }
           break;
         case "repairedNextJsVersion":
@@ -330,6 +336,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       updatedAt: new Date(),
     };
     setCurrentChat(newChat);
+    const savedOptionsString = localStorage.getItem("advancedSettings");
+    const savedOptions: AdditionalOptions = savedOptionsString
+      ? JSON.parse(savedOptionsString)
+      : {retriever_options: {}, generator_options: {}};
+    console.log("Saved options:", savedOptions);
   };
 
   /**
@@ -349,6 +360,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       id: uuidv4(),
       user_prompt: content,
       model: selectedModel,
+      files: contextFiles.map((file) => file.file_name),
       timestamp: new Date(),
       status: "sent",
     };
@@ -383,7 +395,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
 
-    console.log({
+    console.log("input", {
       text: content,
       nextJSVersion: nextjsVersion,
       model: selectedModel,
@@ -391,12 +403,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       chatId: updatedChat.id,
     });
 
+    const savedOptionsString = localStorage.getItem("advancedSettings");
+    const savedOptions: AdditionalOptions = savedOptionsString
+      ? JSON.parse(savedOptionsString)
+      : {retriever_options: {}, generator_options: {}};
+
     vscode.postMessage({
       command: "ragCall",
       text: content,
       nextJSVersion: nextjsVersion,
       model: selectedModel,
       fileList: contextFiles,
+      additionalOptions: savedOptions,
       chatId: updatedChat.id,
     });
 

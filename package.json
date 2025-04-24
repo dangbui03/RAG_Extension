@@ -2,7 +2,7 @@
   "name": "raggin",
   "displayName": "RAGGIN",
   "description": "This project focuses on the development of a Retrieval-Augmented Generation (RAG) system, which enhances the capabilities of Large Language Models (LLMs) by incorporating information retrieval from external data sources. ",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -140,8 +140,8 @@
     "dev:webview": "cd webview-ui && npm run start",
     "build:webview": "cd webview-ui && npm run build",
     "test:webview": "cd webview-ui && npm run test",
-    "publish:marketplace": "vsce publish && ovsx publish",
-    "publish:marketplace:prerelease": "vsce publish --pre-release && ovsx publish --pre-release"
+    "publish:marketplace": "vsce publish",
+    "publish:marketplace:prerelease": "vsce publish --pre-release"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.0.4",
