@@ -371,7 +371,6 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     ]);
 
     const codiConsUri = getUri(webview, this._context.extensionUri, [
-      "webview-ui",
       "node_modules",
       "@vscode",
       "codicons",
