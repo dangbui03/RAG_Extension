@@ -46,7 +46,7 @@ const History: React.FC = () => {
                 />
               </PopoverTrigger>
               <PopoverContent>
-                <div className="text-sm text-gray-400">
+                <div className="text-xs text-gray-400">
                   <p>Are you sure you want to delete all chat history?</p>
                   <div className="flex justify-end mt-2">
                     <button
@@ -121,7 +121,7 @@ const History: React.FC = () => {
               </div>
 
               {chat.messages.length > 0 && (
-                <div className="px-3 pb-3 text-sm text-gray-300 overflow-hidden max-h-16">
+                <div className="px-3 pb-3 text-xs text-gray-300 overflow-hidden max-h-16">
                   <div className="line-clamp-2">
                     <strong>Last message:</strong>{" "}
                     {chat.messages[

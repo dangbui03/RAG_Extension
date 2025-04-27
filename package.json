@@ -103,14 +103,26 @@
       }
     ],
     "menus": {
+      "editor/title": [
+        {
+          "submenu": "raggin.menu",
+          "group": "navigation"
+        }
+      ],
       "editor/context": [
         {
+          "submenu": "raggin.menu",
+          "group": "navigation"
+        }
+      ],
+      "raggin.menu": [
+        {
           "command": "raggin.generateComment",
-          "group": "RAGGIN"
+          "group": "1_main"
         },
         {
           "command": "raggin.gfunctionComment",
-          "group": "RAGGIN"
+          "group": "1_main"
         }
       ],
       "explorer/context": [
@@ -119,7 +131,14 @@
           "group": "RAGGIN"
         }
       ]
-    }
+    },
+    "submenus": [
+      {
+        "id": "raggin.menu",
+        "label": "RAGGIN",
+        "icon": "$(comment)"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

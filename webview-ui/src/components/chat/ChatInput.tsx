@@ -123,7 +123,7 @@ const ChatInput = () => {
               <span>{contextFile}</span>
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 className="codicon codicon-close h-4 w-4 rounded-full hover:bg-gray-700"
                 onClick={removeContextFile}
               />
@@ -142,7 +142,7 @@ const ChatInput = () => {
                 variant="ghost"
                 size="icon"
                 title="Add Context"
-                className="codicon codicon-new-file text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute left-2 top-1/2 -translate-y-1/2"
+                className="codicon codicon-new-file text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-8 w-8 absolute left-2 top-1/2 -translate-y-1/2"
                 onClick={handleFetchFiles}
               />
             </PopoverTrigger>
@@ -153,7 +153,7 @@ const ChatInput = () => {
             >
               <div className="p-2">
                 <h3 className="font-medium mb-2">Add Context</h3>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-xs text-gray-400 mb-4">
                   Select a file to provide additional context for your question
                 </p>
                 <div className="max-h-60 overflow-auto">
@@ -161,7 +161,7 @@ const ChatInput = () => {
                     {file.map((fileName, index) => (
                       <button
                         key={index}
-                        className="flex items-center justify-between w-full p-2 text-sm text-left hover:bg-gray-800 rounded"
+                        className="flex items-center justify-between w-full p-2 text-xs text-left hover:bg-gray-800 rounded"
                         onClick={() => addContextFile(fileName)}
                       >
                         <span
@@ -189,7 +189,7 @@ const ChatInput = () => {
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
             placeholder="Type your message here..."
-            className="w-full resize-none py-3 pl-12 pr-12 min-h-[50px] max-h-[200px] scrollbar-thin focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent border-0 bg-transparent"
+            className="text-xs w-full resize-none py-3 pl-12 pr-12 min-h-[50px] max-h-[200px] scrollbar-thin focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent border-0 bg-transparent"
           />
           <Button
             variant="ghost"
@@ -198,7 +198,7 @@ const ChatInput = () => {
             onClick={handleSendMessage}
             disabled={!message.trim()}
             className={cn(
-              "codicon codicon-send text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-9 w-9 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity",
+              "codicon codicon-send text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-8 w-8 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity",
               !message.trim() && "opacity-50 cursor-not-allowed"
             )}
           />

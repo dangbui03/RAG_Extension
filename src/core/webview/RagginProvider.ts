@@ -569,16 +569,10 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     try {
       let nextjsVersion = "";
       await readEntireCodeBase.catchNextJsVersion().then((version) => {
-        if (version) {
-          vscode.window.showInformationMessage(
-            `Found Next.js version: ${version}`
-          );
+        if (version && version !== "None") {
           nextjsVersion = version;
         } else {
-          vscode.window.showWarningMessage(
-            "Next.js version not found in workspace."
-          );
-          nextjsVersion = "Not found";
+          nextjsVersion = "None";
         }
       });
       this._view.webview.postMessage({

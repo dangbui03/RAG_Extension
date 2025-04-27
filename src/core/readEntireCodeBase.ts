@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { versions } from "../../webview-ui/src/share/model_type";
 
 export class readEntireCodeBase {
   private workspaceFolder: vscode.Uri | undefined;
@@ -152,7 +151,7 @@ export class readEntireCodeBase {
         return version;
       } else {
         console.warn(`No Next.js version found in ${file.fsPath}`);
-        return versions[versions.length - 1]; // Default to the last version in the list if not found
+        return "None"; // Default to None if not found
       }
     }
     return null;

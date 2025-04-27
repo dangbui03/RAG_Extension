@@ -15,7 +15,7 @@ const Models = () => {
         <PopoverTrigger asChild>
           <button
             title="Select Model"
-            className="w-[100px] text-white text-sm cursor-pointer overflow-ellipsis"
+            className="w-[100px] text-white text-xs cursor-pointer overflow-ellipsis"
             onClick={fetchModels}
           >
             {(selectedModel.length > 10
@@ -33,7 +33,7 @@ const Models = () => {
             <div className="max-h-60 overflow-auto">
               <div className="space-y-1">
                 {models.length === 0 ? (
-                  <p className="text-sm">Not found</p>
+                  <p className="text-xs">Not found</p>
                 ) : (
                   models.map((m) => (
                     <button
