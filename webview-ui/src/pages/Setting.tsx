@@ -130,7 +130,7 @@ const AdvancedSettingsPage: React.FC = () => {
    * Dynamic classes for invalid inputs (keeps your red border logic)
    */
   const invalidClass = "border-red-500";
-  const baseInputClass = "bg-gray-800 border-gray-700 w-22";
+  const baseInputClass = "bg-gray-800 border-gray-700 w-20";
   const getInputClass = (path: string) =>
     baseInputClass +
     (path
@@ -203,7 +203,8 @@ const AdvancedSettingsPage: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="h-full bg-chat-darker text-white"
+      className="h-full bg-chat-darker text-white text-xs
+             [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm"
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-2">
@@ -281,19 +282,18 @@ const AdvancedSettingsPage: React.FC = () => {
 
             {/* Radius & Range */}
             <div className="space-y-2 bg-gray-800/50 p-4 rounded-lg">
-              <div className="flex flex-col mb-2 border-b border-gray-700">
+              <div className="flex justify-between items-center mb-2 border-b border-gray-700">
                 <h3 className="text-base font-medium">
                   <span className="codicon codicon-circle-outline mr-2" />
                   Radius and Range
                 </h3>
-                <a className="text-sm text-gray-400 mb-4 text-wrap">
-                  Before adjusting any of the parameters below, please refer to
-                  the documentation for usage{" "}
+                <a className="codicon codicon-link-external text-xs text-[#82b29a] text-wrap hover:underline">
+                  {" "}
                   <a
-                    className="text-blue-500 font-medium underline"
+                    className="font-medium"
                     href="https://milvus.io/docs/range-search.md#Range-Search"
                   >
-                    instructions.
+                    Instructions.
                   </a>
                 </a>
               </div>
@@ -352,19 +352,18 @@ const AdvancedSettingsPage: React.FC = () => {
 
             {/* Filter */}
             <div className="space-y-2 bg-gray-800/50 p-4 rounded-lg">
-              <div className="flex flex-col mb-2 border-b border-gray-700">
+              <div className="flex justify-between items-center mb-2 border-b border-gray-700">
                 <h3 className="text-base font-medium">
                   <span className="codicon codicon-circle-outline mr-2" />
                   Filter
                 </h3>
-                <a className="text-sm text-gray-400 mb-4 text-wrap">
-                  Before adjusting any of the parameters below, please refer to
-                  the documentation for usage{" "}
+                <a className="codicon codicon-link-external text-xs text-[#82b29a] text-wrap hover:underline">
+                  {" "}
                   <a
-                    className="text-blue-500 font-medium underline"
+                    className="font-medium"
                     href="https://milvus.io/docs/filtered-search.md#Iterative-Filtering"
                   >
-                    instructions.
+                    Instructions.
                   </a>
                 </a>
               </div>
@@ -416,19 +415,21 @@ const AdvancedSettingsPage: React.FC = () => {
         {/* -------------------------------- Generator Tab -------------------------------- */}
         <TabsContent value="generator" className="space-y-6">
           <div className="bg-gray-800/50 p-6 rounded-lg max-w-2xl mx-auto">
-            <div className="flex flex-col mb-2 border-b border-gray-700">
+            <div className="flex justify-between items-center mb-2 border-b border-gray-700">
               <h3 className="text-lg font-medium">
-                <span className="codicon codicon-settings-gear mr-2" />
+                <span className="codicon codicon-settings-gear mr-2 mb-1" />
                 Generator Settings
               </h3>
-              <a className="text-sm text-gray-400 mb-4 text-wrap">
-                Before adjusting any of the parameters below, please refer to
-                the documentation for usage{" "}
+              <a
+                className="codicon codicon-link-external text-xs text-[#82b29a] text-wrap hover:und
+              erline"
+              >
+                {" "}
                 <a
-                  className="text-blue-500 font-medium underline"
+                  className="font-medium"
                   href="https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values"
                 >
-                  instructions.
+                  Instructions.
                 </a>
               </a>
             </div>

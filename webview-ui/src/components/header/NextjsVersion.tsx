@@ -122,7 +122,7 @@ const NextjsVersion: React.FC = () => {
         <PopoverTrigger asChild>
           <button
             title="Select Next.js Version"
-            className="w-full text-white text-sm cursor-pointer"
+            className="w-full text-white text-xs cursor-pointer"
             disabled={globalLoading}
           >
             {nextjsVersion || "Select Next.js Version"}
@@ -134,10 +134,10 @@ const NextjsVersion: React.FC = () => {
           className="w-50 p-0 bg-chat-darker border border-gray-700"
         >
           <div className="p-2">
-            <h3 className="font-medium mb-2">Downloaded Version</h3>
+            <h3 className="font- mb-2">Downloaded Version</h3>
             <div className="max-h-40 overflow-auto">
               {downloadedVersions.length === 0 ? (
-                <div className="text-gray-400 text-sm text-center py-1">No versions downloaded</div>
+                <div className="text-gray-400 text-xs text-center py-1">No versions downloaded</div>
               ) : (
                 <div className="space-y-1">
                   {downloadedVersions.map((version) => (
@@ -149,7 +149,7 @@ const NextjsVersion: React.FC = () => {
                     >
                       <button
                         onClick={() => handleSelectVersion(version.version_name)}
-                        className="text-left text-sm text-white truncate w-full mr-2"
+                        className="text-left text-xs text-white truncate w-full mr-2"
                         disabled={globalLoading}
                       >
                         <div>
@@ -176,7 +176,7 @@ const NextjsVersion: React.FC = () => {
                           <PopoverContent
                             side="left"
                             align="start"
-                            className="w-12 p-2 bg-chat-darker border border-gray-700 text-sm"
+                            className="w-12 p-2 bg-chat-darker border border-gray-700 text-xs"
                           >
                             <button
                               className="codicon codicon-trash block w-full text-left hover:bg-red-500 hover:text-white px-2 py-1 rounded"
@@ -210,7 +210,7 @@ const NextjsVersion: React.FC = () => {
             <h3 className="font-medium mb-2">Available Versions</h3>
             <div className="max-h-40 overflow-auto">
               {availableVersions.length === 0 ? (
-                <div className="text-gray-400 text-sm text-center py-1">No versions available</div>
+                <div className="text-gray-400 text-xs text-center py-1">No versions available</div>
               ) : (
                 <div className="space-y-1">
                   {availableVersions.map((version) => (
@@ -221,7 +221,7 @@ const NextjsVersion: React.FC = () => {
                       }`}
                     >
                       <span
-                        className={`text-left text-sm ${
+                        className={`text-left text-xs ${
                           warningVersion === version.version_name ? "text-yellow-200" : "text-gray-300"
                         } truncate w-full mr-2`}
                         title={

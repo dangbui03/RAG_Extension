@@ -44,7 +44,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
     return match ? (
       <>
         <div className="code-block">
-          <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center pt-2 font-sans text-sm pe-2">
+          <div className="bg-dark-onSurfaceContainer rounded-t-xs rounded-b-md flex justify-between items-center pt-2 font-sans text-xs pe-2">
             <div className="text-left px-4 py-2 pb-0 font-sans">
               {toTitleCase(match[1])}
             </div>
@@ -57,11 +57,11 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
             >
               {copied ? (
                 <div
-                  className="codicon codicon-check text-sm text-green-500"
+                  className="codicon codicon-check text-xs text-green-500"
                   title="Copied"
                 />
               ) : (
-                <div className="codicon codicon-copy text-sm cursor-pointer group-hover:text-blue-300" />
+                <div className="codicon codicon-copy text-xs cursor-pointer group-hover:text-blue-300" />
               )}
             </Button>
           </div>
@@ -104,7 +104,7 @@ const AIResponse: React.FC<ChatMessagesProps> = ({ chat, children }) => {
       </div>
       <div className="flex-1 overflow-hidden min-w-0">
         <div className="flex flex-wrap justify-between items-center mb-1">
-          <h3 className="font-medium text-sm text-gray-300">Assistant</h3>
+          <h3 className="font-medium text-xs text-gray-300">Assistant</h3>
           <span className="text-xs text-gray-500">
             {format(new Date(chat.timestamp), "h:mm a")}
           </span>

@@ -21,7 +21,7 @@ const UserPrompt: React.FC<UserPromptProps> = ({ chat }) => {
 
       <div className="flex-1 overflow-hidden">
         <div className="flex justify-between items-center mb-1">
-          <h3 className="font-medium text-sm text-gray-300">You</h3>
+          <h3 className="font-medium text-xs text-gray-300">You</h3>
           <span className="text-xs text-gray-500">
             {format(new Date(chat.timestamp), "h:mm a")}
           </span>
@@ -29,12 +29,13 @@ const UserPrompt: React.FC<UserPromptProps> = ({ chat }) => {
 
         {chat.files && chat.files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
+            <span className="font-semibold">Context:</span>{" "}
             {chat.files.map((file, index) => (
               <div
                 key={index}
-                className="codicon codicon-file flex items-center gap-1 text-xs bg-gray-800 text-gray-300 rounded-full px-3 py-1"
+                className="codicon codicon-file flex items-center gap-1"
               >
-                <span>{file}</span>
+                <span className="text-sm">{file}</span>
               </div>
             ))}
           </div>
@@ -45,7 +46,7 @@ const UserPrompt: React.FC<UserPromptProps> = ({ chat }) => {
             isExpanded ? "" : "line-clamp-4"
           }`}
         >
-          <p className="text-sm text-gray-300 whitespace-pre-wrap break-words">
+          <p className="text-[13px] text-gray-300 whitespace-pre-wrap break-words">
             {chat.user_prompt}
           </p>
         </div>

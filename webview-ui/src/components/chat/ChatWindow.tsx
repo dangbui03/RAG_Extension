@@ -7,13 +7,28 @@ import ResponseLoading from "@/components/chat/ResponseLoading";
 const WelcomeScreen: React.FC = () => {
   const { userNextjsVersion } = useChat();
 
-  const formattedVersion = userNextjsVersion?.startsWith('v')
+  // Trường hợp chưa nhận được hoặc trả về "None"
+  if (!userNextjsVersion || userNextjsVersion === "None") {
+    return (
+      <div className="mt-3 text-white font-light">
+        <p className="text-base">
+          We recommend opening a Next.js code-base to enjoy the best experience
+          with RAGGIN.
+        </p>
+      </div>
+    );
+  }
+
+  const formattedVersion = userNextjsVersion?.startsWith("v")
     ? `version ${userNextjsVersion.slice(1)}`
     : `version ${userNextjsVersion}`;
 
   return (
-    <div className="mt-3 text-white text-xl font-light">
-      <p className="text-base">We has dectected Nextjs version you are using: <a className="underline">{formattedVersion}</a></p>
+    <div className="mt-3 text-white font-light">
+      <p className="text-base">
+        We has dectected Nextjs version you are using:{" "}
+        <a className="underline">{formattedVersion}</a>
+      </p>
     </div>
   );
 };

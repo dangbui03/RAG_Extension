@@ -28,9 +28,31 @@ export async function GenerateCommentCommand() {
         console.log("Generated Comment:", comment);
         console.log("Language:", editor.getLanguage());
 
+        // --- Apply Hover (Tooltip) ---
+        await vscode.languages.registerHoverProvider(editor.getLanguage(), {
+            provideHover(document, position, token) {
+                if (editor.editor.selection.contains(position)) {
+                    return new vscode.Hover(comment);
+                }
+                return undefined;
+            }
+        });
+
+        // --- Apply Editor Decorations ---
+        const decorationType = vscode.window.createTextEditorDecorationType({
+            backgroundColor: 'rgba(255, 255, 0, 0.3)', // Yellow background for decoration
+            border: '1px solid yellow',
+            isWholeLine: true
+        });
+
+        const editorInstance = vscode.window.activeTextEditor;
+        if (editorInstance) {
+            editorInstance.setDecorations(decorationType, [editor.editor.selection]);
+        }
+
         // write comment to textEditor
         // comment will be added to the line above selection
-        await editor.addCommentToFile(comment, editor.editor.selection);
+        // await editor.addCommentToFile(comment, editor.editor.selection);
 
         ollamaServer.abort();
     } catch (error: any) {

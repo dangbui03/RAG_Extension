@@ -29,7 +29,7 @@ export const ResponseLoading = () => {
     <div className="flex flex-col space-y-2 py-2 w-full border-t border-gray-800 animate-pulse ">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center">
-          <span className="text-sm font-medium text-gray-400">
+          <span className="text-xs font-medium text-gray-400">
             Thinking...
           </span>
         </div>

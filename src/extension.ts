@@ -35,8 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
     ragginSidebar,
     {
       webviewOptions: {
-        retainContextWhenHidden: true // Keep the webview's state when it's not visible
-      }
+        retainContextWhenHidden: true, // Keep the webview's state when it's not visible
+      },
     }
   );
   context.subscriptions.push(sidebarRegistration);
@@ -63,90 +63,99 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("raggin.readEntireCodeBase", () =>
       readCodeBaseInstance.catchNextJsVersion()
     ),
+
+    // Register combined command
+    vscode.commands.registerCommand("raggin.executeAllCommands", () => {
+      vscode.commands.executeCommand("raggin.generateComment");
+      vscode.commands.executeCommand("raggin.gfunctionComment");
+      vscode.commands.executeCommand("raggin.readEntireCodeBase");
+    }),
   ];
 
-  commandDisposables.forEach((disposable) =>
-    context.subscriptions.push(disposable)
-  );
-  // Register command to handle width-based disposal from the webview
-  const widthDisposalCommand = vscode.commands.registerCommand(
-    "raggin.handleWidthDisposal",
-    (width: number) => {
-      Logger.info(`Handling width disposal. Current width: ${width}px`);
+  // commandDisposables.forEach((disposable) =>
+  //   context.subscriptions.push(disposable)
+  // );
+  // // Register command to handle width-based disposal from the webview
+  // const widthDisposalCommand = vscode.commands.registerCommand(
+  //   "raggin.handleWidthDisposal",
+  //   (width: number) => {
+  //     Logger.info(`Handling width disposal. Current width: ${width}px`);
 
-      if (width < minWidth && isProviderRegistered) {
-        // Dispose the sidebar registration
-        sidebarRegistration.dispose();
-        isProviderRegistered = false;
-        vscode.window.showInformationMessage(
-          "RAGGIN sidebar disabled due to narrow width"
-        );
-        Logger.info(
-          `RAGGIN sidebar disposed due to narrow width (${width}px < ${minWidth}px)`
-        );
-      } else if (width >= minWidth && !isProviderRegistered) {
-        // Re-register the provider if width is adequate again
-        sidebarRegistration = vscode.window.registerWebviewViewProvider(
-          "raggin-sidebar",
-          ragginSidebar,
-          {
-            webviewOptions: {
-              retainContextWhenHidden: true // Keep the webview's state when it's not visible
-            }
-          }
-        );
-        context.subscriptions.push(sidebarRegistration);
-        isProviderRegistered = true;
-        vscode.window.showInformationMessage("RAGGIN sidebar re-enabled");
-        Logger.info(`RAGGIN sidebar re-enabled (${width}px >= ${minWidth}px)`);
-      }
-    }
-  );
+  //     if (width < minWidth && isProviderRegistered) {
+  //       // Dispose the sidebar registration
+  //       sidebarRegistration.dispose();
+  //       isProviderRegistered = false;
+  //       vscode.window.showInformationMessage(
+  //         "RAGGIN sidebar disabled due to narrow width"
+  //       );
+  //       Logger.info(
+  //         `RAGGIN sidebar disposed due to narrow width (${width}px < ${minWidth}px)`
+  //       );
+  //     } else if (width >= minWidth && !isProviderRegistered) {
+  //       // Re-register the provider if width is adequate again
+  //       sidebarRegistration = vscode.window.registerWebviewViewProvider(
+  //         "raggin-sidebar",
+  //         ragginSidebar,
+  //         {
+  //           webviewOptions: {
+  //             retainContextWhenHidden: true, // Keep the webview's state when it's not visible
+  //           },
+  //         }
+  //       );
+  //       context.subscriptions.push(sidebarRegistration);
+  //       isProviderRegistered = true;
+  //       vscode.window.showInformationMessage("RAGGIN sidebar re-enabled");
+  //       Logger.info(`RAGGIN sidebar re-enabled (${width}px >= ${minWidth}px)`);
+  //     }
+  //   }
+  // );
 
-  context.subscriptions.push(widthDisposalCommand);
+  // context.subscriptions.push(widthDisposalCommand);
 
-  // Set up window change event listener for active editor width changes
-  context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (!editor) { return; }
-      checkEditorWidth(editor, minWidth);
-    })
-  );
+  // // Set up window change event listener for active editor width changes
+  // context.subscriptions.push(
+  //   vscode.window.onDidChangeActiveTextEditor((editor) => {
+  //     if (!editor) {
+  //       return;
+  //     }
+  //     checkEditorWidth(editor, minWidth);
+  //   })
+  // );
 
-  // Set up configuration change event listener
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration("RAGGIN.minWidth")) {
-        const newConfig = vscode.workspace.getConfiguration("RAGGIN");
-        const newMinWidth = newConfig.get<number>("minWidth", 300);
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-          checkEditorWidth(editor, newMinWidth);
-        }
-      }
-    })
-  );
+  // // Set up configuration change event listener
+  // context.subscriptions.push(
+  //   vscode.workspace.onDidChangeConfiguration((event) => {
+  //     if (event.affectsConfiguration("RAGGIN.minWidth")) {
+  //       const newConfig = vscode.workspace.getConfiguration("RAGGIN");
+  //       const newMinWidth = newConfig.get<number>("minWidth", 300);
+  //       const editor = vscode.window.activeTextEditor;
+  //       if (editor) {
+  //         checkEditorWidth(editor, newMinWidth);
+  //       }
+  //     }
+  //   })
+  // );
 
-  // Initial check on the current editor
-  if (vscode.window.activeTextEditor) {
-    checkEditorWidth(vscode.window.activeTextEditor, minWidth);
-  }
+  // // Initial check on the current editor
+  // if (vscode.window.activeTextEditor) {
+  //   checkEditorWidth(vscode.window.activeTextEditor, minWidth);
+  // }
 
-  // Function to check editor width and trigger disposal if needed
-  function checkEditorWidth(
-    editor: vscode.TextEditor,
-    minWidthThreshold: number
-  ) {
-    try {
-      const editorWidth = estimateEditorWidth(editor);
-      Logger.debug(`Estimated editor width: ${editorWidth}px`);
+  // // Function to check editor width and trigger disposal if needed
+  // function checkEditorWidth(
+  //   editor: vscode.TextEditor,
+  //   minWidthThreshold: number
+  // ) {
+  //   try {
+  //     const editorWidth = estimateEditorWidth(editor);
+  //     Logger.debug(`Estimated editor width: ${editorWidth}px`);
 
-      // Trigger the disposal command with the estimated width
-      vscode.commands.executeCommand("raggin.handleWidthDisposal", editorWidth);
-    } catch (error) {
-      Logger.error(`Error checking editor width: ${error}`);
-    }
-  }
+  //     // Trigger the disposal command with the estimated width
+  //     vscode.commands.executeCommand("raggin.handleWidthDisposal", editorWidth);
+  //   } catch (error) {
+  //     Logger.error(`Error checking editor width: ${error}`);
+  //   }
+  // }
 }
 
 function estimateEditorWidth(editor: vscode.TextEditor): number {
