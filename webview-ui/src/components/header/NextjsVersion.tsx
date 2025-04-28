@@ -125,7 +125,7 @@ const NextjsVersion: React.FC = () => {
             className="w-full text-white text-xs cursor-pointer"
             disabled={globalLoading}
           >
-            {nextjsVersion || "Select Next.js Version"}
+            {nextjsVersion || "Select Version"}
           </button>
         </PopoverTrigger>
         <PopoverContent
