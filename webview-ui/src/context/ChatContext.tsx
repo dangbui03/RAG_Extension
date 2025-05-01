@@ -26,6 +26,7 @@ interface ChatContextType {
   deleteAllChats: () => void;
   fetchChats: () => void;
   fetchChatById: (chatId: string) => void;
+  renameChat: (chatId: string, newTitle: string) => void;
 
   // Models
   selectedModel: string;
@@ -98,17 +99,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     null
   );
 
+  // Effect for setting up message handlers and initial fetching
   useEffect(() => {
     // Initial data fetch
     fetchChats();
     fetchNextjsVersion();
-
-    if (chats.length > 0) {
-      setCurrentChat(chats[0]);
-    } else {
-      // setCurrentChat(mockChats[0]);
-      initializeDefaultChat();
-    }
 
     // Set up message listener
     const messageHandler = (event: MessageEvent) => {
@@ -140,28 +135,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           break;
         case "retrievedNextJsVersion":
           if (message.version_name) {
-            // setAvailableVersions((prev) =>
-            //   prev.filter((v) => v.version_name !== message.version_name)
-            // );
-            // setDownloadedVersions((prev) => [
-            //   ...prev,
-            //   { version_name: message.version_name, downloaded: true },
-            // ]);
             fetchNextjsVersionList();
           }
           break;
         case "deletedNextJsVersion":
           if (message.version_name) {
-            // setDownloadedVersions((prev) =>
-            //   prev.filter((v) => v.version_name !== message.version_name)
-            // );
-            // setAvailableVersions((prev) => [
-            //   ...prev,
-            //   { version_name: message.version_name, downloaded: false },
-            // ]);
-            // if (nextjsVersion === message.version_name) {
-            //   setNextjsVersion("");
-            // }
             fetchNextjsVersionList();
           }
           break;
@@ -212,28 +190,52 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
             setChats([]);
           }
           break;
+        case "chatRenamed":
+          if (message.success) {
+            // Extension trả về mảng chats mới ⇒ đồng bộ lại local-state
+            if (Array.isArray(message.chats)) {
+              setChats(message.chats);
+            }
+            if (currentChat?.id === message.chatId) {
+              setCurrentChat((prev) =>
+                prev ? { ...prev, title: message.title } : prev
+              );
+            }
+          }
+          break;
       }
     };
 
-    // Function to save state to the extension
+    window.addEventListener("message", messageHandler);
+    return () => window.removeEventListener("message", messageHandler);
+  }, []);
+
+  // Effect to handle chat initialization
+  useEffect(() => {
+    if (chats.length > 0) {
+      setCurrentChat(chats[0]);
+    } else {
+      initializeDefaultChat();
+    }
+  }, [chats]);
+
+  // Effect to save state to extension
+  useEffect(() => {
     const saveStateToExtension = () => {
       const state = {
-        currentChat: currentChat,
-        selectedModel: selectedModel,
+        currentChat,
+        selectedModel,
         // ... other state variables you want to persist
       };
 
       vscode.postMessage({
         command: "saveState",
-        state: state,
+        state,
       });
     };
 
-    // Initial save and message listener setup
     saveStateToExtension();
-    window.addEventListener("message", messageHandler);
-    return () => window.removeEventListener("message", messageHandler);
-  }, []);
+  }, [currentChat, selectedModel]);
 
   // Save state to extension whenever important state changes
   useEffect(() => {
@@ -314,6 +316,27 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     vscode.postMessage({ command: "deleteAllChats" });
   };
 
+  const renameChat = (chatId: string, newTitle: string) => {
+    try {
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === chatId ? { ...chat, title: newTitle.trim() } : chat
+        )
+      );
+      if (currentChat?.id === chatId) {
+        setCurrentChat({ ...currentChat, title: newTitle.trim() });
+      }
+
+      vscode.postMessage({
+        command: "renameChatTitle",
+        chatId,
+        newTitle: newTitle.trim(),
+      });
+    } catch (error) {
+      console.error("Failed to rename chat:", error);
+    }
+  };
+
   // Initialize a default chat if no chats exist
   const initializeDefaultChat = () => {
     const newChat: Chat = {
@@ -339,7 +362,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const savedOptionsString = localStorage.getItem("advancedSettings");
     const savedOptions: AdditionalOptions = savedOptionsString
       ? JSON.parse(savedOptionsString)
-      : {retriever_options: {}, generator_options: {}};
+      : { retriever_options: {}, generator_options: {} };
     console.log("Saved options:", savedOptions);
   };
 
@@ -406,7 +429,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const savedOptionsString = localStorage.getItem("advancedSettings");
     const savedOptions: AdditionalOptions = savedOptionsString
       ? JSON.parse(savedOptionsString)
-      : {retriever_options: {}, generator_options: {}};
+      : { retriever_options: {}, generator_options: {} };
 
     vscode.postMessage({
       command: "ragCall",
@@ -417,6 +440,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       additionalOptions: savedOptions,
       chatId: updatedChat.id,
     });
+    console.log(isGenerating, "isGenerating1");
 
     // Listen for the response from the VS Code extension
     window.addEventListener("message", (event) => {
@@ -444,9 +468,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           )
         );
         storeChat(completedChat);
+        console.log(isGenerating, "isGenerating2");
+        setIsGenerating(false);
+        setGenerationStartTime(null);
       }
-      setIsGenerating(false);
-      setGenerationStartTime(null);
     });
   };
 
@@ -493,6 +518,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteChat,
         deleteAllChats,
         setCurrentChat: fetchChatById,
+        renameChat,
 
         fetchFileContent,
         selectedFileContent,

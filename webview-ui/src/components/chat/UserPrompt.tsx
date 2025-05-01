@@ -43,7 +43,7 @@ const UserPrompt: React.FC<UserPromptProps> = ({ chat }) => {
 
         <div
           className={`markdown-content text-bodyLarge pt-1 ${
-            isExpanded ? "" : "line-clamp-4"
+            isExpanded ? "" : "line-clamp-5"
           }`}
         >
           <p className="text-[13px] text-gray-300 whitespace-pre-wrap break-words">

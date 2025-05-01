@@ -21,9 +21,10 @@ const ChatInput = () => {
     selectedFileName,
     setSelectedFileContent,
     setSelectedFileName,
+    isGenerating,
   } = useChat();
+
   const [message, setMessage] = useState("");
-  // const [contextFiles, setContextFiles] = useState<string[]>([]);
   const [contextFile, setContextFile] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -40,31 +41,26 @@ const ChatInput = () => {
       alert("⚠️ Please select a model first.");
       return;
     }
-    if (message.trim()) {
-      const contextFiles: FileModel[] = [];
-      // If a file has been picked up and its content is available, create a FileModel.
-      if (selectedFileName && selectedFileContent) {
-        const fileExtension = getFileExtension(selectedFileName);
-        const fileModel: FileModel = {
-          file_name: selectedFileName,
-          file_extension: fileExtension,
-          file_content: selectedFileContent,
-        };
-        contextFiles.push(fileModel);
-      }
-      // Call sendMessage with the message and context file(s)
-      sendMessage(message, contextFiles);
-      // Clear the message and reset file selection states
-      setMessage("");
-      setContextFile("");
-      setSelectedFileName("");
-      setSelectedFileContent("");
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
-    } else {
+    if (!message.trim()) {
       alert("⚠️ Please enter a question.");
+      return;
     }
+
+    const contextFiles: FileModel[] = [];
+    if (selectedFileName && selectedFileContent) {
+      contextFiles.push({
+        file_name: selectedFileName,
+        file_extension: getFileExtension(selectedFileName),
+        file_content: selectedFileContent,
+      });
+    }
+
+    sendMessage(message, contextFiles);
+    setMessage("");
+    setContextFile("");
+    setSelectedFileName("");
+    setSelectedFileContent("");
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -78,19 +74,9 @@ const ChatInput = () => {
     fetchFiles();
   };
 
-  // const addContextFile = (fileName: string) => {
-  //   setContextFiles([...contextFiles, fileName]);
-  // };
-
-  // const removeContextFile = (fileName: string) => {
-  //   setContextFiles(contextFiles.filter(file => file !== fileName));
-  // };
-
   // Set the context file (only one)
   // When a file is selected, call the VS Code API to fetch its content and update state.
   const addContextFile = (fileName: string) => {
-    // Request the file content from the extension.
-    // The response from the extension should update the context via the message listener.
     fetchFileContent(fileName);
     // Save the selected file name (and update contextFile state for display).
     setSelectedFileName(fileName);
@@ -198,8 +184,12 @@ const ChatInput = () => {
             onClick={handleSendMessage}
             disabled={!message.trim()}
             className={cn(
-              "codicon codicon-send text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-8 w-8 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity",
-              !message.trim() && "opacity-50 cursor-not-allowed"
+              "text-gray-400 hover:text-white hover:bg-gray-800 rounded-md h-8 w-8 absolute right-2 top-1/2 -translate-y-1/2 transition-opacity",
+              (!message.trim() || isGenerating) &&
+                "opacity-50 cursor-not-allowed",
+              (isGenerating)
+                ? "codicon codicon-stop-circle"
+                : "codicon codicon-send"
             )}
           />
         </div>

@@ -169,7 +169,7 @@ const NextjsVersion: React.FC = () => {
                         <Popover>
                           <PopoverTrigger asChild>
                             <button
-                              className="codicon codicon-settings-gear text-white hover:text-gray-300 p-1"
+                              className="codicon codicon-ellipsis text-white hover:text-gray-300 p-1"
                               disabled={globalLoading}
                             />
                           </PopoverTrigger>
