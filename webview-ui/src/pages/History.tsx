@@ -14,10 +14,10 @@ const History: React.FC = () => {
   const { chats, setCurrentChat, deleteChat, deleteAllChats, renameChat } =
     useChat();
 
-  const [confirmOpen, setConfirmOpen] = useState(false);            // popover “Clear all”
-  const [activeId, setActiveId]     = useState<string | null>(null); // chat đang mở popover
-  const [mode, setMode]             = useState<Mode>("menu");        // menu | rename
-  const [draftTitle, setDraftTitle] = useState("");                  // input rename
+  const [confirmOpen, setConfirmOpen] = useState(false); // popover “Clear all”
+  const [activeId, setActiveId] = useState<string | null>(null); // chat đang mở popover
+  const [mode, setMode] = useState<Mode>("menu"); // menu | rename
+  const [draftTitle, setDraftTitle] = useState(""); // input rename
 
   const navigate = useNavigate();
 
@@ -132,7 +132,7 @@ const History: React.FC = () => {
                     }}
                   >
                     <button
-                      className="codicon codicon-gear text-gray-400 hover:text-white ml-2"
+                      className="codicon codicon-ellipsis text-gray-400 hover:text-white ml-2"
                       title="Chat settings"
                     />
                   </PopoverTrigger>
