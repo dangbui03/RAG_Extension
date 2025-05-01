@@ -211,7 +211,7 @@ export class RagginProvider implements vscode.WebviewViewProvider {
                 fullPrompt,
                 nextJSVersion,
                 additionalOptions,
-                fileList,
+                fileList
               );
 
               // Answer is expected to be a string or an object with a 'text' property
@@ -321,6 +321,9 @@ export class RagginProvider implements vscode.WebviewViewProvider {
               `All chats have been deleted.`
             );
             await this.handleDeleteAllChats();
+            break;
+          case "renameChatTitle":
+            await this.handleRenameChatTitle(message.chatId, message.newTitle);
             break;
           default:
             throw new Error(`Unknown command: ${message.command}`);
@@ -549,6 +552,56 @@ export class RagginProvider implements vscode.WebviewViewProvider {
     } catch (error) {
       throw new Error(
         `Failed to delete all chats: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  /**
+   * Rename the title of an existing chat.
+   * – chatId:   ID của chat cần đổi tên
+   * – newTitle: Tiêu đề mới
+   */
+  private async handleRenameChatTitle(chatId: string, newTitle: string) {
+    if (!this._view) {
+      throw new Error("Webview not initialized");
+    }
+    try {
+      if (!chatId) {
+        throw new Error("No chat ID provided");
+      }
+      if (!newTitle || !newTitle.trim()) {
+        throw new Error("New title is empty");
+      }
+
+      const currentChats = this._context.globalState.get<Chat[]>("chats", []);
+      const idx = currentChats.findIndex((c) => c.id === chatId);
+      if (idx === -1) {
+        throw new Error(`Chat with ID ${chatId} not found`);
+      }
+
+      // Cập nhật tiêu đề và đưa chat lên đầu danh sách (giữ quy tắc “gần nhất”)
+      const updatedChat: Chat = {
+        ...currentChats[idx],
+        title: newTitle.trim(),
+      };
+      currentChats.splice(idx, 1);
+      currentChats.unshift(updatedChat);
+
+      await this._context.globalState.update("chats", currentChats);
+
+      // Thông báo lại cho webview
+      this._view.webview.postMessage({
+        command: "chatRenamed",
+        success: true,
+        chatId,
+        title: newTitle.trim(),
+        chats: currentChats,
+      });
+    } catch (error) {
+      throw new Error(
+        `Failed to rename chat: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );

@@ -35,14 +35,21 @@ const Models = () => {
                 {models.length === 0 ? (
                   <p className="text-xs">Not found</p>
                 ) : (
-                  models.map((m) => (
+                  models.map((model) => (
                     <button
-                      key={m}
-                      value={m}
-                      onClick={() => selectModel(m)}
+                      key={model}
+                      value={model}
+                      onClick={() => selectModel(model)}
                       className="block w-full text-left px-2 py-1 hover:bg-black"
                     >
-                      {m}
+                      <div>
+                        {model}{" "}
+                        {model === selectedModel && (
+                          <span className="text-xs text-green-500 ml-1">
+                            ✓
+                          </span>
+                        )}
+                      </div>
                     </button>
                   ))
                 )}

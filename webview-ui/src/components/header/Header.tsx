@@ -56,7 +56,7 @@ const Header: React.FC = () => {
           />
           <div
             onClick={handleNewChat}
-            className="codicon codicon-comment-discussion rounded-xl cursor-pointer"
+            className="codicon codicon-add rounded-xl cursor-pointer"
             title="New Chat"
           />
           <div

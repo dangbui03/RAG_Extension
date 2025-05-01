@@ -30,7 +30,7 @@ const NextjsVersion: React.FC = () => {
   useEffect(() => {
     // Fetch the list of versions when the component mounts
     fetchNextjsVersionList();
-  }, []);
+  }, [fetchNextjsVersionList, availableVersions, downloadedVersions]);
 
   const handleSelectVersion = (version: string) => {
     const isDownloaded = downloadedVersions.some(
@@ -125,7 +125,7 @@ const NextjsVersion: React.FC = () => {
             className="w-full text-white text-xs cursor-pointer"
             disabled={globalLoading}
           >
-            {nextjsVersion || "Select Next.js Version"}
+            {nextjsVersion || "Select Version"}
           </button>
         </PopoverTrigger>
         <PopoverContent
@@ -153,7 +153,7 @@ const NextjsVersion: React.FC = () => {
                         disabled={globalLoading}
                       >
                         <div>
-                          {version.version_name}
+                          {version.version_name}{" "}
                           {nextjsVersion === version.version_name && (
                             <span className="text-green-500 text-xs ml-1">✓</span>
                           )}
@@ -169,7 +169,7 @@ const NextjsVersion: React.FC = () => {
                         <Popover>
                           <PopoverTrigger asChild>
                             <button
-                              className="codicon codicon-settings-gear text-white hover:text-gray-300 p-1"
+                              className="codicon codicon-ellipsis text-white hover:text-gray-300 p-1"
                               disabled={globalLoading}
                             />
                           </PopoverTrigger>
