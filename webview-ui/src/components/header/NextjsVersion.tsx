@@ -30,7 +30,7 @@ const NextjsVersion: React.FC = () => {
   useEffect(() => {
     // Fetch the list of versions when the component mounts
     fetchNextjsVersionList();
-  }, [fetchNextjsVersionList, availableVersions, downloadedVersions]);
+  }, []);
 
   const handleSelectVersion = (version: string) => {
     const isDownloaded = downloadedVersions.some(
