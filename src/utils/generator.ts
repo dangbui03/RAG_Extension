@@ -11,7 +11,7 @@ export async function generateAnswer(
     var augmented_question = question;
     const output = await ollama.generate({
       model: model,
-      prompt: augmented_question,
+      prompt: augmented_question, 
       stream: true,
     });
     for await (const chunk of output) {
