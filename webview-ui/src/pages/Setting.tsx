@@ -204,11 +204,11 @@ const AdvancedSettingsPage: React.FC = () => {
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="h-full bg-chat-darker text-white text-xs
-             [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm"
+             [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm mt-1"
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-2">
-        <h1 className="text-base">Advanced Settings</h1>
+        <h1 className="text-base font-semibold">Advanced Settings</h1>
         <div
           className="codicon codicon-discard rounded-xl cursor-pointer"
           title="Go Back"

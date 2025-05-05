@@ -10,7 +10,10 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/out/src/test/suite/index",
+				"--disable-extensions", 
+				"${workspaceFolder}"
 			],
 			"timeout": 20000,
 			"outFiles": [
